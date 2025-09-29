@@ -41,6 +41,7 @@ fastapi-voting                          # Корневой каталог Poetry
 - MySQL + asyncmy
 - Redis
 - Alembic
+- Uvicorn (ASGI)
 
 ## Установка зависимостей
 Разместить конфигурационный файл с переменными среды (.env) в ``fastapi-voting/`` - в корневом каталоге
@@ -52,4 +53,13 @@ APP_PORT=<Укажите порт для процесса на хост-маши
 # Конфигурация MySQL
 MYSQL_PORT=3306
 DATABASE_URL=mysql+asyncmy://<USERNAME>:<PASSWORD>@<HOST_ADRESS>/<DB_NAME>
+```
+
+Для создания файла виртуального окружения непосредственно в корневом каталоге проекта(опционально):
+```commandline
+poetry config virtualenvs.in-project true
+```
+Для установки всех необходимых зависимостей:
+```commandline
+poetry install --no-root --sync
 ```
