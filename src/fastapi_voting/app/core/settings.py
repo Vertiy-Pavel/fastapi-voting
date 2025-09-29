@@ -1,5 +1,3 @@
-import os
-
 from pydantic_settings import BaseSettings
 
 from src.fastapi_voting.app.core.utils import get_root_path
@@ -25,5 +23,5 @@ class Settings(BaseSettings):
         env_file = get_root_path() / ".env"
 
     def get_db_url(self) -> str:
-        return f"mysql+asyncmy/{self.DB_USER}@{self.DB_PASSWORD}//{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        return f"mysql+asyncmy://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
