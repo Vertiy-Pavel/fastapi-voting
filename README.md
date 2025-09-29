@@ -39,7 +39,6 @@ fastapi-voting                          # Корневой каталог Poetry
 - FastApi
 - SQLAlchemy
 - MySQL + asyncmy
-- Redis
 - Alembic
 - Uvicorn (ASGI)
 
@@ -48,11 +47,16 @@ fastapi-voting                          # Корневой каталог Poetry
 Содержимое .env:
 ```powershell
 # Конфигурация приложения
-APP_PORT=<Укажите порт для процесса на хост-машине>
+SECRET_KEY=0
+APP_PORT=5000
 
 # Конфигурация MySQL
-MYSQL_PORT=3306
-DATABASE_URL=mysql+asyncmy://<USERNAME>:<PASSWORD>@<HOST_ADRESS>/<DB_NAME>
+DB_PORT=3306
+DB_HOST=127.0.0.1
+
+DB_USER=root
+DB_PASSWORD=0000
+DB_NAME=voting
 ```
 
 Для создания файла виртуального окружения непосредственно в корневом каталоге проекта(опционально):
