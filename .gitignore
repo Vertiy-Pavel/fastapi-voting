@@ -5,3 +5,5 @@
 /logs/
 
 /.idea/
+
+__pycache__/
