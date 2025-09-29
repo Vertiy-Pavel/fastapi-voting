@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
 from src.fastapi_voting.app.models.base import Base
+from src.fastapi_voting.app.models.user import User
 
 from src.fastapi_voting.app.core.settings import Settings
 
