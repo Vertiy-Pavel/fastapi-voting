@@ -67,3 +67,9 @@ poetry config virtualenvs.in-project true
 ```commandline
 poetry install --no-root --sync
 ```
+
+## Shell-инструкции CLI
+Корректное исполнение инструкций оболочкой требует пребывания в корне проекта на момент применения инструкции
+```commandline
+poetry run db init - сброс таблиц, применение миграций и наполнение тестовым контентом
+```
