@@ -10,5 +10,5 @@ logging.getLogger("fastapi-voting")
 settings = Settings()
 
 # --- Инициализация движка и фабрики сессий ---
-engine = create_async_engine(settings.get_db_url(), echo=True)
-AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
+async_engine = create_async_engine(settings.get_db_url(), echo=True)
+AsyncSessionLocal = async_sessionmaker(async_engine, expire_on_commit=False)
