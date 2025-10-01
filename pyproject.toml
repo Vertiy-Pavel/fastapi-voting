@@ -25,6 +25,7 @@ uvicorn = "^0.35.0"
 asyncmy = "^0.2.10"
 pydantic-settings = "^2.11.0"
 typer = "^0.19.2"
+argon2-cffi = "^25.1.0"
 
 [tool.poetry.scripts]
 db="src.fastapi_voting.app.poetry_cli.main.db:db"
