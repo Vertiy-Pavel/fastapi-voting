@@ -21,11 +21,15 @@ class OutputCreateUserSchema(BaseModel):
     phone: str
     email: str
 
+    class Config:
+        from_attributes = True
+
 
 # --- Схемы для авторизации пользователя ---
 class InputLoginUserSchema(BaseModel):
     email: str
     password: str
+    remember_me: bool
 
 class OutputLoginUserSchema(BaseModel):
     id: int
@@ -35,4 +39,17 @@ class OutputLoginUserSchema(BaseModel):
     phone: str
     email: str
     role_id: int
+
+    class Config:
+        from_attributes = True
+
+class TokenDetails(BaseModel):
+    access_token: str
+    refresh_token: str | None
+
+
+class LoginResponseSchema(BaseModel):
+    user: OutputLoginUserSchema
+    tokens: TokenDetails
+
 

@@ -6,7 +6,10 @@ from src.fastapi_voting.app.core.utils import get_root_path
 class Settings(BaseSettings):
 
     # --- Конфигурация приложения ---
-    SECRET_KEY: str
+    JWT_SECRET_KEY: str
+    JWT_ACCESS_EXPIRE_MINUTES: int
+    Jwt_REFRESH_EXPIRE_DAYS: int
+
     APP_HOST: str
     APP_PORT: int
 
