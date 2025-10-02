@@ -12,7 +12,7 @@ class UserRepo(Base):
     def __init__(self, session):
         super().__init__(User, session)
 
-    async def add_user(self, data: dict):
+    async def add_user(self, data: dict) -> User:
         password = data.pop("password")
         user = User(**data)
         user.set_hash_password(password)
