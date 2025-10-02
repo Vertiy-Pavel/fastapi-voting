@@ -29,4 +29,8 @@ class User(Base):
 
     def verify_password(self, password: str) -> bool:
         ph = argon2.PasswordHasher()
-        return ph.verify(self.password_hash, password)
+
+        try:
+            return ph.verify(self.password_hash, password)
+        except argon2.exceptions.VerifyMismatchError:
+            return False

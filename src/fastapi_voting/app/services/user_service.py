@@ -1,8 +1,15 @@
+import logging
+
 from fastapi import HTTPException
 
 from src.fastapi_voting.app.repositories.user_repo import UserRepo
 
-from src.fastapi_voting.app.schemas.user_schema import InputCreateUserSchema
+from src.fastapi_voting.app.schemas.user_schema import InputCreateUserSchema, InputLoginUserSchema
+
+from src.fastapi_voting.app.models.user import User
+
+
+logger = logging.getLogger("fastapi-voting")
 
 
 class UserService:
@@ -10,15 +17,15 @@ class UserService:
         self.user_repo = user_repo
 
 
-    async def register(self, data: InputCreateUserSchema):
+    async def register(self, data: InputCreateUserSchema) -> User:
         """Отвечает за регистрацию нового пользователя"""
         # TODO: Валидация почты и телефона
         # --- Инициализация и извлечение первичных данных ---
-        user_data = data.model_dump()
+        user_data: dict = data.model_dump()
 
         # --- Проверка на уникальность пользователя ---
-        user_by_phone = await self.user_repo.get_by_item(column=self.user_repo.model.phone, item=user_data["phone"])
-        user_by_email = await self.user_repo.get_by_item(column=self.user_repo.model.email, item=user_data["email"])
+        user_by_phone: str = await self.user_repo.get_by_item(column=self.user_repo.model.phone, item=user_data["phone"])
+        user_by_email: str = await self.user_repo.get_by_item(column=self.user_repo.model.email, item=user_data["email"])
 
         if user_by_phone:
             raise HTTPException(status_code=409, detail="Пользователь с таким номером телефона уже существует")
@@ -27,7 +34,30 @@ class UserService:
             raise HTTPException(status_code=409, detail="Пользователь с таким адресом электронной почты уже существует")
 
         # --- Регистрация пользователя ---
-        result = await self.user_repo.add_user(user_data)
+        result: User = await self.user_repo.add_user(user_data)
 
         # --- Формирование ответа ---
         return result
+
+
+    async def login(self, data: InputLoginUserSchema) -> User:
+        """Отвечает за авторизацию пользователя"""
+        # TODO: Валидация почты и телефона
+        # TODO: Присвоение роли в системе
+
+        # --- Инициализация и извлечение первичных данных ---
+        data: dict = data.model_dump()
+
+        # --- Проверки на существование пользователя и корректность пароля ---
+        user_by_email: User = await self.user_repo.get_by_item(column=self.user_repo.model.email, item=data["email"])
+        if not user_by_email:
+            logger.debug(f"Пользователя с почтой <{data['email']}> не существует")
+            raise HTTPException(status_code=401, detail="Неверные учётные данные")
+
+        current_password_is_valid: bool = user_by_email.verify_password(password=data["password"])
+        if not current_password_is_valid:
+            logger.debug(f"Введён неверный пароль для пользователя с ID {user_by_email.id}")
+            raise HTTPException(status_code=401, detail=f"Неверные учётные данные")
+
+        # --- Формирование ответа ---
+        return user_by_email
