@@ -24,14 +24,16 @@ class UserService:
         user_data: dict = data.model_dump()
 
         # --- Проверка на уникальность пользователя ---
-        user_by_phone: str = await self.user_repo.get_by_item(column=self.user_repo.model.phone, item=user_data["phone"])
-        user_by_email: str = await self.user_repo.get_by_item(column=self.user_repo.model.email, item=user_data["email"])
+        user_by_phone: User = await self.user_repo.get_by_item(column=self.user_repo.model.phone, item=user_data["phone"])
+        user_by_email: User = await self.user_repo.get_by_item(column=self.user_repo.model.email, item=user_data["email"])
 
         if user_by_phone:
-            raise HTTPException(status_code=409, detail="Пользователь с таким номером телефона уже существует")
+            logger.debug(f"Пользователь с номером телефона <{user_data['phone']}> уже существует")
+            raise HTTPException(status_code=401, detail="Некорректные почта или телефон")
 
         if user_by_email:
-            raise HTTPException(status_code=409, detail="Пользователь с таким адресом электронной почты уже существует")
+            logger.debug(f"Пользователь с таким адресом электронной почты <{user_data['email']}> уже существует")
+            raise HTTPException(status_code=401, detail="Некорректные почта или телефон")
 
         # --- Регистрация пользователя ---
         result: User = await self.user_repo.add_user(user_data)
@@ -43,7 +45,7 @@ class UserService:
     async def login(self, data: InputLoginUserSchema) -> User:
         """Отвечает за авторизацию пользователя"""
         # TODO: Валидация почты и телефона
-        # TODO: Присвоение роли в системе
+        # TODO: JWT, запомнить меня
 
         # --- Инициализация и извлечение первичных данных ---
         data: dict = data.model_dump()
