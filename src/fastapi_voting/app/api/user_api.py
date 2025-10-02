@@ -5,7 +5,7 @@ from src.fastapi_voting.app.di.annotations import UserServiceAnnotation
 from src.fastapi_voting.app.services.user_service import UserService
 
 from src.fastapi_voting.app.schemas.user_schema import InputCreateUserSchema, OutputCreateUserSchema
-
+from src.fastapi_voting.app.schemas.user_schema import InputLoginUserSchema, OutputLoginUserSchema
 
 # --- Конфигурация обработчика маршрутов, связанных с пользователями ---
 user_router = APIRouter(
@@ -21,3 +21,13 @@ async def user_register(
     # TODO: Контроль сессий с помощью JWT
     registered_user = await user_service.register(data)
     return registered_user
+
+
+@user_router.post("/login", response_model=OutputLoginUserSchema)
+async def user_login(
+        data: InputLoginUserSchema,
+        user_service: UserServiceAnnotation
+):
+    # TODO: Контроль сессий с помощью JWT
+    logined_user = await user_service.login(data)
+    return logined_user
