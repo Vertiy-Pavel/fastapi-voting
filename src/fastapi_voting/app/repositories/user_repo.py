@@ -4,7 +4,7 @@ from src.fastapi_voting.app.repositories.base_repo import Base
 
 from src.fastapi_voting.app.models.user import User
 
-from src.fastapi_voting.app.schemas.user_schema import InputUserSchema
+from src.fastapi_voting.app.schemas.user_schema import InputCreateUserSchema
 
 
 class UserRepo(Base):
@@ -13,14 +13,14 @@ class UserRepo(Base):
         super().__init__(User, session)
 
     async def add_user(self, data: dict):
-        # TODO: Реализовать проверку на существующего пользователя
-        # TODO: Уникальность записи по почте и телефону
-        # TODO: Валидация почты и телефона
-
         password = data.pop("password")
         user = User(**data)
         user.set_hash_password(password)
 
         self.session.add(user)
         await self.session.commit()
+
+        return user
+
+
 
