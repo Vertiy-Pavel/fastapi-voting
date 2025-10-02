@@ -4,7 +4,7 @@ from fastapi import Body
 from src.fastapi_voting.app.di.annotations import UserServiceAnnotation
 from src.fastapi_voting.app.services.user_service import UserService
 
-from src.fastapi_voting.app.schemas.user_schema import InputUserSchema
+from src.fastapi_voting.app.schemas.user_schema import InputCreateUserSchema, OutputCreateUserSchema
 
 
 # --- Конфигурация обработчика маршрутов, связанных с пользователями ---
@@ -13,9 +13,11 @@ user_router = APIRouter(
     tags=["user"]
 )
 
-@user_router.post("/register")
+@user_router.post("/register", response_model=OutputCreateUserSchema)
 async def user_register(
-        user_service: UserServiceAnnotation,
-        data: InputUserSchema
+        data: InputCreateUserSchema,
+        user_service: UserServiceAnnotation
 ):
-    await user_service.register(data)
+    # TODO: Контроль сессий с помощью JWT
+    registered_user = await user_service.register(data)
+    return registered_user
