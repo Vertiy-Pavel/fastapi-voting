@@ -11,6 +11,7 @@ class InputCreateUserSchema(BaseModel):
     phone: str
     email: str
     password: str
+    role_id: int
 
 class OutputCreateUserSchema(BaseModel):
     id: int
@@ -25,7 +26,6 @@ class OutputCreateUserSchema(BaseModel):
 class InputLoginUserSchema(BaseModel):
     email: str
     password: str
-    role_id: str
 
 class OutputLoginUserSchema(BaseModel):
     id: int
@@ -34,4 +34,5 @@ class OutputLoginUserSchema(BaseModel):
     surname: str
     phone: str
     email: str
+    role_id: int
 
