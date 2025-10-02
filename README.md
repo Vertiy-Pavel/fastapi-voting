@@ -47,16 +47,21 @@ fastapi-voting                          # Корневой каталог Poetry
 Содержимое .env:
 ```powershell
 # Конфигурация приложения
-SECRET_KEY=0
+JWT_SECRET_KEY=c05da040fc7bd6f8f8964405f94d6f4b
+JWT_ACCESS_EXPIRE_MINUTES=120
+JWT_REFRESH_EXPIRE_DAYS=1
+
+APP_HOST=127.0.0.1
 APP_PORT=5000
 
 # Конфигурация MySQL
-DB_PORT=3306
 DB_HOST=127.0.0.1
+DB_PORT=3306
 
 DB_USER=root
 DB_PASSWORD=0000
 DB_NAME=voting
+
 ```
 
 Для создания файла виртуального окружения непосредственно в корневом каталоге проекта(опционально):
