@@ -8,12 +8,11 @@ from alembic.config import Config
 
 from src.fastapi_voting.app.db.db_core import async_engine
 
-from src.fastapi_voting.app.models.user import User
+
 from src.fastapi_voting.app.models.base import Base
+from src.fastapi_voting.app.models import user, voting
 
-from src.fastapi_voting.app.core.utils import get_root_path
-
-from src.fastapi_voting.app.models.user import User
+from src.fastapi_voting.app.core.utils.paths import get_root_path
 
 
 # --- Инициализация конфигураций ---
@@ -29,7 +28,7 @@ def init() -> None:
 
 # --- Вторичные синхронные функции ---
 def alembic_sync() -> None:
-    command.stamp(config=alembic_cfg, revision="base")
+    command.downgrade(alembic_cfg, "base")
     command.upgrade(config=alembic_cfg, revision="head")
 
 
@@ -37,7 +36,6 @@ async def init_db() -> None:
     """Пересоздаёт таблицы и наполняет моковыми данными"""
 
     async with async_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
         await asyncio.to_thread(alembic_sync)
 
         # --- Операции наполнения контентом ---
