@@ -1,9 +1,12 @@
+from functools import lru_cache
+
 from pydantic_settings import BaseSettings
 
 from src.fastapi_voting.app.core.utils import get_root_path
 
 
 class Settings(BaseSettings):
+    # TODO: Предупредить цикличные импорты класса
 
     # --- Конфигурация приложения ---
     JWT_SECRET_KEY: str
@@ -28,3 +31,7 @@ class Settings(BaseSettings):
     def get_db_url(self) -> str:
         return f"mysql+asyncmy://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
+
+@lru_cache()
+def get_settings():
+    return Settings()

@@ -27,7 +27,6 @@ async def user_login(
         data: InputLoginUserSchema,
         user_service: UserServiceAnnotation
 ):
-    # TODO: Контроль сессий с помощью JWT
     # --- Инициализация данных ---
     remember_flag: bool = data.model_dump().get("remember_me", False)
 

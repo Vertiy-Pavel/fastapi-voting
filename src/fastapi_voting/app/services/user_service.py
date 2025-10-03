@@ -19,7 +19,7 @@ class UserService:
 
     async def register(self, data: InputCreateUserSchema) -> User:
         """Отвечает за регистрацию нового пользователя"""
-        # TODO: Валидация почты и телефона
+
         # --- Инициализация и извлечение первичных данных ---
         user_data: dict = data.model_dump()
 
@@ -44,8 +44,6 @@ class UserService:
 
     async def login(self, data: InputLoginUserSchema) -> User:
         """Отвечает за авторизацию пользователя"""
-        # TODO: Валидация почты и телефона
-        # TODO: JWT, запомнить меня
 
         # --- Инициализация и извлечение первичных данных ---
         data: dict = data.model_dump()

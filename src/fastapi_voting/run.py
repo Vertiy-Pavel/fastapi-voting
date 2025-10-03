@@ -2,7 +2,7 @@ import logging
 import uvicorn
 
 from src.fastapi_voting.app.main import fastapi_app
-from src.fastapi_voting.app.core.settings import Settings
+from src.fastapi_voting.app.core.settings import get_settings
 
 from src.fastapi_voting.app.core.log_config import LogSetup
 
@@ -10,7 +10,7 @@ from src.fastapi_voting.app.core.log_config import LogSetup
 LogSetup()
 logger = logging.getLogger('fastapi-voting')
 
-settings = Settings()
+settings = get_settings()
 
 
 def main():

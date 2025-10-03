@@ -10,13 +10,13 @@ from alembic import context
 from src.fastapi_voting.app.models.base import Base
 from src.fastapi_voting.app.models.user import User
 
-from src.fastapi_voting.app.core.settings import Settings
+from src.fastapi_voting.app.core.settings import get_settings
 
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-settings = Settings()
+settings = get_settings()
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

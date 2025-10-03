@@ -14,12 +14,12 @@ from src.fastapi_voting.app.repositories.user_repo import UserRepo
 
 from src.fastapi_voting.app.services.user_service import UserService
 
-from src.fastapi_voting.app.core.settings import Settings
+from src.fastapi_voting.app.core.settings import get_settings
 
 
 # --- Определение первичных конфигураций ---
 logger = logging.getLogger("fastapi-voting")
-settings = Settings()
+settings = get_settings()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 

@@ -13,8 +13,8 @@ def get_root_path() -> Path:
 def create_tokens(user_id: int, refresh: bool) -> dict:
     """Формирование JWT-токенов"""
 
-    from src.fastapi_voting.app.core.settings import Settings
-    settings = Settings()
+    from src.fastapi_voting.app.core.settings import get_settings
+    settings = get_settings()
 
     access_payload = {"user_id": user_id, "token_type": "access"}
     access_token: str = jwt.encode(access_payload, settings.JWT_SECRET_KEY, algorithm="HS256")
