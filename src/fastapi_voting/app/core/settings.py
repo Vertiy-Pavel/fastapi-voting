@@ -6,7 +6,6 @@ from src.fastapi_voting.app.core.utils.paths import get_root_path
 
 
 class Settings(BaseSettings):
-    # TODO: Предупредить цикличные импорты класса
 
     # --- Конфигурация приложения ---
     JWT_SECRET_KEY: str
