@@ -6,7 +6,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 from pathlib import Path
 
-from src.fastapi_voting.app.core.utils import get_root_path
+from src.fastapi_voting.app.core.utils.paths import get_root_path
 
 
 def get_time():

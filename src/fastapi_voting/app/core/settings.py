@@ -2,7 +2,7 @@ from functools import lru_cache
 
 from pydantic_settings import BaseSettings
 
-from src.fastapi_voting.app.core.utils import get_root_path
+from src.fastapi_voting.app.core.utils.paths import get_root_path
 
 
 class Settings(BaseSettings):
