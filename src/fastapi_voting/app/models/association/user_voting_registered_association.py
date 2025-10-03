@@ -3,7 +3,7 @@ from sqlalchemy import Table, Column, ForeignKey, Integer
 from src.fastapi_voting.app.models.base import Base
 
 
-registered_user_voting_association_table = Table(
+user_voting_registered_association_table = Table(
     "registered_user_association",
     Base.metadata,
 

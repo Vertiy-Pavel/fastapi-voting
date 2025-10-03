@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.fastapi_voting.app.models.base import Base
 
-from src.fastapi_voting.app.models.association.user_voting_registered_association import registered_user_voting_association_table
+from src.fastapi_voting.app.models.association.user_voting_registered_association import user_voting_registered_association_table
 
 class Voting(Base):
     """ОРМ-модель. Описывает запись о голосовании"""
@@ -45,7 +45,7 @@ class Voting(Base):
 
     votes: Mapped[List['Vote']] = relationship(back_populates="voting")
 
-    registered_user: Mapped[List['User']] = relationship(secondary=registered_user_voting_association_table, back_populates="votings")
+    registered_user: Mapped[List['User']] = relationship(secondary=user_voting_registered_association_table, back_populates="votings")
 
     # TODO: Department-relationship, Model
     # TODO: Question-relationship, Model
