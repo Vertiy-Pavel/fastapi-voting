@@ -70,8 +70,19 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
+def process_revision_directives(context, revision, directives):
+    script = directives[0]
+    if script.upgrade_ops.is_empty():
+        directives[:] = []
+        print("Изменения не обнаружены - миграция не создана")
+
+
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        process_revision_directives=process_revision_directives
+    )
 
     with context.begin_transaction():
         context.run_migrations()
