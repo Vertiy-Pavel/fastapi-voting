@@ -9,7 +9,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.fastapi_voting.app.models.base import Base
 
-from src.fastapi_voting.app.models.association.user_voting_registered_association import registered_user_voting_association_table
+from src.fastapi_voting.app.models.association.user_voting_registered_association import user_voting_registered_association_table
+from src.fastapi_voting.app.models.association.user_department_association import user_department_association_table
 
 from src.fastapi_voting.app.core.enums import RolesEnum
 
@@ -39,11 +40,13 @@ class User(Base):
     updated_at: Mapped[timezone] = mapped_column(TIMESTAMP(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     # --- ORM-связи ---
+    manage_department: Mapped['Department'] = relationship(back_populates="head_of_department")
+
     creator_votings: Mapped[List['Voting']] = relationship(back_populates="creator")
     votes_made: Mapped[List["Vote"]] = relationship(back_populates="author")
 
-    votings: Mapped[List['Voting']] = relationship(secondary=registered_user_voting_association_table, back_populates="registered_users")
-
+    departments: Mapped[List['Department']] = relationship(secondary=user_department_association_table, back_populates="users")
+    votings: Mapped[List['Voting']] = relationship(secondary=user_voting_registered_association_table, back_populates="registered_users")
 
 
     def set_hash_password(self, password: str) -> None:
