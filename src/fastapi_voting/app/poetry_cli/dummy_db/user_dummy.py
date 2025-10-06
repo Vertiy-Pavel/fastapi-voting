@@ -1,46 +1,44 @@
-import asyncio
-import typer
+import faker
+import random
 
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from alembic import command
-from alembic.config import Config
+from src.fastapi_voting.app.models.user import User
 
-from src.fastapi_voting.app.db.db_core import async_engine
-
-
-from src.fastapi_voting.app.models.base import Base
-from src.fastapi_voting.app.models import user, voting
-
-from src.fastapi_voting.app.core.utils.paths import get_root_path
+from src.fastapi_voting.app.core.enums import RolesEnum
 
 
-# --- Инициализация конфигураций ---
-alembic_cfg = Config( str(get_root_path() / "alembic.ini") )
-dummy_typer = typer.Typer()
+# --- Инициализация первичных данных ---
+faker = faker.Faker()
+random = random.Random()
 
 
-# --- Точка входа ---
-@dummy_typer.command()
-def init() -> None:
-    asyncio.run(init_db())
+# --- Скрипты-генераторы ---
+async def get_fake_users(session: AsyncSession) -> tuple:
+    roles = list(RolesEnum)
+    users = []
+    result = []
 
+    for i in range(30):
+        role_choice = random.choice(roles)
+        user = User(
+            first_name=faker.first_name(),
+            last_name=faker.last_name(),
+            surname=faker.first_name(),
 
-# --- Вторичные синхронные функции ---
-def alembic_sync() -> None:
-    command.downgrade(alembic_cfg, "base")
-    command.upgrade(config=alembic_cfg, revision="head")
+            phone=faker.phone_number(),
+            email=faker.email(),
 
+            # TODO: creator_votings
+            # TODO: votes_made
+            # TODO: votings
 
-async def init_db() -> None:
-    """Пересоздаёт таблицы и наполняет моковыми данными"""
+            role=role_choice,
+        )
+        user.set_hash_password(password="0000")
+        users.append(user)
 
-    async with async_engine.begin() as conn:
-        await asyncio.to_thread(alembic_sync)
+    session.add_all(users)
 
-        # --- Операции наполнения контентом ---
-
-
-
-if __name__ == '__main__':
-    asyncio.run(init_db())
+    return session, users
