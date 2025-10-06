@@ -9,7 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.fastapi_voting.app.models.base import Base
 
-from src.fastapi_voting.app.models.association.user_voting_registered_association import user_voting_registered_association_table
+from src.fastapi_voting.app.models.association.user_voting_registered_association import users_voting_registered_association_table
 from src.fastapi_voting.app.models.association.user_department_association import user_department_association_table
 
 from src.fastapi_voting.app.core.enums import RolesEnum
@@ -34,19 +34,20 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255))
     is_email_verified: Mapped[bool] = mapped_column(default=False)
 
-    role_id: Mapped[RolesEnum] = mapped_column(Enum(RolesEnum), default=RolesEnum.EMPLOYEE)
+    role: Mapped[RolesEnum] = mapped_column(Enum(RolesEnum), default=RolesEnum.EMPLOYEE)
 
     created_at: Mapped[timezone] = mapped_column(TIMESTAMP(timezone=True), default=datetime.now(timezone.utc))
     updated_at: Mapped[timezone] = mapped_column(TIMESTAMP(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     # --- ORM-связи ---
-    manage_department: Mapped['Department'] = relationship(back_populates="head_of_department")
+    manage_department: Mapped['Department'] = relationship(back_populates="head_of_department", cascade="all, delete-orphan")
 
     creator_votings: Mapped[List['Voting']] = relationship(back_populates="creator")
     votes_made: Mapped[List["Vote"]] = relationship(back_populates="author")
 
     departments: Mapped[List['Department']] = relationship(secondary=user_department_association_table, back_populates="users")
-    votings: Mapped[List['Voting']] = relationship(secondary=user_voting_registered_association_table, back_populates="registered_users")
+    votings: Mapped[List['Voting']] = relationship(secondary=users_voting_registered_association_table, back_populates="registered_users")
+
 
 
     def set_hash_password(self, password: str) -> None:

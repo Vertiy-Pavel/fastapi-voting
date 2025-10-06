@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from typing import List
 
+from alembic.testing import resolve_lambda
 from sqlalchemy import ForeignKey
 from sqlalchemy.types import String, TIMESTAMP
 from sqlalchemy.orm import Mapped, relationship, mapped_column
@@ -28,13 +29,14 @@ class Department(Base):
     updated_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     # --- Внешние ключи ---
-    parent_id: Mapped[int] = mapped_column(ForeignKey("departments.id", ondelete="CASCADE"))
-    head_of_department_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), unique=True)
+    parent_id: Mapped[int | None] = mapped_column(ForeignKey("departments.id", ondelete="CASCADE"))
+    head_of_department_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), unique=True)
 
     # --- ОРМ-связи ---
-    parent: Mapped['Department'] = relationship(back_populates="children", cascade="all, delete-orphan")
-    head_of_department: Mapped['User'] = relationship(back_populates="manage_department", cascade="all, delete-orphan")
+    head_of_department: Mapped['User'] = relationship(back_populates="manage_department")
 
-    children: Mapped[List['Department']] = relationship(back_populates="parent")
+    parent: Mapped['Department'] = relationship(remote_side=[id], back_populates="children")
+
+    children: Mapped[List['Department']] = relationship(back_populates="parent", cascade="all, delete-orphan")
 
     users: Mapped[List['User']] = relationship(secondary=user_department_association_table, back_populates="departments")

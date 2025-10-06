@@ -24,7 +24,7 @@ class Vote(Base):
 
     # --- ОРМ-связи ---
     author: Mapped["User"] = relationship(back_populates="votes_made", foreign_keys=[author_id])
-    voting: Mapped["Voting"] = relationship(back_populates="votes", cascade="all, delete-orphan")
+    voting: Mapped["Voting"] = relationship(back_populates="votes")
 
     # TODO: Question-relationship
     # TODO: Option-relationship
