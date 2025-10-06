@@ -1,6 +1,6 @@
 import typer
 
-from src.fastapi_voting.app.poetry_cli.dummy_db.user_dummy import dummy_typer
+from src.fastapi_voting.app.poetry_cli.dummy_db.entrypoint_dummy import dummy_typer
 
 
 db = typer.Typer()
