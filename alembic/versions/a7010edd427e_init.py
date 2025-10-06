@@ -30,7 +30,7 @@ def upgrade() -> None:
     sa.Column('email', sa.String(length=120), nullable=False),
     sa.Column('password_hash', sa.String(length=255), nullable=False),
     sa.Column('is_email_verified', sa.Boolean(), nullable=False),
-    sa.Column('role_id', sa.Enum('CHIEF', 'EMPLOYEE', name='rolesenum'), nullable=False),
+    sa.Column('role', sa.Enum('CHIEF', 'EMPLOYEE', name='rolesenum'), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
     sa.PrimaryKeyConstraint('id'),
