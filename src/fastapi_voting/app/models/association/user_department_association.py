@@ -2,8 +2,8 @@ from sqlalchemy import Table, Column, ForeignKey, Integer
 
 from src.fastapi_voting.app.models.base import Base
 
-user_department_association_table = Table(
-    "user_department_association",
+users_department_association_table = Table(
+    "users_department_association",
     Base.metadata,
 
     Column("user_id", Integer, ForeignKey("users.id")),

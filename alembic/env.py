@@ -15,7 +15,7 @@ from src.fastapi_voting.app.models.vote import Vote
 from src.fastapi_voting.app.models.department import Department
 
 from src.fastapi_voting.app.models.association.user_voting_registered_association import users_voting_registered_association_table
-from src.fastapi_voting.app.models.association.user_department_association import user_department_association_table
+from src.fastapi_voting.app.models.association.user_department_association import users_department_association_table
 
 from src.fastapi_voting.app.core.settings import get_settings
 

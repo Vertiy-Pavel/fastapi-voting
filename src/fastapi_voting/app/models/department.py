@@ -9,7 +9,7 @@ from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from src.fastapi_voting.app.models.base import Base
 
-from src.fastapi_voting.app.models.association.user_department_association import user_department_association_table
+from src.fastapi_voting.app.models.association.user_department_association import users_department_association_table
 
 
 class Department(Base):
@@ -39,4 +39,4 @@ class Department(Base):
 
     children: Mapped[List['Department']] = relationship(back_populates="parent", cascade="all, delete-orphan")
 
-    users: Mapped[List['User']] = relationship(secondary=user_department_association_table, back_populates="departments")
+    users: Mapped[List['User']] = relationship(secondary=users_department_association_table, back_populates="departments")
