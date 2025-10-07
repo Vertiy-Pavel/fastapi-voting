@@ -20,7 +20,7 @@ async def get_fake_users(session: AsyncSession) -> tuple:
     users = []
     result = []
 
-    for i in range(30):
+    for i in range(50):
         role_choice = random.choice(roles)
         user = User(
             first_name=faker.first_name(),
