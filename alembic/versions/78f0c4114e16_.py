@@ -31,7 +31,7 @@ def upgrade() -> None:
     sa.Column('parent_id', sa.Integer(), nullable=True),
     sa.Column('head_of_department_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['head_of_department_id'], ['users.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['parent_id'], ['departments.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['parent_id'], ['departments.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('head_of_department_id'),
     sa.UniqueConstraint('name')
