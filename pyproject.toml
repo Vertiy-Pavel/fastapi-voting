@@ -28,9 +28,11 @@ typer = "^0.19.2"
 argon2-cffi = "^25.1.0"
 python-jose = "^3.5.0"
 faker = "^37.8.0"
+cryptography = "^46.0.2"
 
 [tool.poetry.scripts]
 db="src.fastapi_voting.app.poetry_cli.main.db:db"
+app="src.fastapi_voting.app.poetry_cli.main.app:app"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
