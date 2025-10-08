@@ -1,0 +1,39 @@
+[project]
+name = "fastapi-voting"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Lyric",email = "vertiipavel0684@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+
+[tool.poetry]
+packages = [
+    {include = "fastapi_voting", from = "src"},
+]
+include = [
+    "README.md"
+]
+
+[tool.poetry.dependencies]
+python="3.11.9"
+fastapi = "^0.116.1"
+sqlalchemy = "^2.0.43"
+alembic = "^1.16.5"
+uvicorn = "^0.35.0"
+asyncmy = "^0.2.10"
+pydantic-settings = "^2.11.0"
+typer = "^0.19.2"
+argon2-cffi = "^25.1.0"
+python-jose = "^3.5.0"
+faker = "^37.8.0"
+cryptography = "^46.0.2"
+
+[tool.poetry.scripts]
+db="src.fastapi_voting.app.poetry_cli.main.db:db"
+app="src.fastapi_voting.app.poetry_cli.main.app:app"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
