@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from logging import getLogger
 
+from starlette.middleware.cors import CORSMiddleware
+
 from src.fastapi_voting.app.api.user_api import user_router
 from src.fastapi_voting.app.api.department_api import department_router
 
@@ -8,6 +10,7 @@ from src.fastapi_voting.app.api.department_api import department_router
 # --- Создание логера и приложения FastApi ---
 logger = getLogger('fastapi-voting')
 
+# ---Инициализация приложения ---
 fastapi_app = FastAPI(
     title='FastAPI-Voting',
     version='1.0',
@@ -15,6 +18,17 @@ fastapi_app = FastAPI(
     docs_url='/docs',
     redoc_url='/redoc',
 )
+# --- Конфигурация CORS ---
+fastapi_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"]
+)
+
+# --- Вторичные данные ---
 v1_url_prefix = '/api/v1'
 
 # --- Регистрация обработчиков маршрутов ---
