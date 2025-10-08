@@ -8,9 +8,11 @@ from fastapi.security import OAuth2PasswordBearer
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from fastapi_voting.app.services.department_service import DepartmentService
 from src.fastapi_voting.app.db.db_core import AsyncSessionLocal
 
 from src.fastapi_voting.app.repositories.user_repo import UserRepo
+from fastapi_voting.app.repositories.department_repo import DepartmentRepo
 
 from src.fastapi_voting.app.services.user_service import UserService
 
@@ -51,7 +53,13 @@ async def get_encode_jwt(token: str = Depends(oauth2_scheme)) -> int:
 async def get_user_repo(db: AsyncSession = Depends(get_db)):
     return UserRepo(db)
 
+async def get_department_repo(db: AsyncSession = Depends(get_db)):
+    return DepartmentRepo(db)
+
 
 # --- Зависимости-сервисы ---
 async def get_user_service(repo: UserRepo = Depends(get_user_repo)):
     return UserService(repo)
+
+async def get_department_service(repo: DepartmentRepo = Depends(get_department_repo)):
+    return DepartmentService(repo)
