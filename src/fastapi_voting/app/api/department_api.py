@@ -14,5 +14,5 @@ department_router = APIRouter(
 # --- Обработчики ---
 @department_router.get(path="/departments", response_model=list[ResponseAllDepartmentsSchema])
 async def get_all_departments(departments_service: DepartmentServiceAnnotation):
-    departments = await departments_service.department_repo.get_all_departments()
+    departments = await departments_service.get_departments()
     return departments

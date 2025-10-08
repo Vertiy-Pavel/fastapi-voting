@@ -14,6 +14,6 @@ class DepartmentService:
         self.department_repo = department_repo
 
 
-    async def get_all_departments(self):
+    async def get_departments(self):
         departments = await self.department_repo.get_all_departments()
-        return ResponseAllDepartmentsSchema.model_validate(departments)
+        return departments

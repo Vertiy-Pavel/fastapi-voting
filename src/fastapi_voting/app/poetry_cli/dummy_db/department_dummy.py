@@ -21,7 +21,6 @@ async def get_fake_departments(session: AsyncSession, users: list[User]) -> tupl
     """Генерирует список отделов. Кол-во отделов напрямую зависит от кол-ва шефов по паритету."""
 
     async def get_tree_departments(root_dep: Department, employeers: list[User], chiefs: set[User]):
-        # TODO: Реализовать рекурсивную генерацию дерева связей дочерних отделов
         """
         Рекурсивно генерирует дерево связей.
         Args:
@@ -36,7 +35,7 @@ async def get_fake_departments(session: AsyncSession, users: list[User]) -> tupl
 
         # --- Выборка сотрудников ---
         l_head_root_depart_choice = chiefs.pop()
-        l_employee_root_depart_sample = random.sample(employeers, random.randint(1, len(employeers)))
+        l_employee_root_depart_sample = random.sample(employeers, random.randint(1, len(employeers))) # TODO: Список сотрудников может быть пустым, ошибка длины
 
         # --- Создание родительского отдела ---
         l_department = Department(
