@@ -1,7 +1,6 @@
 import logging
 import uvicorn
 
-from src.fastapi_voting.app.main import fastapi_app
 from src.fastapi_voting.app.core.settings import get_settings
 
 from src.fastapi_voting.app.core.log_config import LogSetup
@@ -13,13 +12,17 @@ logger = logging.getLogger('fastapi-voting')
 settings = get_settings()
 
 
-def main():
+def main(reload: bool = False, host: str = settings.APP_HOST):
     logger.info("Запуск приложения fastapi-voting")
 
     uvicorn.run(
-        fastapi_app,
-        host=settings.APP_HOST,
+        "src.fastapi_voting.app.main:fastapi_app",
+        host=host,
         port=settings.APP_PORT,
+
+        reload=reload,
+        reload_dirs=["src/"],
+        reload_excludes=["*.log", "*.tmp", "__pycache__"]
     )
 
 
