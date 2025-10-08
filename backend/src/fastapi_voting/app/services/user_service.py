@@ -8,6 +8,8 @@ from src.fastapi_voting.app.schemas.user_schema import InputCreateUserSchema, In
 
 from src.fastapi_voting.app.models.user import User
 
+from src.fastapi_voting.app.core.enums import RolesEnum
+
 
 logger = logging.getLogger("fastapi-voting")
 
@@ -22,6 +24,7 @@ class UserService:
 
         # --- Инициализация и извлечение первичных данных ---
         user_data: dict = data.model_dump()
+        user_data['role'] = RolesEnum(user_data['role'])
 
         # --- Проверка на уникальность пользователя ---
         user_by_phone: User = await self.user_repo.get_by_item(column=self.user_repo.model.phone, item=user_data["phone"])
@@ -42,7 +45,7 @@ class UserService:
         return result
 
 
-    async def login(self, data: InputLoginUserSchema) -> User:
+    async def login(self, data: InputLoginUserSchema) -> dict:
         """Отвечает за авторизацию пользователя"""
 
         # --- Инициализация и извлечение первичных данных ---

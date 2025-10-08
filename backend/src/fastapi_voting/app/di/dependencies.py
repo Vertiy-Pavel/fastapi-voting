@@ -8,11 +8,11 @@ from fastapi.security import OAuth2PasswordBearer
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from fastapi_voting.app.services.department_service import DepartmentService
+from src.fastapi_voting.app.services.department_service import DepartmentService
 from src.fastapi_voting.app.db.db_core import AsyncSessionLocal
 
 from src.fastapi_voting.app.repositories.user_repo import UserRepo
-from fastapi_voting.app.repositories.department_repo import DepartmentRepo
+from src.fastapi_voting.app.repositories.department_repo import DepartmentRepo
 
 from src.fastapi_voting.app.services.user_service import UserService
 

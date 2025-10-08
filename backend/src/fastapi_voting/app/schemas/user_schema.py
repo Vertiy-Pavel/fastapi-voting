@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from typing import Optional
+from src.fastapi_voting.app.core.enums import RolesEnum
 
 
 # --- Схемы для регистрации пользователя ---
@@ -11,7 +11,7 @@ class InputCreateUserSchema(BaseModel):
     phone: str
     email: str
     password: str
-    role_id: int
+    role: str
 
 class OutputCreateUserSchema(BaseModel):
     id: int
@@ -38,7 +38,7 @@ class OutputLoginUserSchema(BaseModel):
     surname: str
     phone: str
     email: str
-    role_id: int
+    role: RolesEnum
 
     class Config:
         from_attributes = True

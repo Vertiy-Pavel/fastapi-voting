@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from fastapi_voting.app.core.utils.utils import create_tokens
+from src.fastapi_voting.app.core.utils.utils import create_tokens
 from src.fastapi_voting.app.di.annotations import UserServiceAnnotation
 
 from src.fastapi_voting.app.schemas.user_schema import InputCreateUserSchema, OutputCreateUserSchema
