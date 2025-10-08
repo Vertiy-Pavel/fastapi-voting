@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Supermolot';
+  src: url('/src/assets/fonts/TT\ Supermolot\ Neue\ Trial\ Extended\ DemiBold.ttf') format('woff');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MAK';
+  src: url('/src/assets/fonts/MAK.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Supermolot';
+  src: url('/src/assets/fonts/TT\ Supermolot\ Neue\ Trial\ Extended\ Medium.ttf') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-mak {
+    font-family: 'MAK', sans-serif;
+}
+
+body {
+  font-family: 'Supermolot', sans-serif;
+  background-color: #EFF3F8;
+}
+

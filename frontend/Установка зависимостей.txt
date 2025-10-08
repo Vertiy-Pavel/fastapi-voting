@@ -1,0 +1,6 @@
+
+npm install clsx
+npm install clsx tailwind-merge
+npm install @radix-ui/react-slot @radix-ui/react-avatar
+npm install lucide-react
+npm install class-variance-authority
