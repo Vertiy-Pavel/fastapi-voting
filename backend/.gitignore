@@ -1,9 +1,0 @@
-/.env
-/.venv
-/.git
-
-/logs/
-
-/.idea/
-
-__pycache__/
