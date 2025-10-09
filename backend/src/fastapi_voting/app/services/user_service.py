@@ -4,7 +4,10 @@ from fastapi import HTTPException
 
 from src.fastapi_voting.app.repositories.user_repo import UserRepo
 
-from src.fastapi_voting.app.schemas.user_schema import InputCreateUserSchema, InputLoginUserSchema
+from src.fastapi_voting.app.schemas.user_schema import (
+    InputCreateUserSchema, InputLoginUserSchema,
+)
+
 
 from src.fastapi_voting.app.models.user import User
 
@@ -45,7 +48,7 @@ class UserService:
         return result
 
 
-    async def login(self, data: InputLoginUserSchema) -> dict:
+    async def login(self, data: InputLoginUserSchema) -> User:
         """Отвечает за авторизацию пользователя"""
 
         # --- Инициализация и извлечение первичных данных ---

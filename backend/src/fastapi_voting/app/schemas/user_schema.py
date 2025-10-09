@@ -31,7 +31,7 @@ class InputLoginUserSchema(BaseModel):
     password: str
     remember_me: bool
 
-class OutputLoginUserSchema(BaseModel):
+class UserSchema(BaseModel):
     id: int
     first_name: str
     last_name: str
@@ -43,13 +43,15 @@ class OutputLoginUserSchema(BaseModel):
     class Config:
         from_attributes = True
 
-class TokenDetails(BaseModel):
+class TokenSchema(BaseModel):
     access_token: str
-    refresh_token: str | None
+    csrf_token: str
 
 
-class LoginResponseSchema(BaseModel):
-    user: OutputLoginUserSchema
-    tokens: TokenDetails
+class ResponseLoginUserSchema(BaseModel):
+    user: UserSchema
+    tokens: TokenSchema
 
+    class Config:
+        from_attributes = True
 
