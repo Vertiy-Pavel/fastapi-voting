@@ -1,4 +1,3 @@
-// src/components/PageTitle.jsx
 import React, {memo} from 'react';
 
 const PageTitle = (props) => {
