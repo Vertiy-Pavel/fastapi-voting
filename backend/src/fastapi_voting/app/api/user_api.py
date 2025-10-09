@@ -37,7 +37,7 @@ async def user_login(
     # TODO: Защита эндпоинтов
 
     # --- Инициализация данных ---
-    remember_flag = data.model_dump().get("remember", False)
+    remember_flag = data.model_dump()["remember_me"]
 
     # --- Работа сервиса ---
     logined_user = await user_service.login(data)

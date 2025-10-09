@@ -14,4 +14,5 @@ logger = logging.Logger("fastapi-voting")
 # --- Определение зависимостей ---
 async def get_db() -> AsyncSession:
     async with AsyncSessionLocal() as session:
-        return session
+        yield session
+        await session.close()
