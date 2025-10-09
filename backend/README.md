@@ -1,6 +1,5 @@
 # Асинхронный сервис для проведения голосований
 ## Файловая архитектура проекта - слоистая
-
 ```powershell
 fastapi-voting                          # Корневой каталог Poetry
 ├── src
@@ -36,6 +35,7 @@ fastapi-voting                          # Корневой каталог Poetry
 
 ## Предварительный перечень технологий:
 - Python 3.11.9
+- Poetry
 - FastApi
 - SQLAlchemy
 - MySQL + asyncmy
@@ -50,6 +50,11 @@ fastapi-voting                          # Корневой каталог Poetry
 JWT_SECRET_KEY=c05da040fc7bd6f8f8964405f94d6f4b
 JWT_ACCESS_EXPIRE_MINUTES=120
 JWT_REFRESH_EXPIRE_DAYS=1
+
+CSRF_SECRET_KEY=8BMagWCAM5jHrz09DMUaZiDe8L1Vj8scPbR3AlUEG8fY6vz8To5A0aT9K0zSSuCU
+CSRF_COOKIE_SAMESITE=none
+CSRF_MAX_AGE=86400
+CSRF_COOKIE_SECURE=true
 
 APP_HOST=127.0.0.1
 APP_PORT=5000
