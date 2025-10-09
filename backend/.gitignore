@@ -4,6 +4,6 @@
 
 /logs/
 
-../.idea/
+/.idea/
 
 __pycache__/
