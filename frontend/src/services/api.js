@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 // Экземпляр Axios с базовым URL
 const api = axios.create({
     baseURL: API_URL,
-    withCredentials: true,
+    // withCredentials: true,
 });
 
 let isRefreshing = false;
@@ -48,6 +48,7 @@ api.interceptors.request.use(config => {
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
+        /*
         const originalRequest = error.config;
 
         if (error.response?.status === 401 &&
@@ -106,7 +107,7 @@ api.interceptors.response.use(
 
             }
         }
-
+*/
         // Обработка ошибок
         if (error.response) {
             const {status, data} = error.response;
@@ -145,8 +146,8 @@ api.interceptors.response.use(
     }
 )
 
-export const register = async (formData) => {
-    const response = await api.post(`/auth/register`, formData, {
+export const    register = async (formData) => {
+    const response = await api.post(`/user/register`, formData, {
         headers: {
             "Content-Type": "application/json",
         },
@@ -154,11 +155,10 @@ export const register = async (formData) => {
     return response.data;
 };
 
-export const loginUser = async (email, password, role_id, remember_me) => {
+export const loginUser = async (email, password, remember_me) => {
     return await api.post(`/user/login`, {
         email,
         password,
-        //  role_id,
         remember_me,
     });
 };

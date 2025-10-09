@@ -11,10 +11,10 @@ const RegisterPage = () => {
         surname: '',
         email: '',
         phone: '',
-        role_id: 1,
+        role: 'EMPLOYEE',
         password: '',
-        confirm_password: '',
     });
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [message, setMessage] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
     const navigate = useNavigate(); // Инициализируем хук для навигации
@@ -23,24 +23,10 @@ const RegisterPage = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
 
-        // Обрабатываем role_id отдельно, чтобы убедиться, что это число
-        let parsedValue = value;
-        if (name === 'role_id') {
-            parsedValue = parseInt(value, 10);
-        }
-        
-        setFormData(prevState => {
-            const updatedData = {
+        setFormData(prevState => ({
             ...prevState,
-            [name]: parsedValue,
-        };
-
-        //---------------------------------------------------------------------
-        const logMessage = `Обновлены данные формы: ${JSON.stringify(updatedData)}`;
-        //console.log(logMessage);
-        // setMessage(logMessage); // Раскомментируйте, если хотите видеть это сообщение
-        return updatedData; 
-    });
+            [name]: value,
+        }));
     };
 
     // Обработчик отправки формы на бэкенд
@@ -54,7 +40,7 @@ const RegisterPage = () => {
         //setMessage(logMessage);
 
         // Клиентская валидация паролей
-        if (formData.password !== formData.confirm_password) {
+        if (formData.password !== confirmPassword) {
             const errorMsg = 'Пароли не совпадают!';
             console.warn('Не удалось подтвердить пароль',errorMsg);
             //setMessage(errorMsg);
@@ -97,12 +83,11 @@ const RegisterPage = () => {
                             <label className="block mb-2 text-base">Зарегистрироваться как</label>
                             <select 
                                 className="w-full border rounded-[8px] px-3 py-3 mb-4"
-                                name="role_id"
-                                value={formData.role_id}
+                                name="role"
+                                value={formData.role}
                                 onChange={handleChange}>
-                                <option value={1}>Сотрудник</option>
-                                <option value={2}>Начальник</option>
-                                <option value={3}>Администратор</option>
+                                <option value={'EMPLOYEE'}>Сотрудник</option>
+                                <option value={'CHIEF'}>Начальник</option>
                             </select>
 
                             <div className="flex flex-col sm:flex-row mb-4 gap-3">
@@ -187,8 +172,8 @@ const RegisterPage = () => {
                                 name="confirm_password"
                                 placeholder="******"
                                 className="w-full border rounded-[8px] px-3 py-3 mb-4"
-                                value={formData.confirm_password}
-                                onChange={handleChange}
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
                             />
 
@@ -245,12 +230,11 @@ const RegisterPage = () => {
                             <label className="block mb-2 text-base">Зарегистрироваться как</label>
                             <select 
                                 className="w-full border rounded-[8px] px-3 py-2 h-[51px] mb-4"
-                                name="role_id"
-                                value={formData.role_id}
+                                name="role"
+                                value={formData.role}
                                 onChange={handleChange}>
-                                <option value={1}>Сотрудник</option>
-                                <option value={2}>Начальник</option>
-                                <option value={3}>Администратор</option>
+                                <option value={'EMPLOYEE'}>Сотрудник</option>
+                                <option value={'CHIEF'}>Начальник</option>
                             </select>
 
                             <div className="flex mb-4 gap-[12px]">
@@ -334,8 +318,8 @@ const RegisterPage = () => {
                                 name="confirm_password"
                                 placeholder="******"
                                 className="w-full border h-[51px] rounded-[8px] px-3 py-2 mb-2"
-                                value={formData.confirm_password}
-                                onChange={handleChange}
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
                             />
 
