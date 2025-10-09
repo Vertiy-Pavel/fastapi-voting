@@ -29,3 +29,5 @@ def main(reload: bool = False, host: str = settings.APP_HOST):
 # --- Точка входа в приложение ---
 if __name__ == '__main__':
     main()
+
+# TODO: Провести полное логирование работы приложения

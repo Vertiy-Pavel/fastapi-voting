@@ -33,6 +33,9 @@ async def user_login(
         user_service: UserServiceAnnotation,
         csrf_protect: CsrfProtect = Depends(),
 ):
+    # TODO: JWT-blocklist
+    # TODO: Защита эндпоинтов
+
     # --- Инициализация данных ---
     remember_flag = data.model_dump().get("remember", False)
 
