@@ -43,7 +43,7 @@ async def get_fake_votings(session: AsyncSession, users: list[User], departments
         target_departments = random.sample(list(departments), random.randint(1, len(departments)))
 
         # --- Выборка пользователей для голосования ---
-        creator: Department = random.choice(target_departments).head_of_department
+        creator: User = random.choice(target_departments).head_of_department
         available_users = get_users_of_deps(target_departments)
         registered_users = random.sample(
             list(available_users),
@@ -58,7 +58,7 @@ async def get_fake_votings(session: AsyncSession, users: list[User], departments
         voting_end = timedelta(days=random.randint(1, 7)) + voting_start
 
         archived: bool = faker.boolean()
-        archive_after = datetime.now() if archived else None
+        archive_after = timedelta(days=7) + voting_end if archived else None
 
         # --- Создание голосования ---
         voting = Voting(

@@ -33,7 +33,7 @@ async def get_fake_departments(session: AsyncSession, users: list[User]) -> tupl
 
         # --- Выборка сотрудников ---
         l_head_root_depart_choice = chiefs.pop()
-        l_employee_root_depart_sample = random.sample(employeers, random.randint(1, len(employeers))) # TODO: Список сотрудников может быть пустым, ошибка длины
+        l_employee_root_depart_sample = random.sample(employeers, random.randint(1, len(employeers)))
 
         # --- Создание родительского отдела ---
         l_department = Department(
@@ -132,4 +132,5 @@ async def get_fake_departments(session: AsyncSession, users: list[User]) -> tupl
 
     # --- Фиксация результирующего состояния транзакции ---
     session.add_all(transactions)
+
     return session, departments

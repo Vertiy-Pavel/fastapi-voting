@@ -18,7 +18,6 @@ random = random.Random()
 async def get_fake_users(session: AsyncSession) -> tuple:
     roles = list(RolesEnum)
     users = []
-    result = []
 
     for i in range(50):
         role_choice = random.choice(roles)
@@ -30,9 +29,7 @@ async def get_fake_users(session: AsyncSession) -> tuple:
             phone=faker.phone_number(),
             email=faker.email(),
 
-            # TODO: creator_votings
             # TODO: votes_made
-            # TODO: votings
 
             role=role_choice,
         )
