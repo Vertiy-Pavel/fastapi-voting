@@ -52,7 +52,7 @@ def upgrade() -> None:
     sa.Column('voting_id', sa.Integer(), nullable=False),
     sa.Column('voted_at', sa.TIMESTAMP(timezone=True), nullable=False),
     sa.ForeignKeyConstraint(['author_id'], ['users.id'], ondelete='SET NULL'),
-    sa.ForeignKeyConstraint(['voting_id'], ['votings.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['voting_id'], ['votings.id']),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###

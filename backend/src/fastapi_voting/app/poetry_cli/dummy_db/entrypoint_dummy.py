@@ -19,8 +19,10 @@ dummy_typer = typer.Typer()
 # --- Точка входа ---
 @dummy_typer.command()
 def init() -> None:
-    asyncio.run(init_db())
-
+    try:
+        asyncio.run(init_db())
+    except ValueError as e:
+        print(f"Учтённый сценарий, логика выборки несовершенна. Перезапустите скрипт.\nException: {e}")
 
 # --- Вторичные синхронные функции ---
 def alembic_sync() -> None:

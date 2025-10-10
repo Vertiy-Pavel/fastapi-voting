@@ -17,7 +17,8 @@ class Vote(Base):
 
     # --- Внешние ключи ---
     author_id: Mapped[int | None] = mapped_column(ForeignKey('users.id', ondelete='SET NULL'))
-    voting_id: Mapped[int] = mapped_column(ForeignKey('votings.id', ondelete='CASCADE')) # TODO: Заглушка для тестов. В проде - мягкое удаление
+    voting_id: Mapped[int] = mapped_column(ForeignKey('votings.id'))
+    # deleted: Mapped[bool] TODO: Реализовать мягкое удаление
     #question_id: Mapped[int] = mapped_column(ForeignKey('questions.id'), ondelete='CASCADE') TODO: Модель Question
     #option_id: Mapped[int] = mapped_column(ForeignKey('options.id'), ondelete='CASCADE') TODO: Модель Option
     voted_at: Mapped[timezone] = mapped_column(TIMESTAMP(timezone=True), default=datetime.now(timezone.utc))

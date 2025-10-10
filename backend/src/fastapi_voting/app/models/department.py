@@ -36,6 +36,6 @@ class Department(Base):
 
     parent: Mapped['Department'] = relationship(remote_side=[id], back_populates="children")
 
-    children: Mapped[List['Department']] = relationship(back_populates="parent", cascade="all, delete-orphan")
+    children: Mapped[List['Department']] = relationship(back_populates="parent")
 
     users: Mapped[List['User']] = relationship(secondary=users_department_association_table, back_populates="departments")
