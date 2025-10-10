@@ -8,6 +8,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.fastapi_voting.app.models.base import Base
 
 from src.fastapi_voting.app.models.association.user_voting_registered_association import users_voting_registered_association_table
+from src.fastapi_voting.app.models.association.voting_department_association import voting_department_association_table
+
 
 class Voting(Base):
     """ОРМ-модель. Описывает запись о голосовании"""
@@ -43,9 +45,9 @@ class Voting(Base):
     # --- ОРМ-связи ---
     creator: Mapped['User'] = relationship(back_populates="creator_votings", foreign_keys=[creator_id]) # TODO: Каскадное удаление недопустимо. Требуется мягкое удаление
 
-    votes: Mapped[List['Vote']] = relationship(back_populates="voting", cascade="all, delete-orphan")
+    votes: Mapped[List['Vote']] = relationship(back_populates="voting")
 
+    departments: Mapped[List['Department']] = relationship(secondary=voting_department_association_table, back_populates="votings")
     registered_users: Mapped[List['User']] = relationship(secondary=users_voting_registered_association_table, back_populates="votings")
 
-    # TODO: Department-relationship, Model
     # TODO: Question-relationship, Model
