@@ -7,6 +7,6 @@ users_voting_registered_association_table = Table(
     "users_voting_registered_association",
     Base.metadata,
 
-    Column("user_id", Integer, ForeignKey("users.id")),
-    Column("voting_id", Integer, ForeignKey("votings.id")),
+    Column("user_id", Integer, ForeignKey("users.id", ondelete="CASCADE")),
+    Column("voting_id", Integer, ForeignKey("votings.id", ondelete="CASCADE")),
 )

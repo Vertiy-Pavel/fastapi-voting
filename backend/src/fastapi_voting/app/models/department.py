@@ -30,10 +30,10 @@ class Department(Base):
 
     # --- Внешние ключи ---
     parent_id: Mapped[int | None] = mapped_column(ForeignKey("departments.id", ondelete="SET NULL"))
-    head_of_department_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), unique=True)
+    head_of_department_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), unique=True)
 
     # --- ОРМ-связи ---
-    head_of_department: Mapped['User'] = relationship(back_populates="manage_department")
+    head_of_department: Mapped['User'] = relationship(back_populates="manage_department", foreign_keys=[head_of_department_id])
 
     parent: Mapped['Department'] = relationship(remote_side=[id], back_populates="children")
 

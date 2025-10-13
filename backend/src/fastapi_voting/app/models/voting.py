@@ -43,9 +43,9 @@ class Voting(Base):
     creator_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete='SET NULL'))
 
     # --- ОРМ-связи ---
-    creator: Mapped['User'] = relationship(back_populates="creator_votings", foreign_keys=[creator_id]) # TODO: Каскадное удаление недопустимо. Требуется мягкое удаление
+    creator: Mapped['User'] = relationship(back_populates="creator_votings", foreign_keys=[creator_id])
 
-    votes: Mapped[List['Vote']] = relationship(back_populates="voting")
+    votes: Mapped[List['Vote']] = relationship(back_populates="voting", cascade="all, delete-orphan")
 
     departments: Mapped[List['Department']] = relationship(secondary=voting_department_association_table, back_populates="votings")
     registered_users: Mapped[List['User']] = relationship(secondary=users_voting_registered_association_table, back_populates="votings")

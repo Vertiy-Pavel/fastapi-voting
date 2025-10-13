@@ -7,6 +7,6 @@ voting_department_association_table = Table(
     "voting_department_association",
     Base.metadata,
 
-    Column("voting_id", Integer, ForeignKey("votings.id")),
-    Column("department_id", Integer, ForeignKey("departments.id")),
+    Column("voting_id", Integer, ForeignKey("votings.id", ondelete="CASCADE")),
+    Column("department_id", Integer, ForeignKey("departments.id", ondelete="CASCADE")),
 )
