@@ -20,7 +20,7 @@ logger = logging.getLogger("fastapi-voting")
 faker = faker.Faker()
 
 
-async def get_fake_votings(session: AsyncSession, users: list[User], departments: set[Department]) -> tuple[AsyncSession, list[Voting]]: # TODO: Votes
+async def get_fake_votings(session: AsyncSession, users: list[User], departments: set[Department]):
     """Генерирует комплекс фейковых голосований"""
 
     # --- Вспомогательные инструменты ---
@@ -33,8 +33,6 @@ async def get_fake_votings(session: AsyncSession, users: list[User], departments
 
     # --- Инициализация вспомогательных данных---
     votings = []
-    chiefs = {u for u in users if u.role == RolesEnum.CHIEF}
-    employees = {u for u in users if u.role == RolesEnum.EMPLOYEE}
 
     # --- Генерация голосований ---
     for _ in range(40):
@@ -77,12 +75,12 @@ async def get_fake_votings(session: AsyncSession, users: list[User], departments
             archive_after=archive_after,
 
             creator=creator,
-            #TODO: Votes
             departments=target_departments,
             registered_users=registered_users,
         )
         votings.append(voting)
 
     session.add_all(votings)
+    await session.flush()
 
-    return session, votings
+    return votings

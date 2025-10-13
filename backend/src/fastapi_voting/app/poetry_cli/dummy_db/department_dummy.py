@@ -15,7 +15,7 @@ random = random.Random()
 
 
 # --- Скрипты-генераторы ---
-async def get_fake_departments(session: AsyncSession, users: list[User]) -> tuple:
+async def get_fake_departments(session: AsyncSession, users: list[User]):
     """Генерирует список отделов. Кол-во отделов напрямую зависит от кол-ва шефов по паритету."""
 
     async def get_tree_departments(root_dep: Department, employeers: list[User], chiefs: set[User]):
@@ -133,4 +133,4 @@ async def get_fake_departments(session: AsyncSession, users: list[User]) -> tupl
     # --- Фиксация результирующего состояния транзакции ---
     session.add_all(transactions)
 
-    return session, departments
+    return departments
