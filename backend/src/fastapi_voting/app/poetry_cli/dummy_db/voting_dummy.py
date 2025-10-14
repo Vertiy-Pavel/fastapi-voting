@@ -63,7 +63,8 @@ async def get_fake_votings(session: AsyncSession, users: list[User], departments
             title=faker.name(),
             theme=faker.text(),
             public=faker.boolean(),
-            quorum=faker.pyint(min_value=1),
+            quorum=faker.pyint(max_value=100),
+            deleted=faker.boolean(),
 
             registration_start=reg_start,
             registration_end=reg_end,
