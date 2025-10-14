@@ -4,12 +4,15 @@ from typing import Annotated
 
 from src.fastapi_voting.app.services.user_service import UserService
 from src.fastapi_voting.app.services.department_service import DepartmentService
+from src.fastapi_voting.app.services.voting_service import VotingService
 
-from src.fastapi_voting.app.di.dependencies.services import (
+from src.fastapi_voting.app.di.dependencies.services_di import (
     get_user_service,
-    get_department_service
+    get_department_service,
+    get_voting_service
 )
 
 # --- Аннотации для сервисов---
 UserServiceAnnotation = Annotated[UserService, Depends(get_user_service)]
 DepartmentServiceAnnotation = Annotated[DepartmentService, Depends(get_department_service)]
+VotingServiceAnnotation = Annotated[VotingService, Depends(get_voting_service)]
