@@ -24,7 +24,13 @@ class Base:
 
 
     async def get_by_id(self, id: int):
-        return self.session.get(self.model, id)
+        instance = await self.session.get(self.model, id)
+        return instance
+
+
+    async def delete_by_instance(self, instance):
+        await self.session.delete(instance)
+        return True
 
 
     async def get_by_item(self, column, item: any):
