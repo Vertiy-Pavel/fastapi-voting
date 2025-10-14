@@ -22,7 +22,7 @@ async def get_all_votings(
     pass
 
 
-@voting_router.post(path="/", response_model=ResponseCreateVotingSchema)
+@voting_router.post(path="/create", response_model=ResponseCreateVotingSchema)
 async def create_voting(
         voting_service: VotingServiceAnnotation,
         voting_data: InputCreateVotingSchema
@@ -32,3 +32,15 @@ async def create_voting(
 
     # --- Ответ ---
     return result
+
+
+@voting_router.delete(path="/delete/{voting_id}")
+async def delete_voting(
+        voting_id: int,
+        voting_service: VotingServiceAnnotation,
+):
+    # --- Работа сервиса ---
+    await voting_service.delete_voting(voting_id)
+
+    # --- Ответ ---
+    return {"message": "success"}
