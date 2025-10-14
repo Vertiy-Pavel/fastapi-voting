@@ -10,44 +10,29 @@ import HeaderDropdown from './Header/HeaderDropdown';
 import AltHeaderDropdown from './Header/AltHeaderDropdown';
 
 const Header = () => {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState({});
+
     const navigate = useNavigate();
 
-    const Users = [
-        {title: 'Наблюдатель', to: '/'},
-        {title: 'Член счётной комиссии', to: '/'},
-        {title: 'Секретарь', to: '/'}
-    ]
+    useEffect(() => {
+        setUser({
+            last_name: localStorage.getItem('last_name'),
+            first_name: localStorage.getItem('first_name'),
+            surname: localStorage.getItem('surname'),
+            role: localStorage.getItem('role'),
+        })
+    }, [])
+
     const Voting = [
         {title: 'Список голосований', to: '/votes'},
-        {title: 'Конструктор голосований', to: '/constructor'}
     ]
     const Add = [
         {id: 1, title: 'Голосование', to: '/constructor'},
         {id: 2, title: 'Шаблон голосований', to: '/constructor'},
-        {id: 3, title: 'Группу пользователей', to: '/'}
     ]
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-    useEffect(() => {
-        const fetchAndSetUserData = async () => {
-            try {
-                const fullProfileData = await getProfileData();
-                setUser({
-                    last_name: fullProfileData.last_name,
-                    first_name: fullProfileData.first_name,
-                    surname: fullProfileData.surname,
-                    role_id: fullProfileData.role_id
-                });
-            } catch {
-                setUser(null);
-            }
-
-
-        };
-        fetchAndSetUserData();
-    }, [])
 
     const logoutProfile = async () => {
         await logout()
@@ -55,13 +40,12 @@ const Header = () => {
         localStorage.clear();
         navigate('/login');
     }
+    //
+    // if (!user) {
+    //     return <header className="w-full h-24 bg-neutral-800 "></header>;
+    // }
 
-    if (!user) {
-        return <header className="w-full h-24 bg-neutral-800 "></header>;
-    }
-
-    localStorage.setItem('role_id', user.role_id)
-
+    console.log(localStorage.getItem('role'))
 
     return (
         <div className='h-25 bg-[#212121]'>
@@ -84,26 +68,27 @@ const Header = () => {
                             Главная
                         </NavLink>
 
-                        <div className='h-full flex items-start z-20'>
-                            <HeaderDropdown
-                                title={'Пользователи'}
-                                options={Users}
-                                links={Users.map(u => u.to)}
-                            />
-                        </div>
+                        <NavLink
+                            to={'/votes'}
+                            className='px-5 h-13 flex items-start py-3 cursor-pointer hover:bg-[#505050] rounded-2xl'
+                        >
+                            Голосования
+                        </NavLink>
 
-                        <div className='h-full flex items-start z-20'>
-                            <HeaderDropdown
-                                title={'Голосования'}
-                                options={Voting}
-                                links={Voting.map(v => v.to)}
-                            />
-                        </div>
+                        {/*<div className='h-full flex items-start z-20'>*/}
+                        {/*    <HeaderDropdown*/}
+                        {/*        title={'Голосования'}*/}
+                        {/*        options={Voting}*/}
+                        {/*        links={Voting.map(v => v.to)}*/}
+                        {/*    />*/}
+                        {/*</div>*/}
 
+                        {user.role === 'CHIEF' &&
+                            <div className='h-full flex items-start z-20'>
+                                <AltHeaderDropdown title={'Добавить'} options={Add}/>
+                            </div>
+                        }
 
-                        <div className='h-full flex items-start z-20'>
-                            <AltHeaderDropdown title={'Добавить'} options={Add}/>
-                        </div>
 
                     </div>
                 </div>
@@ -129,7 +114,7 @@ const Header = () => {
                         </div>
                     </NavLink>
                     <div className="w-8 h-8 cursor-pointer">
-                    <MdLogout className='cursor-pointer' onClick={logoutProfile} size={32}/>
+                        <MdLogout className='cursor-pointer' onClick={logoutProfile} size={32}/>
                     </div>
                 </div>
             </div>
@@ -183,22 +168,16 @@ const Header = () => {
                     <div className='flex flex-col gap-2'>
                         <div className='text-white'>
                             <HeaderDropdown
-                                title={'Пользователи'}
-                                options={Users}
-                                links={Users.map(u => u.to)}
-                            />
-                        </div>
-                        <div className='text-white'>
-                            <HeaderDropdown
                                 title={'Голосования'}
                                 options={Voting}
                                 links={Voting.map(v => v.to)}
                             />
                         </div>
-                        <div className='rounded-2xl text-white w-57'>
-                            <AltHeaderDropdown title={'Добавить'} options={Add}/>
-                        </div>
-
+                        {user.role === 'CHIEF' &&
+                            <div className='rounded-2xl text-white w-57'>
+                                <AltHeaderDropdown title={'Добавить'} options={Add}/>
+                            </div>
+                        }
                     </div>
                 </div>
             )}

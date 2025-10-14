@@ -51,6 +51,10 @@ const LoginPage = () => {
             // console.log(csrfRefreshToken);
             localStorage.setItem('csrf-token', csrfToken);
             localStorage.setItem('accessToken', accessToken);
+            localStorage.setItem('role', response.data.user.role);
+            localStorage.setItem('first_name', response.data.user.first_name);
+            localStorage.setItem('last_name', response.data.user.last_name);
+            localStorage.setItem('surname', response.data.user.surname);
             toast.success('Авторизация прошла успешно')
 
 

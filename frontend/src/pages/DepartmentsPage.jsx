@@ -27,7 +27,7 @@ const DepartmentPage = () => {
             <div className='mx-4 2xl:ml-[240px] mt-[60px] 2xl:mr-[240px] lg:ml-[40px] lg:mr-[40px]'>
                 <Breadcrumbs title={'Departments'}/>
                 <PageTitle title={'Структура отделов'}/>
-                <div className="p-6 mt-4 md:mt-3 lg:mt-3 sm:mt-3 xl:mt-0 bg-white shadow-md w-full rounded-[10px]">
+                <div className="p-6 mt-4 bg-white shadow-md w-full rounded-[10px]">
                     <DepartmentList items={departments}/>
                 </div>
             </div>
