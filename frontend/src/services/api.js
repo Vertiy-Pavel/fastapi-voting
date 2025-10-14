@@ -9,105 +9,28 @@ const api = axios.create({
     // withCredentials: true,
 });
 
-let isRefreshing = false;
-let failedQueue = [];
-
-// Функция для обработки очереди ожидающих запросов
-const processQueue = (error, token = null) => {
-    failedQueue.forEach(prom => {
-        if (error) {
-            prom.reject(error);
-        } else {
-            prom.resolve(token);
-        }
-    });
-    failedQueue = [];
-};
-
 // Перехватчик запросов
-api.interceptors.request.use(config => {
-    // const csrfToken1 = getCookie('csrf_refresh_token');
-    const csrfRefreshToken = localStorage.getItem('x-csrf-refresh-token');
-    const csrfAccessToken = localStorage.getItem('x-csrf-access-token');
-    const isSafeMethod = ['get', 'head', 'options'].includes(config.method);
+api.interceptors.request.use(
+    (config) => {
+        const accessToken = localStorage.getItem('accessToken');
+        const csrfToken = localStorage.getItem('csrf-token');
 
-
-    if (!isSafeMethod && csrfAccessToken) {
-        config.headers['X-CSRF-TOKEN'] = csrfAccessToken;
+        if (accessToken) {
+            config.headers['Authorization'] = `Bearer ${accessToken}`;
+            config.headers['X-CSRFToken'] = `${csrfToken}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
     }
+);
 
-    if (config.url === '/auth/refresh' && csrfRefreshToken) {
-        config.headers['X-CSRF-REFRESH-TOKEN'] = csrfRefreshToken;
-    }
-    return config;
-}, error => {
-    return Promise.reject(error);
-});
 
 // Перехватчик ответов
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
-        /*
-        const originalRequest = error.config;
-
-        if (error.response?.status === 401 &&
-            !originalRequest._isRetry &&
-            originalRequest.url !== '/auth/refresh'
-        ) {
-
-            // Если процесс обновления уже идет, добавляем запрос в очередь
-            if (isRefreshing) {
-                return new Promise((resolve, reject) => {
-                    failedQueue.push({resolve, reject});
-                }).then(() => {
-                    return api(originalRequest);
-                }).catch(err => Promise.reject(err));
-            }
-
-            originalRequest._isRetry = true;
-            isRefreshing = true;
-
-            try {
-
-                // Запрос на refresh
-                const refreshResponse = await api.post('/auth/refresh', {}, {});
-
-                let newCsrfRefreshToken;
-                newCsrfRefreshToken = refreshResponse.headers['x-csrf-refresh-token'];
-
-                let newCsrfAccessToken;
-                newCsrfAccessToken = refreshResponse.headers['x-csrf-access-token'];
-
-                // Или в теле ответа, если сервер так настроен
-                // const newCsrfToken = refreshResponse.data.csrf_token;
-
-                if (newCsrfRefreshToken && newCsrfAccessToken) {
-                    // Перезаписываем токен в localStorage новым значением
-                    localStorage.setItem('x-csrf-refresh-token', newCsrfRefreshToken);
-                    localStorage.setItem('x-csrf-refresh-token', newCsrfAccessToken);
-                }
-
-                // Обрабатываем все запросы в очереди с новым токеном
-                processQueue(null);
-
-                // Повторно отправляем оригинальный запрос
-                return api(originalRequest);
-
-            } catch (refreshError) {
-                processQueue(refreshError, null);
-                toast.warn('Требуется авторизация');
-                console.log('Требуется авторизация');
-
-                localStorage.removeItem('x-csrf-refresh-token');
-                window.location.replace('/login');
-                return Promise.reject(refreshError);
-            } finally {
-                isRefreshing = false; // Сбрасываем флаг
-
-            }
-        }
-*/
         // Обработка ошибок
         if (error.response) {
             const {status, data} = error.response;

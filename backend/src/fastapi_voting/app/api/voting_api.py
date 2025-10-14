@@ -1,4 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+
+from src.fastapi_voting.app.di.dependencies.auth_di import AuthTokenRequired
 
 from src.fastapi_voting.app.di.annotations import VotingServiceAnnotation
 
@@ -25,7 +27,8 @@ async def get_all_votings(
 @voting_router.post(path="/create", response_model=ResponseCreateVotingSchema)
 async def create_voting(
         voting_service: VotingServiceAnnotation,
-        voting_data: InputCreateVotingSchema
+        voting_data: InputCreateVotingSchema,
+        user_id: int = Depends(AuthTokenRequired("access_token"))
 ):
     # --- Работа сервиса ---
     result = await voting_service.create_voting(voting_data)

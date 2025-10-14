@@ -63,3 +63,7 @@ class AuthTokenRequired:
         except JWTError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Некорректный {self.token_type}.")
 
+
+def csrf_valid(request: Request):
+    pass
+
