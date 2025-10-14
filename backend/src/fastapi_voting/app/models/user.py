@@ -40,14 +40,13 @@ class User(Base):
     updated_at: Mapped[timezone] = mapped_column(TIMESTAMP(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     # --- ORM-связи ---
-    manage_department: Mapped['Department'] = relationship(back_populates="head_of_department", cascade="all, delete-orphan")
+    manage_department: Mapped['Department'] = relationship(back_populates="head_of_department")
 
     creator_votings: Mapped[List['Voting']] = relationship(back_populates="creator")
     votes_made: Mapped[List["Vote"]] = relationship(back_populates="author")
 
     departments: Mapped[List['Department']] = relationship(secondary=users_department_association_table, back_populates="users")
     votings: Mapped[List['Voting']] = relationship(secondary=users_voting_registered_association_table, back_populates="registered_users")
-
 
 
     def set_hash_password(self, password: str) -> None:

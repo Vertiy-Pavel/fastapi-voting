@@ -15,10 +15,9 @@ random = random.Random()
 
 
 # --- Скрипты-генераторы ---
-async def get_fake_users(session: AsyncSession) -> tuple:
+async def get_fake_users(session: AsyncSession):
     roles = list(RolesEnum)
     users = []
-    result = []
 
     for i in range(50):
         role_choice = random.choice(roles)
@@ -30,10 +29,6 @@ async def get_fake_users(session: AsyncSession) -> tuple:
             phone=faker.phone_number(),
             email=faker.email(),
 
-            # TODO: creator_votings
-            # TODO: votes_made
-            # TODO: votings
-
             role=role_choice,
         )
         user.set_hash_password(password="0000")
@@ -41,4 +36,4 @@ async def get_fake_users(session: AsyncSession) -> tuple:
 
     session.add_all(users)
 
-    return session, users
+    return users

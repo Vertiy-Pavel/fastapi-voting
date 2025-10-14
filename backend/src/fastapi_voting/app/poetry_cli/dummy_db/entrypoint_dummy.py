@@ -8,7 +8,7 @@ from src.fastapi_voting.app.db.db_core import AsyncSessionLocal
 
 from src.fastapi_voting.app.core.utils.paths import get_root_path
 
-from src.fastapi_voting.app.poetry_cli.dummy_db import user_dummy,department_dummy
+from src.fastapi_voting.app.poetry_cli.dummy_db import user_dummy,department_dummy, voting_dummy, vote_dummy
 
 
 # --- Инициализация конфигураций ---
@@ -19,8 +19,10 @@ dummy_typer = typer.Typer()
 # --- Точка входа ---
 @dummy_typer.command()
 def init() -> None:
-    asyncio.run(init_db())
-
+    try:
+        asyncio.run(init_db())
+    except ValueError as e:
+        print(f"Учтённый сценарий, логика выборки несовершенна. Перезапустите скрипт.\nException: {e}")
 
 # --- Вторичные синхронные функции ---
 def alembic_sync() -> None:
@@ -35,10 +37,12 @@ async def init_db() -> None:
         await asyncio.to_thread(alembic_sync)
 
         # --- Операции наполнения контентом ---
-        session, users = await user_dummy.get_fake_users(session)
-        session, departments = await department_dummy.get_fake_departments(session, users)
+        users = await user_dummy.get_fake_users(session)
+        departments = await department_dummy.get_fake_departments(session, users)
+        votings = await voting_dummy.get_fake_votings(session, users, departments)
+        await vote_dummy.get_fake_votes(session, votings)
 
         await session.commit()
 
 if __name__ == '__main__':
-    asyncio.run(init_db())
+    init()

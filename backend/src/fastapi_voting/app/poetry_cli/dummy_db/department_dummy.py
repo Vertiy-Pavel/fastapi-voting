@@ -1,8 +1,6 @@
 import faker
-import copy
 import random
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.fastapi_voting.app.models.department import Department
@@ -17,7 +15,7 @@ random = random.Random()
 
 
 # --- Скрипты-генераторы ---
-async def get_fake_departments(session: AsyncSession, users: list[User]) -> tuple:
+async def get_fake_departments(session: AsyncSession, users: list[User]):
     """Генерирует список отделов. Кол-во отделов напрямую зависит от кол-ва шефов по паритету."""
 
     async def get_tree_departments(root_dep: Department, employeers: list[User], chiefs: set[User]):
@@ -35,7 +33,7 @@ async def get_fake_departments(session: AsyncSession, users: list[User]) -> tupl
 
         # --- Выборка сотрудников ---
         l_head_root_depart_choice = chiefs.pop()
-        l_employee_root_depart_sample = random.sample(employeers, random.randint(1, len(employeers))) # TODO: Список сотрудников может быть пустым, ошибка длины
+        l_employee_root_depart_sample = random.sample(employeers, random.randint(1, len(employeers)))
 
         # --- Создание родительского отдела ---
         l_department = Department(
@@ -92,16 +90,16 @@ async def get_fake_departments(session: AsyncSession, users: list[User]) -> tupl
         # Выборка данных про глав отделов
         head_root_depart_choice = chief_users.pop()
 
-        if len(chief_users) <= 3:
+        if len(chief_users) == 0:
             head_daughter_depart_sample = set()
         else:
-            head_daughter_depart_sample = set(random.sample(list(chief_users), random.randint(1, len(chief_users)-3)))
+            head_daughter_depart_sample = set(random.sample(list(chief_users), random.randint(1, len(chief_users)-1)))
 
         chief_users = chief_users - head_daughter_depart_sample
 
         # Выборка данных про сотрудников отделов
         employee_root_depart_sample = random.sample(list(employee_users), random.randint(1, 7))
-        employee_daughter_depart_sample = random.sample(list(employee_users), random.randint(0, 25))
+        employee_daughter_depart_sample = random.sample(list(employee_users), random.randint(1, len(employee_users)-3))
 
         # --- Инициализация корневого отдела ---
         department = Department(
@@ -119,12 +117,13 @@ async def get_fake_departments(session: AsyncSession, users: list[User]) -> tupl
             )
 
         # --- Рекурсивная генерация дерева дочерних отделов ---
-        department.children.append(
-            await get_tree_departments(
-                department,
-                employee_daughter_depart_sample,
-                head_daughter_depart_sample)
-        )
+        if head_daughter_depart_sample:
+            department.children.append(
+                await get_tree_departments(
+                    department,
+                    employee_daughter_depart_sample,
+                    head_daughter_depart_sample)
+            )
         departments.add(department)
         transactions.add(department)
 
@@ -133,4 +132,5 @@ async def get_fake_departments(session: AsyncSession, users: list[User]) -> tupl
 
     # --- Фиксация результирующего состояния транзакции ---
     session.add_all(transactions)
-    return session, departments
+
+    return departments
