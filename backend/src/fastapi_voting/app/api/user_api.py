@@ -51,12 +51,12 @@ async def user_login(
         user=UserSchema.model_validate(logined_user),
         tokens=TokenSchema(
             access_token=tokens['access_token'],
-            csrf_token=signed_token,
+            csrf_token=csrf_token,
         ),
     ).model_dump(mode="json")
 
     response = JSONResponse(content=content)
-    response.set_cookie(key="csrf_token", value=csrf_token, httponly=True)
+    response.set_cookie(key="fastapi-csrf-token", value=signed_token, httponly=True)
     response.set_cookie(key="refresh_token", value=tokens["refresh_token"], httponly=True)
 
     return response

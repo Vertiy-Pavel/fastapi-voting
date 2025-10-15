@@ -8,7 +8,6 @@ from src.fastapi_voting.app.schemas.user_schema import (
     InputCreateUserSchema, InputLoginUserSchema,
 )
 
-
 from src.fastapi_voting.app.models.user import User
 
 from src.fastapi_voting.app.core.enums import RolesEnum
