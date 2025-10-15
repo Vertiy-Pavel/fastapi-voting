@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from logging import getLogger
 
-from starlette.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.fastapi_voting.app.api.user_api import user_router
 from src.fastapi_voting.app.api.department_api import department_router
@@ -20,13 +20,16 @@ fastapi_app = FastAPI(
     redoc_url='/redoc',
 )
 # --- Конфигурация CORS ---
+origins = [
+    "http://localhost:5173"
+]
 fastapi_app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"]
+    expose_headers=["*"],
 )
 
 # --- Вторичные данные ---
