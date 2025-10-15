@@ -56,7 +56,7 @@ def get_csrf_settings():
     s = get_settings()
 
     return CsrfSettings(
-        secret_key=s.JWT_SECRET_KEY,
+        secret_key=s.CSRF_SECRET_KEY,
         cookie_samesite=s.CSRF_COOKIE_SAMESITE,
         max_age=s.CSRF_MAX_AGE,
         cookie_secure=s.CSRF_COOKIE_SECURE,
