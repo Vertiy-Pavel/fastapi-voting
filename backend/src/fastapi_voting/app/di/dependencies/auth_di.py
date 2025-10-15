@@ -1,8 +1,9 @@
+from fastapi import Request, HTTPException, status, Depends
+
+from fastapi_csrf_protect import CsrfProtect
+
 from jose import jwt
-
 from jose.exceptions import ExpiredSignatureError, JWTError
-
-from fastapi import Request, HTTPException, status
 
 from src.fastapi_voting.app.core.settings import get_settings
 
@@ -64,6 +65,10 @@ class AuthTokenRequired:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Некорректный {self.token_type}.")
 
 
-def csrf_valid(request: Request):
-    pass
-
+async def csrf_valid(request: Request, csrf_protect: CsrfProtect = Depends()):
+    await csrf_protect.validate_csrf(
+        request=request,
+        cookie_key="fastapi-csrf-token",
+        secret_key=settings.CSRF_SECRET_KEY,
+    )
+    return True
