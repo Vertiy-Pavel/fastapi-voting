@@ -1,6 +1,4 @@
-import {useState, useEffect, useRef} from 'react';
-import {getProfileData, logout, logoutRefresh} from '../services/api'
-import DropdownMenu from '../components/DropdownMenu'
+import {useState, useEffect} from 'react';
 import {CgProfile} from "react-icons/cg";
 import {VscSettings} from "react-icons/vsc";
 import {LuScanSearch} from "react-icons/lu";
@@ -35,8 +33,8 @@ const Header = () => {
 
 
     const logoutProfile = async () => {
-        await logout()
-        await logoutRefresh()
+        // await logout()
+        // await logoutRefresh()
         localStorage.clear();
         navigate('/login');
     }
