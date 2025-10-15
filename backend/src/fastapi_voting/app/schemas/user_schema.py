@@ -43,14 +43,11 @@ class UserSchema(BaseModel):
     class Config:
         from_attributes = True
 
-class TokenSchema(BaseModel):
-    access_token: str
-    csrf_token: str
 
 
 class ResponseLoginUserSchema(BaseModel):
     user: UserSchema
-    tokens: TokenSchema
+    access_token: str
 
     class Config:
         from_attributes = True
