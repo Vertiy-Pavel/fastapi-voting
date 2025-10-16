@@ -56,7 +56,7 @@ async def user_login(
 
     response = JSONResponse(content=content)
     response.headers["X-CSRF-Token"] = csrf_token
-    response.set_cookie(key="fastapi-csrf-token", value=signed_csrf)
+    response.set_cookie(key="fastapi-csrf-token", value=signed_csrf, httponly=True)
     response.set_cookie(key="refresh_token", value=tokens["refresh_token"], httponly=True)
 
     print(csrf_token, signed_csrf, sep='\n')

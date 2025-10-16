@@ -16,11 +16,6 @@ class InputCreateVotingSchema(BaseModel):
     voting_start: datetime
     voting_end: datetime
 
-    archived: bool
-    archive_after: datetime
-
-    deleted: bool
-
 
 class ResponseCreateVotingSchema(BaseModel):
     id: int
@@ -34,11 +29,6 @@ class ResponseCreateVotingSchema(BaseModel):
 
     voting_start: datetime
     voting_end: datetime
-
-    archived: bool
-    archive_after: datetime
-
-    deleted: bool
 
     class Config:
         from_attributes = True
