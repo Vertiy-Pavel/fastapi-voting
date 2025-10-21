@@ -6,6 +6,7 @@ import {InputDefault} from "../components/Inputs.jsx";
 
 const LoginPage = () => {
 
+    const [message, setMessage] = useState({text: '', type: ''});
 
     const [formData, setFormData] = useState({
         email: '',
@@ -27,15 +28,12 @@ const LoginPage = () => {
         }
 
         setFormData(prevState => {
-            // -------------------------------------------------------------------------
-            // const logMessage = `Обновлены данные формы: ${JSON.stringify(updatedData)}`;
-            //console.log(logMessage);
-            //setMessage(logMessage); 
             return {
                 ...prevState,
                 [name]: parsedValue,
             };
         });
+        setMessage("");
     };
 
     const handleSubmit = async (e) => {
@@ -46,16 +44,15 @@ const LoginPage = () => {
             // console.log("Ответ API для входа в систему:", response);
             console.log(response);
             //setMessage(`Ответ API для входа в систему: ${JSON.stringify(response)}`);
-            const csrfToken = response.data.tokens.csrf_token;
-            const accessToken = response.data.tokens.access_token;
+
             // console.log(csrfRefreshToken);
-            localStorage.setItem('csrf-token', csrfToken);
-            localStorage.setItem('accessToken', accessToken);
+            localStorage.setItem('x-csrf-token', response.headers['x-csrf-token']);
+            localStorage.setItem('access_token', response.data.access_token);
             localStorage.setItem('role', response.data.user.role);
             localStorage.setItem('first_name', response.data.user.first_name);
             localStorage.setItem('last_name', response.data.user.last_name);
             localStorage.setItem('surname', response.data.user.surname);
-            toast.success('Авторизация прошла успешно')
+            setMessage({text: 'Авторизация прошла успешно!', type: 'success' });
 
 
             setTimeout(() => {
@@ -67,7 +64,7 @@ const LoginPage = () => {
             console.log('Полный error:', error);
             console.log('error.response:', error.response);
             console.log('error.response.data:', error.response?.data);
-
+            setMessage({text: error.response.data.detail, type: 'error' });
         }
     };
 
@@ -100,7 +97,7 @@ const LoginPage = () => {
                                     title="Пароль"
                                     placeholder="******"
                                     required
-                                    validate={(val) => val.length >= 6}
+                                    validate={(val) => val.length >= 1}
                                     value={formData.password}
                                     onChange={handleChange}
                                     name="password"
@@ -124,6 +121,16 @@ const LoginPage = () => {
                                     Запомнить меня
                                 </label>
 
+                                {message.text && (
+                                    <p
+                                        className={`text-sm font-medium mt-2 text-center ${
+                                            message.type === "success" ? "text-green-600" : "text-red-600"
+                                        }`}
+                                    >
+                                        {message.text}
+                                    </p>
+                                )}
+
                                 <button
                                     type="submit"
                                     className="w-full bg-black text-white px-4 py-4 md:px-[20px] md:py-[16px] rounded-[12px] mt-6 md:mt-12"
@@ -135,7 +142,7 @@ const LoginPage = () => {
 
                         {/* Правая часть (панель) */}
                         <div
-                            className="bg-[#212121] text-white p-6 flex flex-col justify-between md:rounded-l-[20px] w-full md:w-[285px] md:h-[400px]">
+                            className="bg-[#212121] text-white p-6 flex flex-col justify-between md:rounded-l-[20px] w-full md:w-[285px]">
                             <div className="flex justify-center md:justify-end mb-6">
                                 <button className="bg-[#303030] mr-2 px-4 py-2 rounded-lg">RU</button>
                                 <button className="px-4 py-2">ENG</button>

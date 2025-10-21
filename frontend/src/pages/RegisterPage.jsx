@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import HeaderLogin from "/src/components/HeaderLogin";
-import { Link, useNavigate } from 'react-router-dom';
-import { register } from '../services/api'
+import {Link, useNavigate} from 'react-router-dom';
+import {register} from '../services/api'
 import {toast, ToastContainer} from "react-toastify";
+import {InputDefault} from "../components/Inputs.jsx";
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({
@@ -15,13 +16,12 @@ const RegisterPage = () => {
         password: '',
     });
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [message, setMessage] = useState('');
-    const [isSuccess, setIsSuccess] = useState(false);
+    const [message, setMessage] = useState({text: '', type: ''});
     const navigate = useNavigate(); // Инициализируем хук для навигации
 
     // Универсальный обработчик изменений в полях ввода
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
 
         setFormData(prevState => ({
             ...prevState,
@@ -33,7 +33,6 @@ const RegisterPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMessage('');
-        setIsSuccess(false);
 
         const logMessage = `Попытка регистрации с использованием данных: ${JSON.stringify(formData)}`;
         console.log(logMessage);
@@ -42,7 +41,7 @@ const RegisterPage = () => {
         // Клиентская валидация паролей
         if (formData.password !== confirmPassword) {
             const errorMsg = 'Пароли не совпадают!';
-            console.warn('Не удалось подтвердить пароль',errorMsg);
+            console.warn('Не удалось подтвердить пароль', errorMsg);
             //setMessage(errorMsg);
             return;
         }
@@ -52,7 +51,7 @@ const RegisterPage = () => {
             const response = await register(formData);
             console.log('Ответ API регистрации:', response);
 
-            toast.success('Регистрация прошла успешно!')
+            setMessage({text: 'Регистрация прошла успешно!', type: 'success'});
 
             console.log('Регистрация прошла успешно, переходим к входу в систему');
 
@@ -65,24 +64,26 @@ const RegisterPage = () => {
             // const errorMsg = error.response?.data?.message || error.message || 'Не удалось подключиться к серверу.';
             //setMessage(`Ошибка: ${errorMsg}`);
             // console.error('Ошибка регистрации с сообщением:', errorMsg);
+            setMessage({text: error.response.data.detail, type: 'error'});
         }
     };
 
     return (
         <>
-            <ToastContainer />
+            <ToastContainer/>
             <div className="flex flex-col items-center  justify-center min-h-[calc(100vh-100px)] bg-gray-100">
                 <h1 className="text-[40px] mb-6 w-[264px] h-[48px] font-mak">Регистрация</h1>
 
                 {/* Мобильная версия - вертикальный макет */}
-                <div className="flex flex-col md:hidden w-full max-w-md bg-white shadow-lg rounded-[20px] overflow-hidden">
+                <div
+                    className="flex flex-col md:hidden w-full max-w-md bg-white shadow-lg rounded-[20px] overflow-hidden">
 
                     {/* Форма */}
                     <div className="px-6 py-6">
                         <form onSubmit={handleSubmit}>
-                            <label className="block mb-2 text-base">Зарегистрироваться как</label>
-                            <select 
-                                className="w-full border rounded-[8px] px-3 py-3 mb-4"
+                            <label className="block text-base">Зарегистрироваться как</label>
+                            <select
+                                className="w-full border rounded-xl px-3 py-3 mb-4"
                                 name="role"
                                 value={formData.role}
                                 onChange={handleChange}>
@@ -90,100 +91,105 @@ const RegisterPage = () => {
                                 <option value={'CHIEF'}>Начальник</option>
                             </select>
 
-                            <div className="flex flex-col sm:flex-row mb-4 gap-3">
+                            <div className="flex flex-col sm:flex-row gap-3">
                                 <div className="flex flex-col flex-1">
-                                    <label htmlFor="last_name" className="mb-1">Фамилия</label>
-                                    <input 
-                                        type="text" 
-                                        id="last_name" 
-                                        name="last_name"
-                                        placeholder="Иванов" 
-                                        className="border rounded-[8px] w-full px-3 py-3" 
+                                    <InputDefault
+                                        type="text"
+                                        title="Фамилия"
+                                        placeholder="Иванов"
+                                        required
+                                        validate={(val) => val.trim().length > 0}
                                         value={formData.last_name}
                                         onChange={handleChange}
-                                        required
+                                        name='last_name'
+                                        className={'w-full h-[51px]'}
                                     />
                                 </div>
                                 <div className="flex flex-col flex-1">
-                                    <label htmlFor="first_name" className="mb-1">Имя</label>
-                                    <input  
-                                        type="text" 
-                                        id="first_name" 
-                                        name="first_name"
-                                        placeholder="Иван" 
-                                        className="border rounded-[8px] w-full px-3 py-3" 
+                                    <InputDefault
+                                        type="text"
+                                        title="Имя"
+                                        placeholder="Иван"
+                                        required
+                                        validate={(val) => val.trim().length > 0}
                                         value={formData.first_name}
                                         onChange={handleChange}
-                                        required
+                                        name='first_name'
+                                        className={'w-full h-[51px]'}
                                     />
                                 </div>
                             </div>
-                            
-                            <div className="flex flex-col mb-4">
-                                <label htmlFor="surname" className="mb-1">Отчество</label>
-                                <input 
-                                    type="text" 
-                                    id="surname" 
-                                    name="surname"
-                                    placeholder="Иванович" 
-                                    className="border rounded-[8px] w-full px-3 py-3" 
+
+                            <div className="flex flex-col">
+                                <InputDefault
+                                    type="text"
+                                    title="Отчество"
+                                    placeholder="Иванович"
                                     value={formData.surname}
                                     onChange={handleChange}
+                                    name='surname'
+                                    className={'w-full h-[51px]'}
                                 />
                             </div>
 
-                            <label className="block mb-2 text-base">Электронная почта</label>
-                            <input
+                            <InputDefault
                                 type="email"
-                                name="email"
+                                title="Электронная почта"
                                 placeholder="ivanovivan@mail.ru"
-                                className="w-full border rounded-[8px] px-3 py-3 mb-4"
+                                required
+                                validate={(val) => /\S+@\S+\.\S+/.test(val)}
                                 value={formData.email}
                                 onChange={handleChange}
-                                required
+                                name='email'
+                                className={'h-[51px]'}
                             />
 
-                            <label className="block mb-2 text-base">Телефон</label>
-                            <input
+                            <InputDefault
                                 type="tel"
-                                name="phone"
+                                title="Телефон"
                                 placeholder="+7XXXXXXXXXX"
-                                maxLength={12}
-                                className="w-full border rounded-[8px] px-3 py-3 mb-4"
+                                required
+                                validate={(val) => /^\+?\d{11}$/.test(val)}
                                 value={formData.phone}
                                 onChange={handleChange}
-                                required
+                                name='phone'
+                                className={'h-[51px]'}
                             />
 
-                            <label className="block mb-2 text-base">Пароль</label>
-                            <input
+                            <InputDefault
                                 type="password"
-                                name="password"
+                                title="Пароль"
                                 placeholder="******"
-                                className="w-full border rounded-[8px] px-3 py-3 mb-4"
+                                required
+                                validate={(val) => val.length >= 1}
                                 value={formData.password}
                                 onChange={handleChange}
-                                required
+                                name="password"
                             />
 
-                            <label className="block mb-2 text-base">Повторите пароль</label>
-                            <input
+                            <InputDefault
                                 type="password"
-                                name="confirm_password"
+                                title="Подтвердите пароль"
                                 placeholder="******"
-                                className="w-full border rounded-[8px] px-3 py-3 mb-4"
+                                required
+                                validate={(val) => val.length >= 1 && val === formData.password}
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                required
+                                name="confirm_password"
                             />
 
-                            {message && (
-                                <p className={`text-sm mb-4 text-center ${isSuccess ? 'text-green-600' : 'text-red-500'}`}>
-                                    {message}
+                            {message.text && (
+                                <p
+                                    className={`text-sm font-medium mt-2 text-center ${
+                                        message.type === "success" ? "text-green-600" : "text-red-600"
+                                    }`}
+                                >
+                                    {message.text}
                                 </p>
                             )}
 
-                            <button type="submit" className="w-full bg-black text-white px-4 py-4 rounded-[12px] my-4 text-lg">
+                            <button type="submit"
+                                    className="w-full bg-black text-white px-4 py-4 rounded-[12px] my-4 text-lg">
                                 Зарегистрироваться
                             </button>
                         </form>
@@ -198,14 +204,15 @@ const RegisterPage = () => {
                             <p className="text-sm mb-6">
                                 Панель управления системой электронных голосований
                             </p>
-                            <Link to="/login" className="block border border-white text-center rounded-xl px-4 py-4 w-full">
+                            <Link to="/login"
+                                  className="block border border-white text-center rounded-xl px-4 py-4 w-full">
                                 Авторизация
                             </Link>
                         </div>
                     </div>
                 </div>
 
-                <div className="hidden md:flex bg-white w-[816px] h-[720px] shadow-lg rounded-[20px] overflow-hidden">
+                <div className="hidden md:flex bg-white w-[816px] shadow-lg rounded-[20px] overflow-hidden">
                     {/* Левая панель */}
                     <div className="bg-[#212121] rounded-[20px] text-white p-6 w-[285px] flex flex-col justify-between">
                         <div className="flex mb-4">
@@ -217,19 +224,20 @@ const RegisterPage = () => {
                                 Панель управления системой электронных голосований
                             </span>
                             <div className="w-full h-[20px]"></div>
-                            <Link to="/login" className="block border border-white text-center rounded-xl px-[20px] py-[16px] w-full">
+                            <Link to="/login"
+                                  className="block border border-white text-center rounded-xl px-[20px] py-[16px] w-full">
                                 Авторизация
                             </Link>
                         </div>
                     </div>
 
                     {/* Форма */}
-                    <div className="px-[32px] py-6 w-[467px] grow"> 
+                    <div className="px-[32px] py-6 w-[467px] grow">
                         <form onSubmit={handleSubmit}>
 
-                            <label className="block mb-2 text-base">Зарегистрироваться как</label>
-                            <select 
-                                className="w-full border rounded-[8px] px-3 py-2 h-[51px] mb-4"
+                            <label className="block text-base">Зарегистрироваться как</label>
+                            <select
+                                className="w-full border rounded-xl px-3 py-2 h-[51px] mb-4"
                                 name="role"
                                 value={formData.role}
                                 onChange={handleChange}>
@@ -237,99 +245,105 @@ const RegisterPage = () => {
                                 <option value={'CHIEF'}>Начальник</option>
                             </select>
 
-                            <div className="flex mb-4 gap-[12px]">
+                            <div className="flex gap-[12px]">
                                 <div className="flex flex-col">
-                                    <label htmlFor="last_name" className="mb-1">Фамилия</label>
-                                    <input 
-                                        type="text" 
-                                        id="last_name" 
-                                        name="last_name"
-                                        placeholder="Иванов" 
-                                        className="border rounded-[8px] w-[150px] h-[51px] px-3 py-2" 
+                                    <InputDefault
+                                        type="text"
+                                        title="Фамилия"
+                                        placeholder="Иванов"
+                                        required
+                                        validate={(val) => val.trim().length > 0}
                                         value={formData.last_name}
                                         onChange={handleChange}
-                                        required
+                                        name='last_name'
+                                        className={'w-[150px] h-[51px]'}
                                     />
                                 </div>
                                 <div className="flex flex-col">
-                                    <label htmlFor="first_name" className="mb-1">Имя</label>
-                                    <input  
-                                        type="text" 
-                                        id="first_name" 
-                                        name="first_name"
-                                        placeholder="Иван" 
-                                        className="border rounded-[8px] w-[115px] h-[51px] px-3 py-2" 
+                                    <InputDefault
+                                        type="text"
+                                        title="Имя"
+                                        placeholder="Иван"
+                                        required
+                                        validate={(val) => val.trim().length > 0}
                                         value={formData.first_name}
                                         onChange={handleChange}
-                                        required
+                                        name='first_name'
+                                        className={'w-[115px] h-[51px]'}
                                     />
                                 </div>
                                 <div className="flex flex-col">
-                                    <label htmlFor="surname" className="mb-1">Отчество</label>
-                                    <input 
-                                        type="text" 
-                                        id="surname" 
-                                        name="surname"
-                                        placeholder="Иванович" 
-                                        className="border rounded-[8px] w-[178px] h-[51px] px-3 py-2" 
+                                    <InputDefault
+                                        type="text"
+                                        title="Отчество"
+                                        placeholder="Иванович"
                                         value={formData.surname}
                                         onChange={handleChange}
+                                        name='surname'
+                                        className={'w-[178px] h-[51px]'}
                                     />
                                 </div>
                             </div>
-                            
-                            <label className="block mb-2 text-base">Электронная почта</label>
-                            <input
+
+                            <InputDefault
                                 type="email"
-                                name="email"
+                                title="Электронная почта"
                                 placeholder="ivanovivan@mail.ru"
-                                className="w-full border h-[51px] rounded-[8px] px-3 py-2 mb-4"
+                                required
+                                validate={(val) => /\S+@\S+\.\S+/.test(val)}
                                 value={formData.email}
                                 onChange={handleChange}
-                                required
+                                name='email'
+                                className={'h-[51px]'}
                             />
 
-                            <label className="block mb-2 text-base">Телефон</label>
-                            <input
+                            <InputDefault
                                 type="tel"
-                                name="phone"
+                                title="Телефон"
                                 placeholder="+7XXXXXXXXXX"
-                                maxLength={12}
-                                className="w-full border h-[51px] rounded-[8px] px-3 py-2 mb-4"
+                                required
+                                validate={(val) => /^\+?\d{11}$/.test(val)}
                                 value={formData.phone}
                                 onChange={handleChange}
-                                required
+                                name='phone'
+                                className={'h-[51px]'}
                             />
 
-                            <label className="block mb-2 text-base">Пароль</label>
-                            <input
+                            <InputDefault
                                 type="password"
-                                name="password"
+                                title="Пароль"
                                 placeholder="******"
-                                className="w-full border h-[51px] rounded-[8px] px-3 py-2 mb-2"
+                                required
+                                validate={(val) => val.length >= 1}
                                 value={formData.password}
                                 onChange={handleChange}
-                                required
+                                name="password"
                             />
 
-                            <label className="block mb-2 text-base">Повторите пароль</label>
-                            <input
+                            <InputDefault
                                 type="password"
-                                name="confirm_password"
+                                title="Подтвердите пароль"
                                 placeholder="******"
-                                className="w-full border h-[51px] rounded-[8px] px-3 py-2 mb-2"
+                                required
+                                validate={(val) => val.length >= 1 && val === formData.password}
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                required
+                                name="confirm_password"
                             />
 
-                            {message && (
-                                <p className={`text-sm mb-2 ${isSuccess ? 'text-green-600' : 'text-red-500'}`}>
-                                    {message}
+
+                            {message.text && (
+                                <p
+                                    className={`text-sm font-medium mt-2 text-center ${
+                                        message.type === "success" ? "text-green-600" : "text-red-600"
+                                    }`}
+                                >
+                                    {message.text}
                                 </p>
                             )}
 
-                            <button type="submit" className="w-full bg-black  text-white px-[20px] py-[16px] rounded-[12px] my-10">
+                            <button type="submit"
+                                    className="w-full bg-black  text-white px-[20px] py-[16px] rounded-[12px] mt-10">
                                 Зарегистрироваться
                             </button>
                         </form>

@@ -15,7 +15,12 @@ const InputDefault = ({
     const [inputStatus, setInputStatus] = useState(false);
 
     const handleInputChange = (e) => {
-        const val = e.target.value;
+        let val = e.target.value;
+
+        if (type === "tel") {
+            val = val.replace(/[^0-9+]/g, ""); // убираем всё, кроме цифр и "+"
+        }
+
         setInputStatus(validate ? validate(val) : val.trim() !== "");
         if (onChange) onChange(e);
     };
@@ -42,6 +47,10 @@ const InputDefault = ({
                 className={`rounded-xl border border-[#212121] p-[12px] text-[#212121] placeholder:text-[#ccc] ${className}`}
                 placeholder={placeholder}
                 autoComplete="on"
+                inputMode={type === "tel" ? "numeric" : undefined}
+                pattern={type === "tel" ? "[0-9+]*" : undefined}
+                maxLength={type === "tel" ? 12 : undefined}
+                required={required}
             />
         </div>
     );

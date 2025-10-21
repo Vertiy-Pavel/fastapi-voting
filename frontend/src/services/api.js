@@ -6,70 +6,97 @@ const API_URL = import.meta.env.VITE_API_URL;
 // Экземпляр Axios с базовым URL
 const api = axios.create({
     baseURL: API_URL,
-    // withCredentials: true,
+    withCredentials: true,
 });
 
-// Перехватчик запросов
-api.interceptors.request.use(
-    (config) => {
-        const accessToken = localStorage.getItem('accessToken');
-        const csrfToken = localStorage.getItem('csrf-token');
+// Добавляем CSRF токен в каждый запрос
+api.interceptors.request.use((config) => {
+    const csrf = localStorage.getItem("x-csrf-token");
+    const accessToken = localStorage.getItem("access_token");
 
-        if (accessToken) {
-            config.headers['Authorization'] = `Bearer ${accessToken}`;
-            config.headers['X-CSRFToken'] = `${csrfToken}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
+
+    // Если нет токена и это не login/refresh — сразу редиректим
+    // if (
+    //     !csrf &&
+    //     !config.url?.includes("/auth/login") &&
+    //     !config.url?.includes("/auth/refresh")
+    // ) {
+    //     window.location.href = "/login";
+    //     return Promise.reject(new Error("No CSRF token, redirecting to login"));
+    // }
+
+    if (csrf && accessToken) {
+        config.headers["X-CSRF-Token"] = csrf;
+        config.headers['Authorization'] = `Bearer ${accessToken}`
     }
-);
+
+    return config;
+});
+
+// Флаг, чтобы не уйти в бесконечный цикл
+// let isRefreshing = false;
+// let refreshSubscribers = [];
+//
+// function onRefreshed(token) {
+//     refreshSubscribers.forEach((cb) => cb(token));
+//     refreshSubscribers = [];
+// }
+//
+// api.interceptors.response.use(
+//     (response) => {
+//         // Если при логине сервер вернул csrf в headers — сохраняем
+//         const csrf = response.headers["csrf-token"];
+//         if (csrf) {
+//             localStorage.setItem("csrf", csrf);
+//         }
+//         return response;
+//     },
+//     async (error) => {
+//         const originalRequest = error.config;
+//
+//         // Если это 401 на login — значит неверные данные, просто пробрасываем ошибку
+//         if (originalRequest.url.includes("/auth/login")) {
+//             return Promise.reject(error);
+//         }
+//
+//         if (error.response?.status === 401 && !originalRequest._retry) {
+//             if (isRefreshing) {
+//                 // Ждём пока другой запрос обновит токен
+//                 return new Promise((resolve) => {
+//                     refreshSubscribers.push((token) => {
+//                         originalRequest.headers["csrf-token"] = token;
+//                         resolve(api(originalRequest));
+//                     });
+//                 });
+//             }
+//
+//             originalRequest._retry = true;
+//             isRefreshing = true;
+//
+//             try {
+//                 const res = await api.post("/auth/refresh");
+//                 const newCsrf = res.headers["csrf-token"];
+//                 if (newCsrf) {
+//                     localStorage.setItem("csrf", newCsrf);
+//                     onRefreshed(newCsrf);
+//                     originalRequest.headers["csrf-token"] = newCsrf;
+//                 }
+//                 return api(originalRequest);
+//             } catch (refreshError) {
+//                 // Если refresh тоже 401 → редиректим на login
+//                 window.location.href = "/login";
+//                 return Promise.reject(refreshError);
+//             } finally {
+//                 isRefreshing = false;
+//             }
+//         }
+//
+//         return Promise.reject(error);
+//     }
+// );
 
 
-// Перехватчик ответов
-api.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-        // Обработка ошибок
-        if (error.response) {
-            const {status, data} = error.response;
-
-            switch (status) {
-                case 400:
-                    if (data.errors) {
-                        toast.error(`Введены неверные данные`)
-                    } else toast.error(`Ошибка 400: ${data.error}`);
-                    break;
-                case 403:
-                    toast.error(`Ошибка 403: ${data.error}`);
-                    break;
-                case 404:
-                    toast.error(`Ошибка 404: Голосование не найдено.`);
-                    break;
-                case 409:
-                    toast.error(`Ошибка 409: ${data.error}`);
-                    break;
-                case 500:
-                    toast.error(`Ошибка 500: ${data.error}`);
-                    break;
-                default:
-                    if (status >= 500) {
-                        toast.error(`Произошла ошибка на сервере (${status}). Пожалуйста, попробуйте позже.`);
-                    } else {
-                        toast.error(`Неизвестная ошибка: ${status}, ${data.error}`);
-                    }
-                    break;
-            }
-        } else {
-            toast.error('Сетевая ошибка. Проверьте ваше подключение.');
-        }
-
-        return Promise.reject(error);
-    }
-)
-
-export const    register = async (formData) => {
+export const register = async (formData) => {
     const response = await api.post(`/user/register`, formData, {
         headers: {
             "Content-Type": "application/json",
@@ -145,7 +172,7 @@ export const getVotings = async (page = 1, find = '', status = '') => {
 };
 
 export const createVoting = async (votingData) => {
-    const response = await api.post(`/votings/`, votingData, {
+    const response = await api.post(`/voting/create`, votingData, {
         headers: {
             "Content-Type": "application/json",
         },

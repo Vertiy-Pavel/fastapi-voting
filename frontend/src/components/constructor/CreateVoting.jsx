@@ -115,14 +115,14 @@ const CreateVoting = ({selectedTemplate}) => {
         registration_end: combineDateTime(registrationEnd.date, registrationEnd.time),
         voting_start: combineDateTime(votingStart.date, votingStart.time),
         voting_end: combineDateTime(votingEnd.date, votingEnd.time),
-        questions: questions.map(q => ({
-            type: q.type || 'single_choice',
-            title: q.header || 'Без названия',
-            options: (q.options || [])
-                .filter(opt => opt.trim() !== '')
-                .map(opt => ({ option: opt.trim() }))
-        })),
-        department_ids: selectedDepartmentIds // Используем выбранные ID департаментов
+        // questions: questions.map(q => ({
+        //     type: q.type || 'single_choice',
+        //     title: q.header || 'Без названия',
+        //     options: (q.options || [])
+        //         .filter(opt => opt.trim() !== '')
+        //         .map(opt => ({ option: opt.trim() }))
+        // })),
+        // department_ids: selectedDepartmentIds // Используем выбранные ID департаментов
     };
 
 
