@@ -8,7 +8,14 @@ from src.fastapi_voting.app.db.db_core import AsyncSessionLocal
 
 from src.fastapi_voting.app.core.utils.paths import get_root_path
 
-from src.fastapi_voting.app.poetry_cli.dummy_db import user_dummy,department_dummy, voting_dummy, vote_dummy
+from src.fastapi_voting.app.poetry_cli.dummy_db import (
+    user_dummy,
+    department_dummy,
+    voting_dummy,
+    vote_dummy,
+    question_dummy,
+    option_dummy
+)
 
 
 # --- Инициализация конфигураций ---
@@ -26,7 +33,7 @@ def init() -> None:
 
 # --- Вторичные синхронные функции ---
 def alembic_sync() -> None:
-    command.downgrade(alembic_cfg, "base")
+    command.downgrade(alembic_cfg, revision="base")
     command.upgrade(config=alembic_cfg, revision="head")
 
 
@@ -39,8 +46,10 @@ async def init_db() -> None:
         # --- Операции наполнения контентом ---
         users = await user_dummy.get_fake_users(session)
         departments = await department_dummy.get_fake_departments(session, users)
-        votings = await voting_dummy.get_fake_votings(session, users, departments)
-        await vote_dummy.get_fake_votes(session, votings)
+        votings = await voting_dummy.get_fake_votings(session, departments)
+        questions = await question_dummy.get_fake_questions(session, votings)
+        options = await option_dummy.get_fake_options(session, questions)
+        votes = await vote_dummy.get_fake_votes(session)
 
         await session.commit()
 

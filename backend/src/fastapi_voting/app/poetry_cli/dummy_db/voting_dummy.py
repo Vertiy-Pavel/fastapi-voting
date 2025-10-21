@@ -20,7 +20,7 @@ logger = logging.getLogger("fastapi-voting")
 faker = faker.Faker()
 
 
-async def get_fake_votings(session: AsyncSession, users: list[User], departments: set[Department]):
+async def get_fake_votings(session: AsyncSession, departments: set[Department]):
     """Генерирует комплекс фейковых голосований"""
 
     # --- Вспомогательные инструменты ---
@@ -32,7 +32,7 @@ async def get_fake_votings(session: AsyncSession, users: list[User], departments
         return result
 
     # --- Инициализация вспомогательных данных---
-    votings = []
+    votings = set()
 
     # --- Генерация голосований ---
     for _ in range(40):
@@ -79,7 +79,7 @@ async def get_fake_votings(session: AsyncSession, users: list[User], departments
             departments=target_departments,
             registered_users=registered_users,
         )
-        votings.append(voting)
+        votings.add(voting)
 
     session.add_all(votings)
     await session.flush()

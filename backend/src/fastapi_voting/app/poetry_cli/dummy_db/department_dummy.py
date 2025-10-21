@@ -1,6 +1,9 @@
 import faker
 import random
 
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.fastapi_voting.app.models.department import Department
@@ -69,6 +72,12 @@ async def get_fake_departments(session: AsyncSession, users: list[User]):
             transactions.add(employee)
 
 
+    # --- Выгрузка первичных данных с БД ---
+    query = select(User).options(selectinload(User.departments))
+    result = await session.execute(query)
+    users = list(result.scalars().all())
+
+
     # --- Инициализация копии списка пользователей, делегирование надвое: шефы, работники ---
     users = users.copy()
     chief_users = set()
@@ -80,9 +89,11 @@ async def get_fake_departments(session: AsyncSession, users: list[User]):
             continue
         employee_users.add(user)
 
+
     # --- Вспомогательные данные ---
     departments = set()
     transactions = set()
+
 
     # --- Генерация отделов ---
     for _ in range(3):
@@ -132,5 +143,6 @@ async def get_fake_departments(session: AsyncSession, users: list[User]):
 
     # --- Фиксация результирующего состояния транзакции ---
     session.add_all(transactions)
+    await session.flush()
 
     return departments

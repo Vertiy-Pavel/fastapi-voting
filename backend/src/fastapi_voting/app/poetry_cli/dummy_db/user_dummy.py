@@ -35,5 +35,6 @@ async def get_fake_users(session: AsyncSession):
         users.append(user)
 
     session.add_all(users)
+    await session.flush()
 
     return users
