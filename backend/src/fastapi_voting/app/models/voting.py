@@ -43,11 +43,15 @@ class Voting(Base):
     creator_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete='SET NULL'))
 
     # --- ОРМ-связи ---
+
+    # Many-to-One
     creator: Mapped['User'] = relationship(back_populates="creator_votings", foreign_keys=[creator_id])
 
+    # One-to-Many
     votes: Mapped[List['Vote']] = relationship(back_populates="voting", cascade="all, delete-orphan")
+    questions: Mapped[List['Question']] = relationship(back_populates="voting", cascade="all, delete-orphan")
+    options: Mapped["Option"] = relationship(back_populates="voting", cascade="all, delete-orphan")
 
+    # Many-to-Many
     departments: Mapped[List['Department']] = relationship(secondary=voting_department_association_table, back_populates="votings")
     registered_users: Mapped[List['User']] = relationship(secondary=users_voting_registered_association_table, back_populates="votings")
-
-    # TODO: Question-relationship, Model
