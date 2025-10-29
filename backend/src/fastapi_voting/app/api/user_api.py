@@ -1,14 +1,25 @@
+import logging
+
+from datetime import timedelta
+
 from fastapi import APIRouter, status
 from fastapi.params import Depends
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse
 
 from fastapi_csrf_protect import CsrfProtect
+
+from src.fastapi_voting.app.core.settings import get_settings
 
 from src.fastapi_voting.app.core.utils.utils import create_tokens
 from src.fastapi_voting.app.di.annotations import UserServiceAnnotation
 
 from src.fastapi_voting.app.schemas.user_schema import InputCreateUserSchema, OutputCreateUserSchema
 from src.fastapi_voting.app.schemas.user_schema import InputLoginUserSchema, ResponseLoginUserSchema, UserSchema
+
+
+# --- Инициализация первичных данных и вспомогательных инструментов---
+logger = logging.getLogger("fastapi-voting")
+settings = get_settings()
 
 
 # --- Конфигурация обработчика маршрутов, связанных с пользователями ---
@@ -36,10 +47,10 @@ async def user_login(
         csrf_protect: CsrfProtect = Depends(),
 ):
     # TODO: JWT-blocklist
-    # TODO: Защита эндпоинтов
 
     # --- Инициализация данных ---
     remember_flag = data.model_dump()["remember_me"]
+    cookie_expire = timedelta(days=settings.JWT_REFRESH_EXPIRE_DAYS)
 
     # --- Работа сервиса ---
     logined_user = await user_service.login(data)
@@ -56,8 +67,7 @@ async def user_login(
 
     response = JSONResponse(content=content)
     response.headers["X-CSRF-Token"] = csrf_token
-    response.set_cookie(key="fastapi-csrf-token", value=signed_csrf, httponly=True)
-    response.set_cookie(key="refresh_token", value=tokens["refresh_token"], httponly=True)
+    response.set_cookie(key="fastapi-csrf-token", value=signed_csrf, httponly=True, expires=cookie_expire)
+    response.set_cookie(key="refresh_token", value=tokens["refresh_token"], httponly=True, expires=cookie_expire)
 
-    print(csrf_token, signed_csrf, sep='\n')
     return response
