@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     CSRF_MAX_AGE: int
     CSRF_COOKIE_SECURE: bool
 
+    TLS_PRIVATE_KEY: str
+    TLS_CERTIFICATE: str
+
     APP_HOST: str
     APP_PORT: int
 
