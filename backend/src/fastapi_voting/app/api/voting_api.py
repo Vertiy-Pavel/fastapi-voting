@@ -1,14 +1,12 @@
 from fastapi import APIRouter, Depends, Request
 
-from fastapi_csrf_protect import CsrfProtect
-
 from src.fastapi_voting.app.di.annotations import (
     VotingServiceAnnotation,
     AccessRequiredAnnotation,
     CSRFValidAnnotation
 )
 from src.fastapi_voting.app.schemas.voting_schema import (
-    InputCreateVotingSchema, ResponseCreateVotingSchema
+    InputCreateVotingSchema, ResponseCreateVotingSchema, InputDeleteVotingSchema
 )
 
 
@@ -42,14 +40,17 @@ async def create_voting(
     return result
 
 
-@voting_router.delete(path="/delete/{voting_id}")
+@voting_router.post(path="/delete")
 async def delete_voting(
         csrf_is_valid: CSRFValidAnnotation,
         user_id: AccessRequiredAnnotation,
 
-        voting_id: int,
+        voting_data: InputDeleteVotingSchema,
         voting_service: VotingServiceAnnotation,
 ):
+    # --- Извлечение данных запроса ---
+    voting_id = voting_data.model_dump()["id"]
+
     # --- Работа сервиса ---
     await voting_service.delete_voting(voting_id)
 

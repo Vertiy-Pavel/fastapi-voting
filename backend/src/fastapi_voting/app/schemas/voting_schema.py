@@ -32,3 +32,8 @@ class ResponseCreateVotingSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# --- Схема для удаления пользования ---
+class InputDeleteVotingSchema(BaseModel):
+    id: int
