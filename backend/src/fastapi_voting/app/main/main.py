@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from logging import getLogger
 
-from fastapi.middleware.cors import CORSMiddleware
+from src.fastapi_voting.app.main.middlewares import setup_middlewares
 
 from src.fastapi_voting.app.api.user_api import user_router
 from src.fastapi_voting.app.api.department_api import department_router
@@ -19,18 +19,9 @@ fastapi_app = FastAPI(
     docs_url='/docs',
     redoc_url='/redoc',
 )
-# --- Конфигурация CORS ---
-origins = [
-    "http://localhost:5173"
-]
-fastapi_app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"],
-)
+
+# --- регистрация промежуточных обработчиков ---
+setup_middlewares(fastapi_app)
 
 # --- Вторичные данные ---
 v1_url_prefix = '/api/v1'

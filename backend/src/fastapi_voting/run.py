@@ -16,7 +16,7 @@ def main(reload: bool = False, host: str = settings.APP_HOST):
     logger.info("Запуск приложения fastapi-voting")
 
     uvicorn.run(
-        "src.fastapi_voting.app.main:fastapi_app",
+        "src.fastapi_voting.app.main.main:fastapi_app",
         host=host,
         port=settings.APP_PORT,
 
