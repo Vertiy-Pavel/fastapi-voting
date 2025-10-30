@@ -18,8 +18,7 @@ department_router = APIRouter(
 # --- Обработчики ---
 @department_router.get(path="/all", response_model=list[ResponseAllDepartmentsSchema])
 async def get_all_departments(
-        csrf_valid: CSRFValidAnnotation,
-        user_id: AccessRequiredAnnotation,
+        access_payload: AccessRequiredAnnotation,
 
         departments_service: DepartmentServiceAnnotation
 ):

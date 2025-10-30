@@ -27,8 +27,7 @@ async def get_all_votings(
 
 @voting_router.post(path="/create", response_model=ResponseCreateVotingSchema)
 async def create_voting(
-        csrf_is_valid: CSRFValidAnnotation,
-        user_id: AccessRequiredAnnotation,
+        access_payload: AccessRequiredAnnotation,
 
         voting_service: VotingServiceAnnotation,
         voting_data: InputCreateVotingSchema,
@@ -42,8 +41,7 @@ async def create_voting(
 
 @voting_router.post(path="/delete")
 async def delete_voting(
-        csrf_is_valid: CSRFValidAnnotation,
-        user_id: AccessRequiredAnnotation,
+        access_payload: AccessRequiredAnnotation,
 
         voting_data: InputDeleteVotingSchema,
         voting_service: VotingServiceAnnotation,
