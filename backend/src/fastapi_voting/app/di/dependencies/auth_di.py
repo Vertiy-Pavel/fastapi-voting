@@ -1,3 +1,7 @@
+import logging
+
+import redis
+
 from fastapi import Request, HTTPException, status, Depends
 
 from fastapi_csrf_protect import CsrfProtect
@@ -7,12 +11,16 @@ from jose.exceptions import ExpiredSignatureError, JWTError
 
 from src.fastapi_voting.app.core.settings import get_settings
 
+from src.fastapi_voting.app.di.dependencies.databases_di import get_redis
 
+
+# --- Инструментарий ---
 settings = get_settings()
+logger = logging.getLogger("fastapi-voting")
 
 # --- Зависимости ---
 class AuthTokenRequired:
-    """Класс-зависимость. Валидирует конкретный JWT-токен и возвращает ID пользователя из payload"""
+    """Класс-зависимость. Валидирует конкретный токен и возвращает payload """
 
     def __init__(self, token_type):
         self.token_type = token_type
@@ -34,13 +42,17 @@ class AuthTokenRequired:
             return None
 
         elif self.token_type == "refresh_token":
-            token_string = request.cookies.get("refresh_token")
+            token_string = request.cookies.get("refresh-token")
             return token_string
 
         return None
 
 
-    def __call__(self, request: Request) -> int:
+    async def __call__(
+            self,
+            request: Request,
+            redis_client: redis.Redis = Depends(get_redis)
+    ):
 
         # --- Извлечение токена из входных данных ---
         token = self.extract_token(request)
@@ -56,13 +68,20 @@ class AuthTokenRequired:
                 key=settings.JWT_SECRET_KEY,
                 algorithms=["HS256"]
             )
-            return payload["user_id"]
-
         except ExpiredSignatureError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"{self.token_type} просрочен.")
 
         except JWTError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Некорректный {self.token_type}.")
+
+        # --- Проверка отозванных токенов ---
+        token_is_revoked = redis_client.exists(f"jwt_block:{payload['jti']}")
+
+        if token_is_revoked:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"{self.token_type} отозван.")
+
+        # --- Ответ ---
+        return payload
 
 
 async def csrf_valid(request: Request, csrf_protect: CsrfProtect = Depends()):
