@@ -39,6 +39,7 @@ fastapi-voting                          # Корневой каталог Poetry
 - FastApi
 - SQLAlchemy
 - MySQL + asyncmy
+- Redis
 - Alembic
 - Uvicorn (ASGI)
 
@@ -47,28 +48,37 @@ fastapi-voting                          # Корневой каталог Poetry
 Содержимое .env:
 ```powershell
 # Конфигурация приложения
+APP_HOST=127.0.0.1
+APP_PORT=5000
+
+# ACCESS и REFRESH токены
 JWT_SECRET_KEY=c05da040fc7bd6f8f8964405f94d6f4b
-JWT_ACCESS_EXPIRE_MINUTES=120
+JWT_ACCESS_EXPIRE_MINUTES=30
 JWT_REFRESH_EXPIRE_DAYS=1
 
+# CSRF-токены
 CSRF_SECRET_KEY=8BMagWCAM5jHrz09DMUaZiDe8L1Vj8scPbR3AlUEG8fY6vz8To5A0aT9K0zSSuCU
 CSRF_COOKIE_SAMESITE=none
 CSRF_MAX_AGE=86400
 CSRF_COOKIE_SECURE=true
 
-TLS_PRIVATE_KEY=<path_to_key>
-TLS_CERTIFICATE=<path_to_certificate>
+# Конфигурация для TLS
+TLS_PRIVATE_KEY=C:\Users\Lyric\Desktop\Work\SSL\fastapi-voting\privateKey.key
+TLS_CERTIFICATE=C:\Users\Lyric\Desktop\Work\SSL\fastapi-voting\certificate.crt
 
-APP_HOST=127.0.0.1
-APP_PORT=5000
-
-# Конфигурация MySQL
+# MySQL
 DB_HOST=127.0.0.1
 DB_PORT=3306
 
 DB_USER=root
 DB_PASSWORD=0000
 DB_NAME=voting
+
+# Redis
+RDS_HOST=127.0.0.1
+RDS_PORT=6379
+RDS_DB=0
+RDS_PASSWORD=0000
 
 ```
 
