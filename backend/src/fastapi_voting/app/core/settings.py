@@ -18,22 +18,25 @@ class CsrfSettings(BaseModel):
 class Settings(BaseSettings):
 
     # --- Конфигурация приложения ---
+    APP_HOST: str
+    APP_PORT: int
+
+    # --- ACCESS и REFRESH ---
     JWT_SECRET_KEY: str
     JWT_ACCESS_EXPIRE_MINUTES: int
     JWT_REFRESH_EXPIRE_DAYS: int
 
+    # --- CSRF ---
     CSRF_SECRET_KEY: str
     CSRF_COOKIE_SAMESITE : str
     CSRF_MAX_AGE: int
     CSRF_COOKIE_SECURE: bool
 
+    # --- TLS ---
     TLS_PRIVATE_KEY: str
     TLS_CERTIFICATE: str
 
-    APP_HOST: str
-    APP_PORT: int
-
-    # --- Конфигурация данных БД ---
+    # --- MySQL ---
     DB_HOST: str
     DB_PORT: str
 
@@ -41,12 +44,22 @@ class Settings(BaseSettings):
     DB_PASSWORD: str
     DB_NAME: str
 
+    # --- REDIS ---
+    RDS_HOST: str
+    RDS_PORT: str
+    RDS_PASSWORD: str
+    RDS_DB: int
+
+
     class Config:
         env_file = get_root_path() / ".env"
         extra = "allow"
 
     def get_db_url(self) -> str:
         return f"mysql+asyncmy://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+
+    def get_redis_url(self) -> str:
+        return f"{self.RDS_HOST}:{self.RDS_PORT}"
 
 
 # --- Определение точек входа для классов-конфигурации ---
