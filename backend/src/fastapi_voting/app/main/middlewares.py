@@ -1,19 +1,18 @@
-from fastapi import FastAPI
-
-from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+from fastapi import FastAPI, Request
 
 from fastapi.middleware.cors import CORSMiddleware
 
 
 # --- Конфигурация обработчиков ---
 origins = [
-    "https://localhost:5173"
+    "http://localhost:5173",
+    "https://localhost:3000"
 ]
 
-# --- Регистрация промежуточных обработчиков ---
-def setup_middlewares(app: FastAPI):
-    app.add_middleware(HTTPSRedirectMiddleware)
 
+def setup_middlewares(app: FastAPI):
+
+    # --- Регистрация промежуточных обработчиков ---
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,

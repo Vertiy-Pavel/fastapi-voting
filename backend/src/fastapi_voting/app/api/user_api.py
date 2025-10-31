@@ -1,8 +1,8 @@
 import logging
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Request
 from fastapi.params import Depends
 from fastapi.responses import JSONResponse
 
@@ -11,10 +11,18 @@ from fastapi_csrf_protect import CsrfProtect
 from src.fastapi_voting.app.core.settings import get_settings
 
 from src.fastapi_voting.app.core.utils.utils import create_tokens
-from src.fastapi_voting.app.di.annotations import UserServiceAnnotation
+from src.fastapi_voting.app.di.annotations import (
+    UserServiceAnnotation,
+
+    RedisClientAnnotation,
+    AccessRequiredAnnotation,
+    RefreshRequiredAnnotation,
+    CSRFValidAnnotation
+)
 
 from src.fastapi_voting.app.schemas.user_schema import InputCreateUserSchema, OutputCreateUserSchema
 from src.fastapi_voting.app.schemas.user_schema import InputLoginUserSchema, ResponseLoginUserSchema, UserSchema
+from src.fastapi_voting.app.schemas.user_schema import OutputRefreshUserSchema
 
 
 # --- Инициализация первичных данных и вспомогательных инструментов---
@@ -46,11 +54,9 @@ async def user_login(
         user_service: UserServiceAnnotation,
         csrf_protect: CsrfProtect = Depends(),
 ):
-    # TODO: JWT-blocklist
-
     # --- Инициализация данных ---
     remember_flag = data.model_dump()["remember_me"]
-    cookie_expire = timedelta(days=settings.JWT_REFRESH_EXPIRE_DAYS)
+    cookie_expire = datetime.now(timezone.utc) + timedelta(days=settings.JWT_REFRESH_EXPIRE_DAYS)
 
     # --- Работа сервиса ---
     logined_user = await user_service.login(data)
@@ -68,6 +74,73 @@ async def user_login(
     response = JSONResponse(content=content)
     response.headers["X-CSRF-Token"] = csrf_token
     response.set_cookie(key="fastapi-csrf-token", value=signed_csrf, httponly=True, expires=cookie_expire)
-    response.set_cookie(key="refresh_token", value=tokens["refresh_token"], httponly=True, expires=cookie_expire)
+    response.set_cookie(key="refresh-token", value=tokens["refresh_token"], httponly=True, expires=cookie_expire)
 
+    return response
+
+
+# --- Выход из сессии ---
+@user_router.post("/access-logout")
+async def user_acs_logout(
+        access_payload: AccessRequiredAnnotation,
+        redis_client: RedisClientAnnotation,
+):
+    # --- Первичные данные и запись в БД ---
+    jti = access_payload["jti"]
+    ttl = access_payload["exp"]
+
+    redis_client.set(
+        name=f"jwt_block:{jti}",
+        ex=ttl,
+        value="1"
+    )
+
+    # --- Ответ ---
+    return {"message": "access revoked"}
+
+
+@user_router.post("/refresh-logout")
+async def user_ref_logout(
+        csrf_is_valid: CSRFValidAnnotation,
+        refresh_payload: RefreshRequiredAnnotation,
+        redis_client: RedisClientAnnotation,
+):
+    # --- Первичные данные и запись в БД ---
+    jti = refresh_payload["jti"]
+    ttl = refresh_payload["exp"]
+
+    redis_client.set(
+        name=f"jwt_block:{jti}",
+        ex=ttl,
+        value="1"
+    )
+
+    # --- Ответ ---
+    return {"message": "refresh revoked"}
+
+
+# --- Обновление сессии ---
+@user_router.post("/refresh", response_model=OutputRefreshUserSchema)
+async def user_refresh(
+        csrf_is_valid: CSRFValidAnnotation,
+        refresh_payload: RefreshRequiredAnnotation,
+        csrf_protect: CsrfProtect = Depends(),
+):
+    # --- Первичные данные ---
+    user_id = refresh_payload["user_id"]
+    cookie_expire = datetime.now(timezone.utc) + timedelta(days=settings.JWT_REFRESH_EXPIRE_DAYS)
+
+    # --- Генерация токенов ---
+    tokens = create_tokens(user_id, refresh=True)
+    csrf_token, signed_csrf = csrf_protect.generate_csrf_tokens(settings.CSRF_SECRET_KEY)
+
+    # --- Формирование ответа ---
+    content = {"access_token": tokens["access_token"]}
+
+    response = JSONResponse(content=content)
+    response.headers["X-CSRF-Token"] = csrf_token
+    response.set_cookie(key="fastapi-csrf-token", value=signed_csrf, httponly=True, expires=cookie_expire)
+    response.set_cookie(key="refresh-token", value=tokens["refresh_token"], httponly=True, expires=cookie_expire)
+
+    # --- Ответ ---
     return response

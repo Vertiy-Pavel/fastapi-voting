@@ -12,7 +12,7 @@ logger = logging.getLogger('fastapi-voting')
 settings = get_settings()
 
 
-def main(reload: bool = False, host: str = settings.APP_HOST, tls: bool = False):
+def main(reload: bool = False, host: str = settings.APP_HOST):
     logger.info("Запуск приложения fastapi-voting")
 
     ssl_keypath = settings.TLS_PRIVATE_KEY

@@ -20,7 +20,8 @@ fastapi_app = FastAPI(
     redoc_url='/redoc',
 )
 
-# --- регистрация промежуточных обработчиков ---
+
+# --- Регистрация Middleware ---
 setup_middlewares(fastapi_app)
 
 # --- Вторичные данные ---

@@ -44,7 +44,6 @@ class UserSchema(BaseModel):
         from_attributes = True
 
 
-
 class ResponseLoginUserSchema(BaseModel):
     user: UserSchema
     access_token: str
@@ -52,3 +51,7 @@ class ResponseLoginUserSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
+# --- Схемы для обновления доступов пользователя ---
+class OutputRefreshUserSchema(BaseModel):
+    access_token: str
