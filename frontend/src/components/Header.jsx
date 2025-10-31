@@ -21,9 +21,6 @@ const Header = () => {
         })
     }, [])
 
-    const Voting = [
-        {title: 'Список голосований', to: '/votes'},
-    ]
     const Add = [
         {id: 1, title: 'Голосование', to: '/constructor'},
         {id: 2, title: 'Шаблон голосований', to: '/constructor'},
@@ -72,14 +69,6 @@ const Header = () => {
                         >
                             Голосования
                         </NavLink>
-
-                        {/*<div className='h-full flex items-start z-20'>*/}
-                        {/*    <HeaderDropdown*/}
-                        {/*        title={'Голосования'}*/}
-                        {/*        options={Voting}*/}
-                        {/*        links={Voting.map(v => v.to)}*/}
-                        {/*    />*/}
-                        {/*</div>*/}
 
                         {user.role === 'CHIEF' &&
                             <div className='h-full flex items-start z-20'>
@@ -165,11 +154,12 @@ const Header = () => {
                 <div className='md:hidden bg-[#212121] px-7 pb-4 absolute top-20 left-0 right-0 z-30'>
                     <div className='flex flex-col gap-2'>
                         <div className='text-white'>
-                            <HeaderDropdown
-                                title={'Голосования'}
-                                options={Voting}
-                                links={Voting.map(v => v.to)}
-                            />
+                            <NavLink
+                                to={'/votes'}
+                                className='px-5 h-13 flex items-start py-3 cursor-pointer hover:bg-[#505050] rounded-2xl'
+                            >
+                                Голосования
+                            </NavLink>
                         </div>
                         {user.role === 'CHIEF' &&
                             <div className='rounded-2xl text-white w-57'>

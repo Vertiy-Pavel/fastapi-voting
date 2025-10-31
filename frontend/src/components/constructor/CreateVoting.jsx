@@ -197,6 +197,7 @@ const CreateVoting = ({selectedTemplate}) => {
                     <option value="unanimous">Единогласно</option>
                 </select>
 
+                {/*TODO: Добавить выбор открытое/закрытое голосование*/}
                 <label className="block text-sm font-medium text-gray-700 mb-1 mt-4">
                     Группа пользователей
                 </label>

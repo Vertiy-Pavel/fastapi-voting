@@ -44,7 +44,7 @@ const LoginPage = () => {
             // console.log("Ответ API для входа в систему:", response);
             console.log(response);
             //setMessage(`Ответ API для входа в систему: ${JSON.stringify(response)}`);
-
+            console.log(response.headers)
             // console.log(csrfRefreshToken);
             localStorage.setItem('x-csrf-token', response.headers['x-csrf-token']);
             localStorage.setItem('access_token', response.data.access_token);

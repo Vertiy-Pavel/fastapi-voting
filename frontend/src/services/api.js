@@ -9,6 +9,8 @@ const api = axios.create({
     withCredentials: true,
 });
 
+// TODO: реализовать редирект на рефреш при ошибке 401 (при авторизации так же выдает ошибку 401)
+
 // Добавляем CSRF токен в каждый запрос
 api.interceptors.request.use((config) => {
     const csrf = localStorage.getItem("x-csrf-token");
@@ -113,6 +115,7 @@ export const loginUser = async (email, password, remember_me) => {
     });
 };
 
+// TODO: удалить
 export const userInfo = async () => {
     const response = await api.get(`/users/user-info`, {});
     return response.data;
