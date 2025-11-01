@@ -1,6 +1,6 @@
 import logging
 
-import redis
+from redis.asyncio import Redis
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,11 +20,6 @@ async def get_db() -> AsyncSession:
         await session.close()
 
 
-async def get_redis() -> redis.Redis:
-    redis_client = redis.Redis(
-        host=settings.RDS_HOST,
-        port=settings.RDS_PORT,
-        db=settings.RDS_DB,
-        decode_responses=True,
-    )
+async def get_redis() -> Redis:
+    redis_client = Redis.from_url(settings.get_redis_url())
     return redis_client

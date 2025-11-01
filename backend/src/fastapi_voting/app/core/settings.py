@@ -59,7 +59,7 @@ class Settings(BaseSettings):
         return f"mysql+asyncmy://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     def get_redis_url(self) -> str:
-        return f"{self.RDS_HOST}:{self.RDS_PORT}"
+        return f"redis://{self.RDS_HOST}:{self.RDS_PORT}"
 
 
 # --- Определение точек входа для классов-конфигурации ---
