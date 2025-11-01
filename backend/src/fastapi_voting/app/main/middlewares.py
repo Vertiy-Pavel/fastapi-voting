@@ -5,7 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # --- Конфигурация обработчиков ---
 origins = [
-    "http://localhost:5173",
     "https://localhost:5173"
 ]
 
@@ -18,6 +17,6 @@ def setup_middlewares(app: FastAPI):
         allow_origins=origins,
         allow_credentials=True,
         allow_methods=["*"],
-        allow_headers=["*"],
+        allow_headers=["Authorization", "Content-Type", "X-CSRF-Token"],
         expose_headers=["X-CSRF-Token"],
     )

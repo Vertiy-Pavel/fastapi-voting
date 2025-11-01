@@ -1,6 +1,6 @@
 import logging
 
-import redis
+from redis.asyncio import Redis
 
 from fastapi import Request, HTTPException, status, Depends
 
@@ -11,6 +11,7 @@ from jose.exceptions import ExpiredSignatureError, JWTError
 
 from src.fastapi_voting.app.core.settings import get_settings
 
+# from src.fastapi_voting.app.di.annotations import RedisClientAnnotation TODO: Цикличные импорты. Пересмотреть в пользу использования аннотации
 from src.fastapi_voting.app.di.dependencies.databases_di import get_redis
 
 
@@ -51,9 +52,8 @@ class AuthTokenRequired:
     async def __call__(
             self,
             request: Request,
-            redis_client: redis.Redis = Depends(get_redis)
+            redis_client: Redis = Depends(get_redis)
     ):
-
         # --- Извлечение токена из входных данных ---
         token = self.extract_token(request)
 
@@ -75,10 +75,10 @@ class AuthTokenRequired:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Некорректный {self.token_type}.")
 
         # --- Проверка отозванных токенов ---
-        token_is_revoked = redis_client.exists(f"jwt_block:{payload['jti']}")
+        token_is_revoked = await redis_client.exists(f"jwt-block:{payload['jti']}")
 
         if token_is_revoked:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"{self.token_type} отозван.")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"{self.token_type} был отозван.")
 
         # --- Ответ ---
         return payload
