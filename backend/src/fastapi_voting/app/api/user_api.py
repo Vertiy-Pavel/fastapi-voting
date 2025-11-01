@@ -3,18 +3,15 @@ import logging
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, status, Request
-from fastapi.params import Depends
 from fastapi.responses import JSONResponse
-
-from fastapi_csrf_protect import CsrfProtect
 
 from src.fastapi_voting.app.core.settings import get_settings
 
-from src.fastapi_voting.app.core.utils.utils import create_tokens
 from src.fastapi_voting.app.di.annotations import (
     UserServiceAnnotation,
 
-    RedisClientAnnotation,
+    TokenServiceAnnotation,
+
     AccessRequiredAnnotation,
     RefreshRequiredAnnotation,
     CSRFValidAnnotation
@@ -51,19 +48,21 @@ async def user_register(
 @user_router.post("/login", response_model=ResponseLoginUserSchema)
 async def user_login(
         data: InputLoginUserSchema,
+
         user_service: UserServiceAnnotation,
-        csrf_protect: CsrfProtect = Depends(),
+        token_service: TokenServiceAnnotation
 ):
+    # TODO: Привязка токенов к сессии. Рассмотреть.
     # --- Инициализация данных ---
     remember_flag = data.model_dump()["remember_me"]
     cookie_expire = datetime.now(timezone.utc) + timedelta(days=settings.JWT_REFRESH_EXPIRE_DAYS)
 
-    # --- Работа сервиса ---
+    # --- Работа бизнес-сервиса ---
     logined_user = await user_service.login(data)
 
     # --- Генерация токенов ---
-    tokens = create_tokens(logined_user.id, remember_flag)
-    csrf_token, signed_csrf = csrf_protect.generate_csrf_tokens()
+    tokens = token_service.create_tokens(logined_user.id, remember_flag)
+    csrf_token, signed_csrf = token_service.create_csrf()
 
     # --- Формирование ответа сервера ---
     content: dict = ResponseLoginUserSchema(
@@ -73,8 +72,8 @@ async def user_login(
 
     response = JSONResponse(content=content)
     response.headers["X-CSRF-Token"] = csrf_token
-    response.set_cookie(key="fastapi-csrf-token", value=signed_csrf, httponly=True, expires=cookie_expire)
-    response.set_cookie(key="refresh-token", value=tokens["refresh_token"], httponly=True, expires=cookie_expire)
+    response.set_cookie(key="fastapi-csrf-token", value=signed_csrf, httponly=True, expires=cookie_expire, secure=True, samesite="none")
+    response.set_cookie(key="refresh-token", value=tokens["refresh_token"], httponly=True, expires=cookie_expire, secure=True, samesite="none")
 
     return response
 
@@ -83,17 +82,10 @@ async def user_login(
 @user_router.post("/access-logout")
 async def user_acs_logout(
         access_payload: AccessRequiredAnnotation,
-        redis_client: RedisClientAnnotation,
+        token_service : TokenServiceAnnotation,
 ):
-    # --- Первичные данные и запись в БД ---
-    jti = access_payload["jti"]
-    ttl = access_payload["exp"]
-
-    redis_client.set(
-        name=f"jwt_block:{jti}",
-        ex=ttl,
-        value="1"
-    )
+    # --- Работа сервиса ---
+    await token_service.revoke_token(access_payload)
 
     # --- Ответ ---
     return {"message": "access revoked"}
@@ -103,17 +95,10 @@ async def user_acs_logout(
 async def user_ref_logout(
         csrf_is_valid: CSRFValidAnnotation,
         refresh_payload: RefreshRequiredAnnotation,
-        redis_client: RedisClientAnnotation,
+        token_service : TokenServiceAnnotation,
 ):
-    # --- Первичные данные и запись в БД ---
-    jti = refresh_payload["jti"]
-    ttl = refresh_payload["exp"]
-
-    redis_client.set(
-        name=f"jwt_block:{jti}",
-        ex=ttl,
-        value="1"
-    )
+    # --- Работа сервиса ---
+    await token_service.revoke_token(refresh_payload)
 
     # --- Ответ ---
     return {"message": "refresh revoked"}
@@ -124,15 +109,15 @@ async def user_ref_logout(
 async def user_refresh(
         csrf_is_valid: CSRFValidAnnotation,
         refresh_payload: RefreshRequiredAnnotation,
-        csrf_protect: CsrfProtect = Depends(),
+        token_service : TokenServiceAnnotation,
 ):
     # --- Первичные данные ---
     user_id = refresh_payload["user_id"]
     cookie_expire = datetime.now(timezone.utc) + timedelta(days=settings.JWT_REFRESH_EXPIRE_DAYS)
 
     # --- Генерация токенов ---
-    tokens = create_tokens(user_id, refresh=True)
-    csrf_token, signed_csrf = csrf_protect.generate_csrf_tokens(settings.CSRF_SECRET_KEY)
+    tokens = token_service.create_tokens(user_id, refresh=True)
+    csrf_token, signed_csrf = token_service.create_csrf()
 
     # --- Формирование ответа ---
     content = {"access_token": tokens["access_token"]}
