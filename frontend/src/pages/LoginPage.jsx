@@ -1,12 +1,16 @@
-import React, {useState} from 'react';
-import {Link, useNavigate} from 'react-router-dom';
-import {loginUser} from '../services/api/user.js'
+import React, {useEffect, useState} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
+import {loginUser, registerConfirmEmail} from '../services/api/user.js'
 import {InputDefault, InputPassword} from "../components/Inputs.jsx";
 import {BlackButton, GrayButton} from "../components/Button.jsx";
+import toast from "react-hot-toast";
+
 
 const LoginPage = () => {
-
+    const {uuid} = useParams();
+    const navigate = useNavigate();
     const [message, setMessage] = useState({text: '', type: ''});
+    const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
         email: '',
@@ -14,7 +18,32 @@ const LoginPage = () => {
         remember_flag: false,
     });
 
-    const navigate = useNavigate();
+    const savedUuidPassword = sessionStorage.getItem('uuidPassword');
+    const savedUuidEmail = sessionStorage.getItem('uuidEmail');
+
+    useEffect(() => {
+        if (!uuid) return;
+        const confirmChange = async () => {
+            try {
+                const response = await registerConfirmEmail(uuid);
+                console.log(response);
+
+                if (savedUuidPassword) {
+                    navigate(`/profile/password/${uuid}`)
+                } else if (savedUuidEmail) {
+                    navigate(`/profile/email/${uuid}`)
+                } else {
+                    toast.success('Почта успешно подтверждена!')
+                    navigate("/login", {replace: true});
+                }
+            } catch (error) {
+                console.log(error);
+                navigate("/register", {replace: true});
+                toast.error('Не удалось подтвердить почту!');
+            }
+        }
+        confirmChange()
+    }, [navigate, uuid])
 
     const handleChange = (e) => {
         const {name, value, type, checked} = e.target;
@@ -38,14 +67,12 @@ const LoginPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        setLoading(true);
         try {
             const response = await loginUser(formData.email, formData.password, formData.remember_flag);
-            // console.log("Ответ API для входа в систему:", response);
             console.log(response);
-            //setMessage(`Ответ API для входа в систему: ${JSON.stringify(response)}`);
             console.log(response.headers)
-            // console.log(csrfRefreshToken);
+
             localStorage.setItem('x-csrf-token', response.headers['x-csrf-token']);
             localStorage.setItem('access_token', response.data.access_token);
             localStorage.setItem('role', response.data.user.role);
@@ -55,24 +82,24 @@ const LoginPage = () => {
             localStorage.setItem('email', response.data.user.email);
             setMessage({text: 'Авторизация прошла успешно!', type: 'success'});
 
-
             setTimeout(() => {
-                navigate('/');
+                navigate('/votes');
             }, 1000);
-
 
         } catch (error) {
             console.log('Полный error:', error);
             console.log('error.response:', error.response);
             console.log('error.response.data:', error.response?.data);
             setMessage({text: error.response.data.detail, type: 'error'});
+        } finally {
+            setLoading(false);
         }
     };
 
 
     return (
         <>
-            <div className="flex flex-col items-center justify-center min-h-[calc(100vh-100px)] bg-gray-100">
+            <div className="flex px-4 flex-col items-center justify-center min-h-[calc(100vh-100px)] bg-gray-100">
 
                 <h1 className="text-[40px] mb-6 w-[264px] h-[48px] font-mak">Авторизация</h1>
 
@@ -131,7 +158,41 @@ const LoginPage = () => {
                                 </p>
                             )}
 
-                            <BlackButton onClick={handleSubmit}>Войти</BlackButton>
+                            <BlackButton onClick={handleSubmit}>
+                                {loading ?
+                                (
+                                    <>
+
+                                        <svg className="h-5 w-5 animate-spin items-center" viewBox="0 0 24 24">
+                                            <circle
+                                                fill="none"
+                                                strokeWidth="3"
+                                                className="stroke-current opacity-40"
+                                                cx="12"
+                                                cy="12"
+                                                r="10"
+                                            />
+                                            <circle
+                                                cx="12"
+                                                cy="12"
+                                                r="10"
+                                                stroke="currentColor"
+                                                strokeWidth="3"
+                                                strokeLinecap="round"
+                                                strokeDasharray="50.265"
+                                                strokeDashoffset="36"      /* длина видимой дуги */
+                                                className="opacity-95"
+                                                fill="none"
+                                            />
+                                        </svg>
+                                    </>)
+                                : (
+                                    <>
+                                        Войти
+                                    </>
+                                )
+
+                            }</BlackButton>
                         </form>
                     </div>
 
