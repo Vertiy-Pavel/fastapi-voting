@@ -2,9 +2,8 @@ import {useState, useEffect} from 'react';
 import {CgProfile} from "react-icons/cg";
 import {VscSettings} from "react-icons/vsc";
 import {LuScanSearch} from "react-icons/lu";
-import {NavLink, useNavigate, Link} from 'react-router-dom'
+import {NavLink, useNavigate} from 'react-router-dom'
 import {MdLogout} from "react-icons/md";
-import HeaderDropdown from './Header/HeaderDropdown';
 import AltHeaderDropdown from './Header/AltHeaderDropdown';
 import {accessLogout, refreshLogout} from "../services/api/user.js";
 
@@ -38,10 +37,6 @@ const Header = () => {
         localStorage.clear();
         navigate('/login');
     }
-    //
-    // if (!user) {
-    //     return <header className="w-full h-24 bg-neutral-800 "></header>;
-    // }
 
     return (
         <div className='h-25 bg-[#212121]'>
@@ -80,17 +75,7 @@ const Header = () => {
 
                     </div>
                 </div>
-                <div className='flex h-15 gap-6 items-center'>
-
-
-                    <div className="w-8 h-8 cursor-pointer">
-                        <LuScanSearch size={32}/>
-                    </div>
-                    <div className="w-8 h-8 cursor-pointer">
-                        <VscSettings size={32}/>
-                    </div>
-
-
+                <div className='flex h-15 gap-6 items-center cursor-pointer'>
                     <p className='whitespace-nowrap max-2xl:hidden'>
                         {user.last_name} {user.first_name?.slice(0, 1) + "."} {user.surname?.slice(0, 1) + "."}
                     </p>
@@ -98,7 +83,6 @@ const Header = () => {
                     <NavLink to={'/profile'}>
                         <div className="w-8 h-8 cursor-pointer">
                             <CgProfile size={32}/>
-
                         </div>
                     </NavLink>
                     <div className="w-8 h-8 cursor-pointer">

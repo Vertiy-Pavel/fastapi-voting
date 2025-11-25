@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from "react";
-import Header from "../components/Header";
 import Breadcrumbs from "../components/Breadcrumbs";
 import PageTitle from "../components/PageTitle";
 import VotingControls from "../components/votes/VotingControls";
@@ -108,20 +107,20 @@ const VotesPage = () => {
 
     return (
         <>
-            <div className="min-h-screen">
-                <div className="mx-4 2xl:ml-[240px] mt-[60px] 2xl:mr-[240px] lg:ml-[40px] lg:mr-[40px]">
+            <div className="min-h-screen w-full overflow-x-hidden relative">
+                <div className="px-4 md:px-0 2xl:mx-[240px] mt-[60px] lg:mx-[40px]">
                     <Breadcrumbs title="Главная / Голосования"/>
                     <PageTitle title="Голосования"/>
 
                     <div className="flex mt-6 gap-4 flex-wrap">
                         <Button
                             className="outline outline-neutral-400 text-neutral-800 font-normal px-3 py-2 text-sm md:text-base md:px-4 md:py-2 flex items-center justify-center gap-2">
-                            <TbFilterEdit size={32}/>
+                            <TbFilterEdit size={24}/>
                             <span>Фильтры</span>
                         </Button>
                         <Button
                             className="outline outline-neutral-400 text-neutral-800 font-normal px-3 py-2 text-sm md:text-base md:px-4 md:py-2 flex items-center justify-center gap-2">
-                            <TbSortDescending size={32}/>
+                            <TbSortDescending size={24}/>
                             <span>Сортировка</span>
                         </Button>
                     </div>

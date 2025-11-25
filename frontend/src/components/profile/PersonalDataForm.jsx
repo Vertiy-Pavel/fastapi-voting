@@ -5,7 +5,6 @@ import {changeCredentials} from "../../services/api/user.js";
 import toast from 'react-hot-toast';
 import {BlueButton} from "../Button.jsx";
 
-
 const PersonalData = () => {
     const [formData, setFormData] = useState({
         last_name: '',
@@ -35,7 +34,6 @@ const PersonalData = () => {
         }));
     };
 
-    // PUT-запрос
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSaving(true);
@@ -54,6 +52,7 @@ const PersonalData = () => {
             localStorage.setItem('surname', response.data.surname);
             localStorage.setItem('email', response.data.email);
             console.log('Данные успешно сохранены!');
+            toast.success('Данные успешно сохранены!')
         } catch (error) {
             console.error('Ошибка при сохранении данных:', error.message);
             toast.error("Не удалось сохранить данные.")
@@ -96,16 +95,6 @@ const PersonalData = () => {
                     value={formData.surname}
                     onChange={handleChange}
                     name='surname'
-                />
-
-                {/* Электронная почта */}
-                <InputDefault
-                    type="email"
-                    title="Электронная почта"
-                    validate={(val) => /\S+@\S+\.\S+/.test(val)}
-                    value={formData.email}
-                    onChange={handleChange}
-                    name='email'
                 />
 
                 <BlueButton onClick={handleSubmit} disabled={isSaving}>
