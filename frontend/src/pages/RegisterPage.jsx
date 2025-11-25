@@ -4,19 +4,24 @@ import {Link, useNavigate} from 'react-router-dom';
 import {register} from '../services/api/user.js'
 import {InputDefault, InputPassword} from "../components/Inputs.jsx";
 import {BlackButton, GrayButton} from "../components/Button.jsx";
+import Modal from '../components/Modal'
+
+const initialFormState = {
+    first_name: '',
+    last_name: '',
+    surname: '',
+    email: '',
+    phone: '',
+    role: 'EMPLOYEE',
+    password: '',
+};
 
 const RegisterPage = () => {
-    const [formData, setFormData] = useState({
-        first_name: '',
-        last_name: '',
-        surname: '',
-        email: '',
-        phone: '',
-        role: 'EMPLOYEE',
-        password: '',
-    });
+    const [formData, setFormData] = useState(initialFormState);
     const [confirmPassword, setConfirmPassword] = useState('');
     const [message, setMessage] = useState({text: '', type: ''});
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate(); // Инициализируем хук для навигации
 
     // Универсальный обработчик изменений в полях ввода
@@ -32,7 +37,6 @@ const RegisterPage = () => {
     // Обработчик отправки формы на бэкенд
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setMessage('');
 
         const logMessage = `Попытка регистрации с использованием данных: ${JSON.stringify(formData)}`;
         console.log(logMessage);
@@ -48,29 +52,23 @@ const RegisterPage = () => {
 
         // Подготовка данных для отправки
         try {
+            setLoading(true);
             const response = await register(formData);
             console.log('Ответ API регистрации:', response);
-
-            setMessage({text: 'Регистрация прошла успешно!', type: 'success'});
-
+            setIsConfirmModalOpen(true)
+            setFormData(initialFormState);
             console.log('Регистрация прошла успешно, переходим к входу в систему');
-
-            setTimeout(() => {
-                navigate('/login');
-            }, 2000);
-
         } catch (error) {
             console.error('Ошибка при регистрации:', error);
-            // const errorMsg = error.response?.data?.message || error.message || 'Не удалось подключиться к серверу.';
-            //setMessage(`Ошибка: ${errorMsg}`);
-            // console.error('Ошибка регистрации с сообщением:', errorMsg);
             setMessage({text: error.response.data.detail, type: 'error'});
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <>
-            <div className="flex flex-col items-center  justify-center min-h-[calc(100vh-100px)] bg-gray-100">
+            <div className="flex flex-col items-center px-4 justify-center min-h-[calc(100vh-100px)] bg-gray-100">
                 <h1 className="text-[40px] mb-6 w-[264px] h-[48px] font-mak">Регистрация</h1>
 
                 {/* Мобильная версия - вертикальный макет */}
@@ -90,36 +88,31 @@ const RegisterPage = () => {
                                 <option value={'CHIEF'}>Начальник</option>
                             </select>
 
-                            <div className="flex flex-col sm:flex-row gap-3">
-                                <div className="flex flex-col flex-1">
-                                    <InputDefault
-                                        type="text"
-                                        title="Фамилия"
-                                        placeholder="Иванов"
-                                        required
-                                        validate={(val) => val.trim().length > 0}
-                                        value={formData.last_name}
-                                        onChange={handleChange}
-                                        name='last_name'
-                                        className={'w-full h-[51px]'}
-                                    />
-                                </div>
-                                <div className="flex flex-col flex-1">
-                                    <InputDefault
-                                        type="text"
-                                        title="Имя"
-                                        placeholder="Иван"
-                                        required
-                                        validate={(val) => val.trim().length > 0}
-                                        value={formData.first_name}
-                                        onChange={handleChange}
-                                        name='first_name'
-                                        className={'w-full h-[51px]'}
-                                    />
-                                </div>
-                            </div>
+                            <div className="flex flex-col sm:flex-row">
+                                <InputDefault
+                                    type="text"
+                                    title="Фамилия"
+                                    placeholder="Иванов"
+                                    required
+                                    validate={(val) => val.trim().length > 0}
+                                    value={formData.last_name}
+                                    onChange={handleChange}
+                                    name='last_name'
+                                    className={'w-full h-[51px]'}
+                                />
 
-                            <div className="flex flex-col">
+                                <InputDefault
+                                    type="text"
+                                    title="Имя"
+                                    placeholder="Иван"
+                                    required
+                                    validate={(val) => val.trim().length > 0}
+                                    value={formData.first_name}
+                                    onChange={handleChange}
+                                    name='first_name'
+                                    className={'w-full h-[51px]'}
+                                />
+
                                 <InputDefault
                                     type="text"
                                     title="Отчество"
@@ -187,7 +180,42 @@ const RegisterPage = () => {
                                 </p>
                             )}
 
-                            <BlackButton onClick={handleSubmit}>Зарегистрироваться</BlackButton>
+                            <BlackButton onClick={handleSubmit} disabled={loading}>
+                                {loading ?
+                                    (
+                                        <>
+
+                                            <svg className="h-5 w-5 animate-spin items-center" viewBox="0 0 24 24">
+                                                <circle
+                                                    fill="none"
+                                                    strokeWidth="3"
+                                                    className="stroke-current opacity-40"
+                                                    cx="12"
+                                                    cy="12"
+                                                    r="10"
+                                                />
+                                                <circle
+                                                    cx="12"
+                                                    cy="12"
+                                                    r="10"
+                                                    stroke="currentColor"
+                                                    strokeWidth="3"
+                                                    strokeLinecap="round"
+                                                    strokeDasharray="50.265"
+                                                    strokeDashoffset="36"      /* длина видимой дуги */
+                                                    className="opacity-95"
+                                                    fill="none"
+                                                />
+                                            </svg>
+                                        </>)
+                                    : (
+                                        <>
+                                            Зарегистрироваться
+                                        </>
+                                    )
+
+                                }
+                            </BlackButton>
                         </form>
                     </div>
                     <div className="bg-[#212121] text-white p-6">
@@ -331,11 +359,58 @@ const RegisterPage = () => {
                                 </p>
                             )}
 
-                            <BlackButton onClick={handleSubmit}>Регистрация</BlackButton>
+                            <BlackButton onClick={handleSubmit} disabled={loading}>
+                            {loading ?
+                                (
+                                    <>
+
+                                    <svg className="h-5 w-5 animate-spin items-center" viewBox="0 0 24 24">
+                                    <circle
+                                        fill="none"
+                                        strokeWidth="3"
+                                        className="stroke-current opacity-40"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                    />
+                                    <circle
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        strokeWidth="3"
+                                        strokeLinecap="round"
+                                        strokeDasharray="50.265"
+                                        strokeDashoffset="36"      /* длина видимой дуги */
+                                        className="opacity-95"
+                                        fill="none"
+                                    />
+                                </svg>
+                                    </>)
+                                : (
+                                    <>
+                                        Зарегистрироваться
+                                    </>
+                                )
+
+                            }
+                        </BlackButton>
+
                         </form>
                     </div>
                 </div>
             </div>
+
+
+            <Modal
+                open={isConfirmModalOpen}
+                onClose={() => setIsConfirmModalOpen(false)}
+                title="Проверьте почту"
+            >
+                <div className="mt-2 text-sm text-black">
+                    Для завершения регистрации перейдите по ссылке, отправленной на адрес <strong className="break-words">{formData.email}</strong>.
+                </div>
+            </Modal>
         </>
     );
 };
