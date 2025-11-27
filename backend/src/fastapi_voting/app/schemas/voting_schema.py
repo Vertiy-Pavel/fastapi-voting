@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, conlist
 
 from src.fastapi_voting.app.core.enums import QuestionTypeEnum
 
@@ -30,7 +30,7 @@ class CreateVotingOptionSchema(BaseModel):
 class CreateVotingQuestionSchema(BaseModel):
     type: QuestionTypeEnum
     title: str
-    options: list[CreateVotingOptionSchema]
+    options: conlist(CreateVotingOptionSchema, min_length=1)
 
 class InputCreateVotingSchema(BaseModel):
     title: str
@@ -43,10 +43,10 @@ class InputCreateVotingSchema(BaseModel):
 
     voting_start: datetime
     voting_end: datetime
-    questions: list[CreateVotingQuestionSchema]
+    questions: conlist(CreateVotingQuestionSchema, min_length=1)
 
 
-# --- Схема для удаления пользования ---
+# --- Схема для удаления голосования ---
 class InputDeleteVotingSchema(BaseModel):
     id: int
 
@@ -65,3 +65,39 @@ class OutputAllVotingsSchema(BaseModel):
 class ResponseAllVotingsSchema(BaseModel):
     items: list[OutputAllVotingsSchema]
     pagination: dict[str, bool | int]
+
+
+# --- Схема для деталей голосования ---
+class RegisteredUsersVotingDataSchema(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+
+    class Config:
+        from_attributes = True
+
+class OptionsVotingDataSchema(BaseModel):
+    id: int
+    option: str
+
+    class Config:
+        from_attributes = True
+
+class RegisteredQuestionsVotingDataSchema(BaseModel):
+    id: int
+    type: QuestionTypeEnum
+    title: str
+    options: list[OptionsVotingDataSchema]
+
+    class Config:
+        from_attributes = True
+
+
+class InputVotingDataSchema(BaseModel):
+    id: int
+
+class ResponseVotingDataSchema(BaseModel):
+    registered_users: list[RegisteredUsersVotingDataSchema]
+    questions: list[RegisteredQuestionsVotingDataSchema]
+    # TODO: voting_results: OptionsVotingDataSchema
+    # TODO: Статистика регистрации/голосов
