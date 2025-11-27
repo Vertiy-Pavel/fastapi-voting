@@ -1,5 +1,6 @@
 import logging
 import math
+from xml.dom.domreg import registered
 
 from src.fastapi_voting.app.core.settings import get_settings
 
@@ -9,7 +10,7 @@ from src.fastapi_voting.app.models import Voting, Question, Option
 
 from src.fastapi_voting.app.schemas.voting_schema import (
     ResponseAllVotingsSchema, OutputAllVotingsSchema,
-    InputCreateVotingSchema,
+    InputCreateVotingSchema, ResponseVotingDataSchema,
 )
 
 from src.fastapi_voting.app.core.exception.simple_exc import VotingNotFound
@@ -49,8 +50,8 @@ class VotingService:
     async def delete_voting(self, voting_id: int) -> bool:
 
         # --- Проверка на существование записи ---
-        voting = await self.voting_repo.get_by_id(voting_id)
-        if (voting is None) or (voting.deleted):
+        voting = await self.voting_repo.get_voting_by_id(voting_id)
+        if voting is None:
             raise VotingNotFound(log_message=f"Голосования с ID {voting_id} не существует.")
 
         # --- Работа репозитория ----
@@ -83,3 +84,18 @@ class VotingService:
                 "total_count": math.ceil(total_count / settings.PER_PAGE),
             }
         )
+
+    async def get_data_voting(self, voting_id: int) -> ResponseVotingDataSchema:
+
+        # Голосование доступно
+        voting = await self.voting_repo.get_voting_by_id(voting_id)
+        if voting is None:
+            raise VotingNotFound(log_message=f"Голосования с ID: {voting_id} не найдено.")
+
+        # Работа репозитория
+        voting = await self.voting_repo.get_data_voting(voting_id)
+        result = ResponseVotingDataSchema(
+            registered_users=voting.registered_users,
+            questions=voting.questions,
+        )
+        return result
