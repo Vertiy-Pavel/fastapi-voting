@@ -9,6 +9,7 @@ from src.fastapi_voting.app.schemas.voting_schema import (
     InputCreateVotingSchema,
     InputDeleteVotingSchema,
     ResponseAllVotingsSchema,
+    ResponseVotingDataSchema
 )
 
 
@@ -18,7 +19,8 @@ voting_router = APIRouter(
     tags=["Голосования"],
 )
 
-# --- Обработчики ---
+
+# --- Все доступные голосования ---
 @voting_router.get(path="/all", response_model=ResponseAllVotingsSchema)
 async def get_all_votings(
         access_payload: AccessRequiredAnnotation,
@@ -35,6 +37,7 @@ async def get_all_votings(
     return response
 
 
+# --- Создать голосование ---
 @voting_router.post(path="/create", response_model=VotingSchema, status_code=status.HTTP_201_CREATED)
 async def create_voting(
         access_payload: AccessRequiredAnnotation,
@@ -48,6 +51,7 @@ async def create_voting(
     return result
 
 
+# --- Удалить голосование ---
 @voting_router.post(path="/delete")
 async def delete_voting(
         access_payload: AccessRequiredAnnotation,
@@ -59,3 +63,17 @@ async def delete_voting(
 ):
     await voting_service.delete_voting(voting_data=voting_data)
     return {"message": "success"}
+
+
+# --- Детали голосования ---
+@voting_router.get(path="/data/{voting_id}", response_model=ResponseVotingDataSchema)
+async def get_voting_data(
+        access_payload: AccessRequiredAnnotation,
+        voting_service: VotingServiceAnnotation,
+
+        voting_id: int,
+
+        access_token: str = Header(default=None, description="JWT-токен."),
+):
+    res_data = await voting_service.get_data_voting(voting_id=voting_id)
+    return res_data
