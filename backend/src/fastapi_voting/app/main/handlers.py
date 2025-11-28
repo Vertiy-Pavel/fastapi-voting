@@ -1,8 +1,9 @@
 from fastapi import Request, status, FastAPI
+from fastapi.exceptions import RequestValidationError
 
 from fastapi.responses import JSONResponse
 
-from src.fastapi_voting.app.core.exception.base_exc import AppException, AnomalyException
+from src.fastapi_voting.app.core.exception.base_exc import AppException, AnomalyException, APILimiterException
 
 from src.fastapi_voting.app.services.subservice.logging_service import LoggingService
 
@@ -38,6 +39,22 @@ def setup_handlers(app: FastAPI):
             content={"detail": exc.response_detail},
             headers=exc.headers,
         )
+
+    @app.exception_handler(APILimiterException)
+    async def http_exception_handler(request: Request, exc: APILimiterException) -> JSONResponse:
+        """Обработчик ошибок. Рассчитан на обработку и логирование пользовательских исключений класса AnomalyException. Отслеживает аномалии в динамике запросов."""
+
+        # --- Внедрение зависимости ---
+        logger = LoggingService(request=request)
+        logger.anomaly_log(log_detail=exc.log_detail, extra_data=exc.extra_data)
+
+        # --- Формирование ответа ---
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.response_detail, "rate_minutes": exc.minutes},
+            headers=exc.headers,
+        )
+
 
     @app.exception_handler(Exception)
     async def another_exception_handler(request: Request, exc: Exception) -> JSONResponse:
