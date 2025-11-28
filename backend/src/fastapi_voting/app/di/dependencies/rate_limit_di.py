@@ -1,8 +1,6 @@
 from datetime import timedelta
 
-from redis.asyncio import Redis
-
-from fastapi import Request, Depends
+from fastapi import Request
 
 from src.fastapi_voting.app.core.exception.simple_exc import TooManyRequests
 
@@ -23,36 +21,22 @@ class ApiLimiterDI: # TODO: Реализована модель фиксиров
 
         # Первичные данные
         redis = request.app.state.redis
-        valid_response = self.minutes
         client_ip = request.headers.get("X-Real-IP")
         request_uri = request.url.path
 
-        # Существование и формирование записи
-        request_count = await redis.get(f"api-limiter:{request_uri}:{client_ip}")
-        if request_count is None:
-            await redis.setex(
-                name=f"api-limiter:{request_uri}:{client_ip}",
-                time=timedelta(minutes=self.minutes).seconds,
-                value=1
-            )
-            return valid_response
+        ttl = int(timedelta(minutes=self.minutes).total_seconds())
+        key = f"api-limiter:{request_uri}:{client_ip}"
 
-        # Проверка на превышение лимита
-        request_count = int(request_count.decode("utf-8"))
-        if request_count == self.times:
+        # Инкрементирование и условия лимитирования
+        request_count = await redis.incr(key, amount=1)
+        await redis.expire(key, ttl)
+
+        if request_count > self.times:
             extra_data = [
                 f"Minutes: {self.minutes}",
                 f"Times: {self.times}",
-                f"Request Count: {request_count}"
+                f"Request Count: {request_count}",
             ]
-            raise TooManyRequests(log_message="Превышен лимит запросов.", extra_data=extra_data)
+            raise TooManyRequests(log_message="Превышен лимит запросов.", minutes=self.minutes, extra_data=extra_data)
 
-        # Инкрементирование значения счётчика
-        await redis.incr(
-            name=f"api-limiter:{request_uri}:{client_ip}",
-            amount=1,
-        )
-
-        return valid_response
-
-
+        return self.minutes
