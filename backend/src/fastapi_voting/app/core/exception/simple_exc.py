@@ -1,6 +1,6 @@
 from fastapi import status
 
-from src.fastapi_voting.app.core.exception.base_exc import AppException, AnomalyException
+from src.fastapi_voting.app.core.exception.base_exc import AppException, AnomalyException, APILimiterException
 
 
 # --- Исключения для пользователей ---
@@ -34,6 +34,6 @@ class TaskNotFound(AppException):
 
 
 # --- Исключения для ограничения запросов ---
-class TooManyRequests(AnomalyException):
-    def __init__(self, log_message: str, extra_data: list[str]):
-        super().__init__(log_detail=log_message, detail="Too Many Requests", status_code=status.HTTP_429_TOO_MANY_REQUESTS, extra_data=extra_data)
+class TooManyRequests(APILimiterException):
+    def __init__(self, log_message: str, minutes: int, extra_data: list[str]):
+        super().__init__(log_detail=log_message, minutes=minutes, detail="Too Many Requests", status_code=status.HTTP_429_TOO_MANY_REQUESTS, extra_data=extra_data)
