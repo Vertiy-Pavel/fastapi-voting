@@ -30,7 +30,6 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(120), unique=True)
 
     password_hash: Mapped[str] = mapped_column(String(255))
-    is_email_verified: Mapped[bool] = mapped_column(default=False)
 
     role: Mapped[RolesEnum] = mapped_column(Enum(RolesEnum), default=RolesEnum.EMPLOYEE)
 
