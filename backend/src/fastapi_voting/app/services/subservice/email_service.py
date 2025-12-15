@@ -1,6 +1,7 @@
 from uuid import UUID
 
-from aiosmtplib import SMTP
+from aiosmtplib import SMTP, smtp
+from aiosmtplib.errors import SMTPConnectError
 
 from jinja2 import Environment, PackageLoader
 
@@ -8,9 +9,13 @@ from email.utils import formatdate
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from sqlalchemy.util import await_only
+
 from src.fastapi_voting.app.core.settings import get_settings
 
 from src.fastapi_voting.app.core.enums import TemplateTypeEnum
+
+from src.fastapi_voting.app.core.exception.simple_exc import APILimiterSMTPConnectError
 
 
 # --- Инструментарий ---
@@ -23,21 +28,25 @@ class EmailService:
 
     async def send_change_password_message(self, recipients: list, uuid_message: UUID):
         subject = "Подтверждение смены пароля."
-        async with self.smtp_context as smtp:
-            msg = await self._create_email_message(subject, recipients, TemplateTypeEnum.CHANGE_PASSWORD, uuid_message)
-            await smtp.send_message(msg)
+        msg = await self._create_email_message(subject, recipients, TemplateTypeEnum.CHANGE_PASSWORD, uuid_message)
+        await self._send_message(msg)
 
     async def send_confirm_register_message(self, recipients: list, uuid_message: UUID):
         subject = "Подтверждение электронной почты для регистрации."
-        async with self.smtp_context as smtp:
-            msg = await self._create_email_message(subject, recipients, TemplateTypeEnum.CONFIRM_REGISTER, uuid_message)
-            await smtp.send_message(msg)
+        msg = await self._create_email_message(subject, recipients, TemplateTypeEnum.CONFIRM_REGISTER, uuid_message)
+        await self._send_message(msg)
 
     async def send_change_email_message(self, recipients: list, uuid_message: UUID):
         subject = "Подтверждение смены электронной почты."
-        async with self.smtp_context as smtp:
-            msg = await self._create_email_message(subject, recipients, TemplateTypeEnum.CHANGE_EMAIL, uuid_message)
-            await smtp.send_message(msg)
+        msg = await self._create_email_message(subject, recipients, TemplateTypeEnum.CHANGE_EMAIL, uuid_message)
+        await self._send_message(msg)
+
+    async def _send_message(self, msg):
+        try:
+            async with self.smtp_context as smtp:
+                await smtp.send_message(msg)
+        except SMTPConnectError as e:
+            raise APILimiterSMTPConnectError(log_message=str(e))
 
 
     @property

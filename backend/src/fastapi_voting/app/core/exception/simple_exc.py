@@ -1,6 +1,6 @@
 from fastapi import status
 
-from src.fastapi_voting.app.core.exception.base_exc import AppException, AnomalyException, APILimiterException
+from src.fastapi_voting.app.core.exception.base_exc import AppException, SMTPAPILimiterException
 
 
 # --- Исключения для пользователей ---
@@ -34,6 +34,10 @@ class TaskNotFound(AppException):
 
 
 # --- Исключения для ограничения запросов ---
-class TooManyRequests(APILimiterException):
-    def __init__(self, log_message: str, minutes: int, extra_data: list[str]):
-        super().__init__(log_detail=log_message, minutes=minutes, detail="Too Many Requests", status_code=status.HTTP_429_TOO_MANY_REQUESTS, extra_data=extra_data)
+class TooManyRequests(SMTPAPILimiterException):
+    def __init__(self, log_message: str, extra_data: list[str]):
+        super().__init__(log_detail=log_message, detail="Too Many Requests", status_code=status.HTTP_429_TOO_MANY_REQUESTS, extra_data=extra_data)
+
+class APILimiterSMTPConnectError(SMTPAPILimiterException):
+    def __init__(self, log_message: str, extra_data: list[str] = None):
+        super().__init__(log_detail=log_message, detail="Email not sent", status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, extra_data=extra_data)
