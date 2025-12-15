@@ -1,8 +1,8 @@
-    import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import {loginUser, registerConfirmEmail} from '../services/api/auth.js'
 import {InputDefault, InputPassword} from "../components/Inputs.jsx";
-import {BlackButton, GrayButton} from "../components/Button.jsx";
+import {BlackButton, GrayButton, Spinner} from "../components/Button.jsx";
 import toast from "react-hot-toast";
 
 
@@ -161,39 +161,18 @@ const LoginPage = () => {
 
                             <BlackButton onClick={handleSubmit}>
                                 {loading ?
-                                (
-                                    <>
+                                    (
+                                        <>
+                                            <Spinner/>
+                                        </>)
+                                    : (
+                                        <>
+                                            Войти
+                                        </>
+                                    )
 
-                                        <svg className="h-5 w-5 animate-spin items-center" viewBox="0 0 24 24">
-                                            <circle
-                                                fill="none"
-                                                strokeWidth="3"
-                                                className="stroke-current opacity-40"
-                                                cx="12"
-                                                cy="12"
-                                                r="10"
-                                            />
-                                            <circle
-                                                cx="12"
-                                                cy="12"
-                                                r="10"
-                                                stroke="currentColor"
-                                                strokeWidth="3"
-                                                strokeLinecap="round"
-                                                strokeDasharray="50.265"
-                                                strokeDashoffset="36"      /* длина видимой дуги */
-                                                className="opacity-95"
-                                                fill="none"
-                                            />
-                                        </svg>
-                                    </>)
-                                : (
-                                    <>
-                                        Войти
-                                    </>
-                                )
-
-                            }</BlackButton>
+                                }
+                            </BlackButton>
                         </form>
                     </div>
 

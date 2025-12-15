@@ -102,7 +102,7 @@ const Details = () => {
                 // Преобразуем данные в нужный формат и сохраняем в состояние
                 const formattedData = prepareVotingDataForComponent(rawData);
 
-                const isUserRegistered = votersData.participants.some(voter => voter.id === user_id);
+                const isUserRegistered = votersData.participants.some(voter => voter.id === userId);
 
 
                 setIsRegistered(isUserRegistered);

@@ -1,4 +1,4 @@
-const Spinner = () => (
+export const Spinner = () => (
     <svg className="h-5 w-5 animate-spin items-center" viewBox="0 0 24 24">
         <circle
             fill="none"

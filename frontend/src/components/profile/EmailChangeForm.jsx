@@ -4,6 +4,7 @@ import {BlueButton} from "../Button.jsx";
 import {TbCloudDownload} from "react-icons/tb";
 import {changeEmail} from "../../services/api/profile.js";
 import Modal from "../Modal.jsx";
+import {Spinner} from "../Button.jsx";
 
 const EmailChangeForm = () => {
     const [isSaving, setIsSaving] = useState(false);
@@ -111,28 +112,7 @@ const EmailChangeForm = () => {
                         {secondsLeft > 0 ? `${format(secondsLeft)}` :
                             (isSaving ? (
                                 <>
-                                    <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
-                                        <circle
-                                            fill="none"
-                                            strokeWidth="3"
-                                            className="stroke-current opacity-40"
-                                            cx="12"
-                                            cy="12"
-                                            r="10"
-                                        />
-                                        <circle
-                                            cx="12"
-                                            cy="12"
-                                            r="10"
-                                            stroke="currentColor"
-                                            strokeWidth="3"
-                                            strokeLinecap="round"
-                                            strokeDasharray="50.265"
-                                            strokeDashoffset="36"      /* длина видимой дуги */
-                                            className="opacity-95"
-                                            fill="none"
-                                        />
-                                    </svg>
+                                    <Spinner />
                                     Сохранение...
                                 </>
                             ) : (

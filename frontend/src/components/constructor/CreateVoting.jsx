@@ -9,8 +9,9 @@ import {CiViewList} from "react-icons/ci";
 import {MdOutlineRocketLaunch} from "react-icons/md";
 import {useDepartments} from "../../hooks/useDepartments.js";
 import {createVoting} from "../../services/api/voting.js";
-import {ToggleButton} from "../Button.jsx";
+import {BlueButton, Spinner, ToggleButton} from "../Button.jsx";
 import toast from "react-hot-toast";
+import {TbCloudDownload} from "react-icons/tb";
 
 const CreateVoting = ({selectedTemplate}) => {
     const today = new Date().toISOString().split("T")[0]; // текущая дата
@@ -22,6 +23,8 @@ const CreateVoting = ({selectedTemplate}) => {
     const [votingEnd, setVotingEnd] = useState({date: today, time: '10:00'});
     const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Управление открытием/закрытием выпадающего списка для департаментов
     const [typeVoting, setTypeVoting] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isSavingTemplate, setIsSavingTemplate] = useState(false);
 
     // Департаменты
     const {
@@ -122,7 +125,7 @@ const CreateVoting = ({selectedTemplate}) => {
             title: q.header || 'Без названия',
             options: (q.options || [])
                 .filter(opt => opt.trim() !== '')
-                .map(opt => ({ option: opt.trim() }))
+                .map(opt => ({option: opt.trim()}))
         })),
         // department_ids: selectedDepartmentIds // Используем выбранные ID департаментов
     };
@@ -160,15 +163,32 @@ const CreateVoting = ({selectedTemplate}) => {
 
     // Создание голосования
     const sendToServer = async () => {
-        await createVoting(data);
-        console.log("Голосование успешно создано");
-        toast.success("Голосование успешно создано")
+        setIsSaving(true);
+        try {
+            await createVoting(data);
+            console.log("Голосование успешно создано");
+            toast.success("Голосование успешно создано")
+        } catch (error) {
+            console.log(error);
+            toast.error("Не удалось создать голосование");
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     // Отправка шаблона
     const sendTemplateToServer = async () => {
-        await saveTemplate(data)
-        console.log('Шаблон сохранен');
+        setIsSavingTemplate(true);
+        try {
+            await saveTemplate(data)
+            console.log('Шаблон сохранен');
+            toast.success("Шаблон сохранен")
+        } catch (error) {
+            console.log(error);
+            toast.error("Не удалось сохранить шаблон");
+        } finally {
+            setIsSavingTemplate(false);
+        }
     };
 
 
@@ -328,21 +348,37 @@ const CreateVoting = ({selectedTemplate}) => {
 
                 {/* Кнопки управления */}
                 <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
-                    <button
+                    <BlueButton
                         onClick={sendToServer}
-                        className="w-full sm:w-auto bg-blue-500 cursor-pointer text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg flex items-center justify-center sm:justify-start space-x-2 text-sm sm:text-base"
+                        className="w-full md:w-xs px-4 py-4 md:px-[20px] md:py-[16px]"
                     >
-                        <MdOutlineRocketLaunch size={24}/>
-                        <span>Запустить голосование</span>
-                    </button>
+                        {isSaving ? (
+                            <>
+                                <Spinner/>
+                            </>
+                        ) : (
+                            <>
+                                <MdOutlineRocketLaunch size={24}/>
+                                Создать голосование
+                            </>
+                        )}
+                    </BlueButton>
 
-                    <button
+                    <BlueButton
                         onClick={sendTemplateToServer}
-                        className="w-full sm:w-auto border border-blue-500 cursor-pointer text-blue-500 px-3 py-2 sm:px-4 sm:py-2 rounded-lg flex items-center justify-center sm:justify-start space-x-2 hover:bg-blue-50 transition text-sm sm:text-base"
+                        className="w-full md:w-xs border border-blue-500 bg-white !text-blue-500 px-4 py-4 md:px-[20px] md:py-[16px] hover:bg-blue-50"
                     >
-                        <CiViewList size={24}/>
-                        <span>Сохранить шаблон</span>
-                    </button>
+                        {isSavingTemplate ? (
+                            <>
+                                <Spinner/>
+                            </>
+                        ) : (
+                            <>
+                                <CiViewList size={24}/>
+                                Сохранить шаблон
+                            </>
+                        )}
+                    </BlueButton>
                 </div>
             </div>
         </>

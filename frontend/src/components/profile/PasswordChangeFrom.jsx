@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {changePassword} from "../../services/api/profile";
 import {TbCloudDownload} from "react-icons/tb";
 import {InputPassword} from "../Inputs.jsx";
-import {BlueButton} from "../Button.jsx";
+import {BlueButton, Spinner} from "../Button.jsx";
 import toast from "react-hot-toast";
 import Modal from "../Modal.jsx";
 
@@ -150,28 +150,7 @@ const PasswordChangeForm = () => {
                         {secondsLeft > 0 ? `${format(secondsLeft)}` :
                             (isSaving ? (
                             <>
-                                <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
-                                    <circle
-                                        fill="none"
-                                        strokeWidth="3"
-                                        className="stroke-current opacity-40"
-                                        cx="12"
-                                        cy="12"
-                                        r="10"
-                                    />
-                                    <circle
-                                        cx="12"
-                                        cy="12"
-                                        r="10"
-                                        stroke="currentColor"
-                                        strokeWidth="3"
-                                        strokeLinecap="round"
-                                        strokeDasharray="50.265"
-                                        strokeDashoffset="36"      /* длина видимой дуги */
-                                        className="opacity-95"
-                                        fill="none"
-                                    />
-                                </svg>
+                                <Spinner />
                                 Сохранение...
                             </>
                         ) : (
