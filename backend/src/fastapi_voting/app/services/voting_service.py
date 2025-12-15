@@ -73,7 +73,7 @@ class VotingService:
         # Формирование данных ответа
         fields = ["voting", "creator_id", "creator_first_name", "creator_last_name"]
         action = lambda row: OutputAllVotingsSchema.model_validate(dict(zip(fields, row)))
-        result = list(map(action, items))
+        result = list(map(action, items[:settings.PER_PAGE]))
 
         # Формирование ответа сервиса
         return ResponseAllVotingsSchema(

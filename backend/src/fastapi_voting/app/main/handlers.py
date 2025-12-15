@@ -42,7 +42,7 @@ def setup_handlers(app: FastAPI):
 
     @app.exception_handler(APILimiterException)
     async def http_exception_handler(request: Request, exc: APILimiterException) -> JSONResponse:
-        """Обработчик ошибок. Рассчитан на обработку и логирование пользовательских исключений класса AnomalyException. Отслеживает аномалии в динамике запросов."""
+        """Обработчик ошибок. Рассчитан на обработку и логирование пользовательских исключений класса APiLimiterException. Отслеживает аномалии в динамике запросов."""
 
         # --- Внедрение зависимости ---
         logger = LoggingService(request=request)

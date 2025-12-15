@@ -74,7 +74,7 @@ class TaskService:
             raise TaskNotFound(log_message=f"Задачи на замену пароля с UUID: <{uuid_task}> не существует.")
 
         # Ответ
-        return password.decode("utf-8")
+        return password
 
 
     async def execute_change_email_task(self, uuid_task: UUID):
@@ -86,4 +86,4 @@ class TaskService:
             raise TaskNotFound(log_message=f"Задачи на замену пароля с UUID: <{uuid_task}> не существует.")
 
         # Ответ
-        return email.decode("utf-8")
+        return email

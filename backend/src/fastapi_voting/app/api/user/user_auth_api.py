@@ -20,7 +20,7 @@ from src.fastapi_voting.app.di.annotations import (
 from src.fastapi_voting.app.schemas.user_schema import (
     UserSchema,
     InputCreateUserSchema,
-    InputLoginUserSchema, ResponseLoginUserSchema,
+    InputLoginUserSchema, ResponseLoginUserSchema, LoginUserSchema,
     OutputRefreshUserSchema,
     OutputSentEmailSchema
 )
@@ -76,7 +76,7 @@ async def user_login(
 
     # Формирование ответа сервера
     content: dict = ResponseLoginUserSchema(
-        user=UserSchema.model_validate(logined_user),
+        user=LoginUserSchema.model_validate(logined_user),
         access_token=tokens["access_token"]
     ).model_dump(mode="json")
 

@@ -17,6 +17,7 @@ from src.fastapi_voting.app.api.user.user_profile_api import user_profile_router
 
 from src.fastapi_voting.app.api.department.department_api import department_router
 from src.fastapi_voting.app.api.voting.voting_api import voting_router
+from src.fastapi_voting.app.api.vote.vote_api import vote_router
 
 
 # --- Инструментарий ---
@@ -33,7 +34,7 @@ async def lifespan(app: FastAPI):
     logger.info(f"Redis: init..")
 
     # Redis
-    app.state.redis = Redis.from_url(settings.get_redis_url())
+    app.state.redis = Redis.from_url(settings.get_redis_url(), decode_responses=True)
 
     try:
         await app.state.redis.ping()
@@ -72,3 +73,5 @@ fastapi_app.include_router(router=user_profile_router, prefix=v1_url_prefix)
 
 fastapi_app.include_router(router=department_router, prefix=v1_url_prefix)
 fastapi_app.include_router(router=voting_router, prefix=v1_url_prefix)
+fastapi_app.include_router(router=vote_router, prefix=v1_url_prefix)
+
