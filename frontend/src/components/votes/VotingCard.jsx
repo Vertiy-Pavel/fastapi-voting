@@ -6,7 +6,7 @@ import { LuCalendar1, LuAlarmClock, LuTrash2 } from "react-icons/lu";
 import { IoMdStats } from "react-icons/io";
 import {deleteVoting} from "../../services/api/voting.js";
 import toast from "react-hot-toast";
-import Button from '../Button.jsx'
+import Button, {BlueButton} from '../Button.jsx'
 
 const VotingCard = ({ voting, isArchived }) => {
     const status = getVotingStatusConfig(voting, isArchived);
@@ -16,16 +16,11 @@ const VotingCard = ({ voting, isArchived }) => {
     const userId = localStorage.getItem("user_id");
     console.log(userId === voting.creatorId);
 
-    // Обработчики
-    const handleOpenModal = () => setIsModalOpen(true);
-    const handleCloseModal = () => setIsModalOpen(false);
-
-
     const handleDelete = async () => {
         try {
             await deleteVoting(voting.id);
             toast.success('Голосование удалено');
-            handleCloseModal();
+            setIsModalOpen(false);
             setIsDeleted(true);
         } catch (error) {
             console.log(error)
@@ -121,7 +116,7 @@ const VotingCard = ({ voting, isArchived }) => {
                         <IoMdStats />
                     </Link>
                     {String(userId) === String(voting.creatorId) &&
-                        <div className='bg-[#f4f4f4] hover:bg-[#EE5B5B] hover:text-[#FFE3E3] transition-all rounded-lg p-2 cursor-pointer' onClick={handleOpenModal} >
+                        <div className='bg-[#f4f4f4] hover:bg-[#EE5B5B] hover:text-[#FFE3E3] transition-all rounded-lg p-2 cursor-pointer' onClick={() => setIsModalOpen(true)} >
                             <LuTrash2 />
                         </div>
                     }
@@ -136,20 +131,21 @@ const VotingCard = ({ voting, isArchived }) => {
                 <div className="mt-2 text-sm text-black">
                     Вы уверены, что хотите удалить голосование <strong className="break-words">{voting.title}</strong>?
                 </div>
-                <Button
-                    variant="outlined"
-                    onClick={handleCloseModal}
-                    className="w-full py-2 px-4 rounded-lg border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-100 transition-colors"
-                >
-                    Отмена
-                </Button>
-                <Button
-                    variant="contained"
-                    onClick={handleDelete}
-                    className="w-full py-2 px-4 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors"
-                >
-                    Удалить
-                </Button>
+                <div className="flex gap-4 justify-end pt-4">
+                    <BlueButton
+                        onClick={() => setIsModalOpen(false)}
+                        className="h-auto px-1 py-2  cursor-pointer rounded-lg bg-gray-200 !text-black font-semibold hover:bg-gray-300 transition-colors"
+                    >
+                        Отмена
+                    </BlueButton>
+
+                    <BlueButton
+                        onClick={handleDelete}
+                        className="h-auto px-1 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors"
+                    >
+                        Удалить
+                    </BlueButton>
+                </div>
             </Modal>
 
             {isDeleted && (

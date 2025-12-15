@@ -41,7 +41,7 @@ const Modal = ({ open, onClose, title, children, className = '', closeOnBackdrop
 
                             <button
                                 type="button"
-                                className="rounded-md bg-transparent text-gray-400 hover:text-gray-500 focus:outline-none"
+                                className="rounded-md bg-transparent cursor-pointer text-gray-400 hover:text-gray-500 focus:outline-none"
                                 onClick={() => onClose?.()}
                             >
                                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">

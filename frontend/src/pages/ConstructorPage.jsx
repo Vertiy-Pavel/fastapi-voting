@@ -58,7 +58,7 @@ const ConstructorPage = ({ active }) => {
         <>
             <div className="min-h-screen">
                 {/* Контейнер с адаптивными отступами: гибкие на моб. и фиксированные на 2xl */}
-                <div className="2xl:mx-[240px] mt-[60px]">
+                <div className="mx-4 2xl:mx-[240px] mt-[60px]">
 
                     <Breadcrumbs title="Администратор / Конструктор голосований / Добавить голосование"/>
 
