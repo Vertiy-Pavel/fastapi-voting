@@ -1,5 +1,5 @@
 import axios from "axios";
-import {refresh} from "./api/user.js";
+import {refresh} from "./api/auth.js";
 
 const API_URL = import.meta.env.VITE_API_URL;
 

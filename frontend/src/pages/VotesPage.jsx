@@ -68,28 +68,37 @@ const VotesPage = () => {
                 console.log("Response Data:", response.data);
                 const {items, pagination} = response.data;
 
-                const formattedVotings = items.map((voting) => ({
-                    ...voting,
-                    registrationStart: {
-                        date: formatDate(voting.registration_start),
-                        time: formatTime(voting.registration_start),
-                    },
-                    registrationEnd: {
-                        date: formatDate(voting.registration_end),
-                        time: formatTime(voting.registration_end),
-                    },
-                    votingStart: {
-                        date: formatDate(voting.voting_start),
-                        time: formatTime(voting.voting_start),
-                    },
-                    votingEnd: {
-                        date: formatDate(voting.voting_end),
-                        time: formatTime(voting.voting_end),
-                    },
-                    status: getVotingStatusConfig(voting),
-                    groupName: voting.departments?.[0]?.name || "Общая группа",
-                    timezone: "(UTC+3) Россия - Москва",
-                }));
+                const formattedVotings = items.map((item) => {
+                    return {
+                        ...item.voting,
+
+                        // Данные создателя
+                        creatorId: item.creator_id,
+                        creatorName: `${item.creator_last_name} ${item.creator_first_name}`,
+
+                        // Форматируем даты
+                        registrationStart: {
+                            date: formatDate(item.voting.registration_start),
+                            time: formatTime(item.voting.registration_start),
+                        },
+                        registrationEnd: {
+                            date: formatDate(item.voting.registration_end),
+                            time: formatTime(item.voting.registration_end),
+                        },
+                        votingStart: {
+                            date: formatDate(item.voting.voting_start),
+                            time: formatTime(item.voting.voting_start),
+                        },
+                        votingEnd: {
+                            date: formatDate(item.voting.voting_end),
+                            time: formatTime(item.voting.voting_end),
+                        },
+
+
+                        groupName: item.voting.departments?.[0]?.name || "Общая группа",
+                        timezone: "(UTC+3) Россия - Москва",
+                    };
+                });
 
                 setVotings(formattedVotings);
                 setTotalPages(pagination.total_count);
@@ -127,10 +136,8 @@ const VotesPage = () => {
 
                     <div className="mt-4 flex flex-col gap-3">
                         <div className="flex flex-col md:flex-row md:justify-between bg-white shadow-lg items-center p-4 md:p-6 rounded-xl md:rounded-[20px] gap-4 lg:flex-nowrap">
-                            <div className="flex gap-4 w-full justify-center md:w-auto md:justify-start">
-                                <VotingControls activeTab={activeTab} onTabChange={handleTabChange}/>
-                            </div>
-                            <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
+                            <VotingControls activeTab={activeTab} onTabChange={handleTabChange}/>
+                            <div className="flex flex-row md:flex-row gap-2 w-full md:w-auto">
                                 <PaginationControls
                                     currentPage={currentPage}
                                     totalPages={totalPages}

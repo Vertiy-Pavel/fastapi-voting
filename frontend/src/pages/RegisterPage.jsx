@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
-import HeaderLogin from "/src/components/HeaderLogin";
 import {Link, useNavigate} from 'react-router-dom';
-import {register} from '../services/api/user.js'
+import {register} from '../services/api/auth.js'
 import {InputDefault, InputPassword} from "../components/Inputs.jsx";
 import {BlackButton, GrayButton} from "../components/Button.jsx";
 import Modal from '../components/Modal'
@@ -46,7 +45,7 @@ const RegisterPage = () => {
         if (formData.password !== confirmPassword) {
             const errorMsg = 'Пароли не совпадают!';
             console.warn('Не удалось подтвердить пароль', errorMsg);
-            //setMessage(errorMsg);
+            setMessage({text: `${errorMsg}`, type: 'error'});
             return;
         }
 
@@ -88,7 +87,7 @@ const RegisterPage = () => {
                                 <option value={'CHIEF'}>Начальник</option>
                             </select>
 
-                            <div className="flex flex-col sm:flex-row">
+                            <div className="flex flex-col md:flex-row">
                                 <InputDefault
                                     type="text"
                                     title="Фамилия"
@@ -184,7 +183,6 @@ const RegisterPage = () => {
                                 {loading ?
                                     (
                                         <>
-
                                             <svg className="h-5 w-5 animate-spin items-center" viewBox="0 0 24 24">
                                                 <circle
                                                     fill="none"
@@ -263,43 +261,39 @@ const RegisterPage = () => {
                             </select>
 
                             <div className="flex gap-[12px]">
-                                <div className="flex flex-col">
-                                    <InputDefault
-                                        type="text"
-                                        title="Фамилия"
-                                        placeholder="Иванов"
-                                        required
-                                        validate={(val) => val.trim().length > 0}
-                                        value={formData.last_name}
-                                        onChange={handleChange}
-                                        name='last_name'
-                                        className={'w-[150px] h-[51px]'}
-                                    />
-                                </div>
-                                <div className="flex flex-col">
-                                    <InputDefault
-                                        type="text"
-                                        title="Имя"
-                                        placeholder="Иван"
-                                        required
-                                        validate={(val) => val.trim().length > 0}
-                                        value={formData.first_name}
-                                        onChange={handleChange}
-                                        name='first_name'
-                                        className={'w-[115px] h-[51px]'}
-                                    />
-                                </div>
-                                <div className="flex flex-col">
-                                    <InputDefault
-                                        type="text"
-                                        title="Отчество"
-                                        placeholder="Иванович"
-                                        value={formData.surname}
-                                        onChange={handleChange}
-                                        name='surname'
-                                        className={'w-[178px] h-[51px]'}
-                                    />
-                                </div>
+                                <InputDefault
+                                    type="text"
+                                    title="Фамилия"
+                                    placeholder="Иванов"
+                                    required
+                                    validate={(val) => val.trim().length > 0}
+                                    value={formData.last_name}
+                                    onChange={handleChange}
+                                    name='last_name'
+                                    className={'w-[150px] h-[51px]'}
+                                />
+
+                                <InputDefault
+                                    type="text"
+                                    title="Имя"
+                                    placeholder="Иван"
+                                    required
+                                    validate={(val) => val.trim().length > 0}
+                                    value={formData.first_name}
+                                    onChange={handleChange}
+                                    name='first_name'
+                                    className={'w-[115px] h-[51px]'}
+                                />
+
+                                <InputDefault
+                                    type="text"
+                                    title="Отчество"
+                                    placeholder="Иванович"
+                                    value={formData.surname}
+                                    onChange={handleChange}
+                                    name='surname'
+                                    className={'w-[178px] h-[51px]'}
+                                />
                             </div>
 
                             <InputDefault
@@ -360,41 +354,41 @@ const RegisterPage = () => {
                             )}
 
                             <BlackButton onClick={handleSubmit} disabled={loading}>
-                            {loading ?
-                                (
-                                    <>
+                                {loading ?
+                                    (
+                                        <>
 
-                                    <svg className="h-5 w-5 animate-spin items-center" viewBox="0 0 24 24">
-                                    <circle
-                                        fill="none"
-                                        strokeWidth="3"
-                                        className="stroke-current opacity-40"
-                                        cx="12"
-                                        cy="12"
-                                        r="10"
-                                    />
-                                    <circle
-                                        cx="12"
-                                        cy="12"
-                                        r="10"
-                                        stroke="currentColor"
-                                        strokeWidth="3"
-                                        strokeLinecap="round"
-                                        strokeDasharray="50.265"
-                                        strokeDashoffset="36"      /* длина видимой дуги */
-                                        className="opacity-95"
-                                        fill="none"
-                                    />
-                                </svg>
-                                    </>)
-                                : (
-                                    <>
-                                        Зарегистрироваться
-                                    </>
-                                )
+                                            <svg className="h-5 w-5 animate-spin items-center" viewBox="0 0 24 24">
+                                                <circle
+                                                    fill="none"
+                                                    strokeWidth="3"
+                                                    className="stroke-current opacity-40"
+                                                    cx="12"
+                                                    cy="12"
+                                                    r="10"
+                                                />
+                                                <circle
+                                                    cx="12"
+                                                    cy="12"
+                                                    r="10"
+                                                    stroke="currentColor"
+                                                    strokeWidth="3"
+                                                    strokeLinecap="round"
+                                                    strokeDasharray="50.265"
+                                                    strokeDashoffset="36"      /* длина видимой дуги */
+                                                    className="opacity-95"
+                                                    fill="none"
+                                                />
+                                            </svg>
+                                        </>)
+                                    : (
+                                        <>
+                                            Зарегистрироваться
+                                        </>
+                                    )
 
-                            }
-                        </BlackButton>
+                                }
+                            </BlackButton>
 
                         </form>
                     </div>
@@ -408,7 +402,8 @@ const RegisterPage = () => {
                 title="Проверьте почту"
             >
                 <div className="mt-2 text-sm text-black">
-                    Для завершения регистрации перейдите по ссылке, отправленной на адрес <strong className="break-words">{formData.email}</strong>.
+                    Для завершения регистрации перейдите по ссылке, отправленной на адрес <strong
+                    className="break-words">{formData.email}</strong>.
                 </div>
             </Modal>
         </>

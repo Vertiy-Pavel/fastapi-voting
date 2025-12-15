@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react';
-import {useParams} from 'react-router-dom';
+import {useLocation, useParams} from 'react-router-dom';
 import Breadcrumbs from '../components/Breadcrumbs.jsx';
 import PageTitle from '../components/PageTitle.jsx';
 import GeneralInfo from '../components/details/GeneralInfo.jsx';
@@ -8,7 +8,6 @@ import Voters from '../components/details/Voters.jsx';
 import {ResultsForAdmin, BeforeResults} from '../components/details/Results.jsx';
 import Sidebar from '../components/constructor/Sidebar.jsx';
 import {
-    getVotingData,
     getVotingParticipants,
     getVotingStats,
     registerUserForVoting,
@@ -18,7 +17,8 @@ import MyBulliten from '../components/details/MyBulliten.jsx';
 import {CiCircleInfo} from "react-icons/ci";
 import {IoMdStats} from "react-icons/io"; //stats
 import {GoPeople, GoChecklist} from "react-icons/go"; // icon-voters
-import { LiaClipboardListSolid } from "react-icons/lia"; // icon-results
+import { LiaClipboardListSolid } from "react-icons/lia";
+import {getVotingData} from "../services/api/voting.js"; // icon-results
 
 
 const prepareVotingDataForComponent = (rawData) => {
@@ -52,21 +52,13 @@ const Details = () => {
     const [activeContent, setActiveContent] = useState("general-info");
     const [votingStats, setVotingStats] = useState(null);
     const [isRegistered, setIsRegistered] = useState(false);
+    const location = useLocation();
 
-    // для role_id и user_id
-    const [user_id, setUserId] = useState(null);
-    const [role_id, setRoleId] = useState(null);
+    const userId = localStorage.getItem("userId");
 
-    // запрос на получение role_id и user_id
-    useEffect(() => {
-        const fetchUser = async () => {
-
-            setUserId(20);
-            setRoleId(3);
-        };
-        fetchUser();
-    }, []);
-
+    console.log('location:', location);
+    console.log('location.state:', location.state);
+    console.log('votingId:', votingId);
 
     // Функция, которая будет вызываться при клике на пункт сайдбара
     const handleMenuItemClick = (itemKey) => {
@@ -127,15 +119,15 @@ const Details = () => {
         if (votingId) {
             fetchData();
         }
-    }, [votingId, user_id, role_id]); // Зависимости: запрос повторится при смене ID, токена, или данных пользователя.
+    }, [votingId]); // Зависимости: запрос повторится при смене ID, токена, или данных пользователя.
 
-    if (loading) {
-        return <div className="text-center py-10">Загрузка...</div>;
-    }
-
-    if (!votingData) {
-        return <div className="text-center py-10">Данные о голосовании не найдены.</div>;
-    }
+    // if (loading) {
+    //     return <div className="text-center py-10">Загрузка...</div>;
+    // }
+    //
+    // if (!votingData) {
+    //     return <div className="text-center py-10">Данные о голосовании не найдены.</div>;
+    // }
 
 
     // Определяем пункты меню на основе userRole и isRegistered
@@ -150,10 +142,19 @@ const Details = () => {
                     strokeWidth={isActive ? 1 : 0.5}
                 />
             },
+            {
+                key: 'my-bulletin',
+                label: 'Мой бюллетень',
+                icon: (isActive) => <GoChecklist
+                    size={24}
+                    color={isActive ? '#437DE9' : '#4B5563'}
+                    strokeWidth={isActive ? 0.5 : 0}
+                />
+            },
         ];
 
 
-        if (role_id === 3 || votingData.voting_full_info.creator.id === user_id) {
+        if (votingData.voting_full_info.creator.id === userId) {
             baseItems.push(
                 {
                     key: 'stats',
@@ -172,25 +173,20 @@ const Details = () => {
                         color={isActive ? '#437DE9' : '#4B5563'}
                         strokeWidth={isActive ? 0.5 : 0}
                     />
+                },
+                {
+                    key: 'results',
+                    label: 'Результаты',
+                    icon: (isActive) => <LiaClipboardListSolid
+                        size={24}
+                        color={isActive ? '#437DE9' : '#4B5563'}
+                        strokeWidth={isActive ? 0.5 : 0}
+                    />
                 }
             );
         }
 
-
-        if (isRegistered || role_id === 3) {
-            baseItems.push({
-                key: 'my-bulletin',
-                label: 'Мой бюллетень',
-                icon: (isActive) => <GoChecklist
-                    size={24}
-                    color={isActive ? '#437DE9' : '#4B5563'}
-                    strokeWidth={isActive ? 0.5 : 0}
-                />
-            });
-        }
-
-
-        if (isRegistered || votingData.voting_full_info.creator.id === user_id || role_id === 3) {
+        if (votingData.voting_full_info.creator.id === userId) {
             baseItems.push({
                 key: 'results',
                 label: 'Результаты',
@@ -215,8 +211,8 @@ const Details = () => {
                                     onRegister={handleRegistration}
                                     onNavigateToMyBulliten={handleNavigateToMyBulliten}
                                     onNavigateToResults={handleNavigateToResults}
-                                    user_id = {user_id}
-                                    role_id = {role_id}/>;
+                                    userId = {userId}
+                                    />;
             case "stats":
                 return <VotingStatistic votingData={votingData} votingStats={votingStats}
                                         quorum={votingData.voting_full_info.quorum}/>;

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Routes, Route, useLocation} from 'react-router-dom';
+import {Routes, Route, useLocation, matchPath} from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import MainPage from './pages/MainPage';
@@ -13,10 +13,13 @@ import DepartmentsPage from "./pages/DepartmentsPage.jsx";
 
 function AppContent() {
     const location = useLocation();
+    const isConfirm = !!matchPath('/confirm/:uuid', location.pathname);
+
+    const hideHeader = ['/login', '/register'].includes(location.pathname) || isConfirm;
 
     return (
         <>
-            {location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/confirm/:uuid'  && <Header/>}
+            {!hideHeader && <Header/>}
             <Routes>
                 <Route path='/login' element={<LoginPage/>}/>
                 <Route path='/votes' element={<VotesPage/>}/>
@@ -29,7 +32,9 @@ function AppContent() {
                 {/* подтверждения смены почты */}
                 <Route path='/profile/email/:uuid' element={<ProfilePage variant='email'/>}/>
 
-                <Route path='/constructor' element={<ConstructorPage/>}/>
+                <Route path='/vote/create' element={<ConstructorPage active='create-poll' />}/>
+                <Route path='/vote/templates' element={<ConstructorPage active='poll-templates' />}/>
+
                 <Route path='/details' element={<Details/>}/>
                 <Route path='/votes/:votingId' element={<Details/>}/>
                 <Route path='/departments' element={<DepartmentsPage/>}/>

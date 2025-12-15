@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getVotingStatusConfig } from './Formatters';
-import { TbTimezone } from "react-icons/tb";
 import Modal from '../Modal.jsx'
 import { LuCalendar1, LuAlarmClock, LuTrash2 } from "react-icons/lu";
 import { IoMdStats } from "react-icons/io";
@@ -12,9 +11,10 @@ import Button from '../Button.jsx'
 const VotingCard = ({ voting, isArchived }) => {
     const status = getVotingStatusConfig(voting, isArchived);
     const [isDeleted, setIsDeleted] = useState(false);
-
-
     const [isModalOpen, setIsModalOpen] = useState(false)
+
+    const userId = localStorage.getItem("user_id");
+    console.log(userId === voting.creatorId);
 
     // Обработчики
     const handleOpenModal = () => setIsModalOpen(true);
@@ -46,8 +46,7 @@ const VotingCard = ({ voting, isArchived }) => {
                     </div>
                 </div>
                 <div className="flex items-center gap-1 sm:gap-2 text-neutral-600 text-xs sm:text-sm font-normal leading-tight">
-                    <TbTimezone size={24} />
-                    {voting.timezone}
+                    {voting.creatorName}
                 </div>
             </div>
 
@@ -118,14 +117,14 @@ const VotingCard = ({ voting, isArchived }) => {
             {/* Кнопки управления */}
             <div className="flex justify-end mt-2 sm:absolute sm:bottom-6 sm:right-6">
                 <div className="flex gap-3 sm:gap-[10px]">
-                    <Link to={`/votes/${voting.id}`} className='bg-[#f4f4f4] hover:bg-[#ccc] transition-all rounded-lg p-2 cursor-pointer'>
+                    <Link to={`/votes/${voting.id}`} state={voting} className='bg-[#f4f4f4] hover:bg-[#ccc] transition-all rounded-lg p-2 cursor-pointer'>
                         <IoMdStats />
                     </Link>
-                    {/*user.userId === voting.creator.id*/}
-                    {/*{user.roleId === 3 &&*/}
+                    {String(userId) === String(voting.creatorId) &&
                         <div className='bg-[#f4f4f4] hover:bg-[#EE5B5B] hover:text-[#FFE3E3] transition-all rounded-lg p-2 cursor-pointer' onClick={handleOpenModal} >
                             <LuTrash2 />
                         </div>
+                    }
                 </div>
             </div>
 

@@ -5,7 +5,7 @@ import PasswordChangeForm from "../components/profile/PasswordChangeFrom";
 import TimezoneSettings from "../components/profile/TimezoneSetting";
 import {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
-import {changeEmailConfirm, changePasswordConfirm} from "../services/api/user.js";
+import {changeEmailConfirm, changePasswordConfirm} from "../services/api/profile.js";
 import toast from "react-hot-toast";
 import EmailChangeForm from "../components/profile/EmailChangeForm.jsx";
 
@@ -21,7 +21,7 @@ const ProfilePage = ({ variant }) => {
     const { uuid } = useParams();
     const navigate = useNavigate();
 
-    const accessToken = localStorage.getItem("accessToken");
+    const accessToken = localStorage.getItem("access_token");
 
     useEffect( () => {
         if (!uuid) return;
@@ -68,18 +68,6 @@ const ProfilePage = ({ variant }) => {
 
     }, [navigate, uuid, variant]);
 
-    // таймер
-    useEffect(() => {
-        if (resendTimer > 0) {
-            const timerId = setTimeout(() => {
-                setResendTimer(resendTimer - 1);
-            }, 1000);
-
-            // очистка таймера
-            return () => clearTimeout(timerId);
-        }
-    }, [resendTimer]);
-
     return (
         <>
             <div className="min-h-screen">
@@ -107,7 +95,7 @@ const ProfilePage = ({ variant }) => {
                             {/* Правая колонка (настройки) */}
                             <div
                                 className="flex flex-col mt-4 md:mt-3 lg:mt-3 sm:mt-3 xl:mt-0 w-full gap-4 lg:gap-[10px]">
-                                <TimezoneSettings/>
+                                {/*<TimezoneSettings/>*/}
                                 <EmailChangeForm/>
                             </div>
                         </main>

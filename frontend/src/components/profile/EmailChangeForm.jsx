@@ -1,8 +1,8 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {InputDefault, InputPassword} from "../Inputs.jsx";
 import {BlueButton} from "../Button.jsx";
 import {TbCloudDownload} from "react-icons/tb";
-import {changeEmail} from "../../services/api/user.js";
+import {changeEmail} from "../../services/api/profile.js";
 import Modal from "../Modal.jsx";
 
 const EmailChangeForm = () => {
@@ -12,6 +12,35 @@ const EmailChangeForm = () => {
         email: '',
         password: '',
     });
+    const [secondsLeft, setSecondsLeft] = useState(0);
+
+    // Восстанавливает оставшееся время блокировки из localStorage при монтировании
+    useEffect(() => {
+        const stored = localStorage.getItem('retry_email');
+        if (stored) {
+            const until = Number(stored);
+            const seconds = Math.max(0, Math.ceil((until - Date.now()) / 1000));
+            setSecondsLeft(seconds);
+            if (seconds <= 0) localStorage.removeItem('retry_email');
+        }
+    }, []);
+
+    // интервал обратного отсчёта
+    useEffect(() => {
+        if (secondsLeft <= 0) return;
+        const id = setInterval(() => {
+            setSecondsLeft(prev => {
+                if (prev <= 1) {
+                    clearInterval(id);
+                    localStorage.removeItem('retry_email');
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(id);
+    }, [secondsLeft]);
+
 
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -26,6 +55,17 @@ const EmailChangeForm = () => {
         try {
             const response = await changeEmail(formData);
             console.log(response);
+            const retry_until = response.data?.rate_minutes || 0
+            localStorage.setItem('retry_email', retry_until)
+
+            if (retry_until > 0) {
+                const until = Date.now() + retry_until * 60 * 1000; // ms
+                localStorage.setItem('retry_email', String(until));
+                setSecondsLeft(Math.ceil((until - Date.now()) / 1000));
+            } else {
+                localStorage.removeItem('retry_email');
+                setSecondsLeft(0);
+            }
             setIsConfirmModalOpen(true)
         } catch (error) {
             console.log(error);
@@ -33,6 +73,12 @@ const EmailChangeForm = () => {
             setIsSaving(false);
         }
     }
+
+    const format = (s) => {
+        const m = Math.floor(s / 60).toString().padStart(2,'0');
+        const sec = (s % 60).toString().padStart(2,'0');
+        return `${m}:${sec}`;
+    };
 
     return (
         <>
@@ -45,7 +91,7 @@ const EmailChangeForm = () => {
                     {/* Фамилия */}
                     <InputDefault
                         type="email"
-                        title="Электронная почта"
+                        title="Новая электронная почта"
                         value={formData.email}
                         onChange={handleChange}
                         name='email'
@@ -61,39 +107,40 @@ const EmailChangeForm = () => {
                         name="password"
                     />
 
-                    <BlueButton onClick={handleSubmit} disabled={isSaving}>
-                        {isSaving ? (
-                            <>
-                                <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
-                                    <circle
-                                        fill="none"
-                                        strokeWidth="3"
-                                        className="stroke-current opacity-40"
-                                        cx="12"
-                                        cy="12"
-                                        r="10"
-                                    />
-                                    <circle
-                                        cx="12"
-                                        cy="12"
-                                        r="10"
-                                        stroke="currentColor"
-                                        strokeWidth="3"
-                                        strokeLinecap="round"
-                                        strokeDasharray="50.265"
-                                        strokeDashoffset="36"      /* длина видимой дуги */
-                                        className="opacity-95"
-                                        fill="none"
-                                    />
-                                </svg>
-                                Сохранение...
-                            </>
-                        ) : (
-                            <>
-                                <TbCloudDownload size={24}/>
-                                Сохранить изменения
-                            </>
-                        )}
+                    <BlueButton onClick={handleSubmit} disabled={isSaving || secondsLeft > 0} className={secondsLeft > 0 ? 'disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 disabled:hover:scale-100 disabled:transition-none disabled:translate-y-0' : ''}>
+                        {secondsLeft > 0 ? `${format(secondsLeft)}` :
+                            (isSaving ? (
+                                <>
+                                    <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
+                                        <circle
+                                            fill="none"
+                                            strokeWidth="3"
+                                            className="stroke-current opacity-40"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                        />
+                                        <circle
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            strokeWidth="3"
+                                            strokeLinecap="round"
+                                            strokeDasharray="50.265"
+                                            strokeDashoffset="36"      /* длина видимой дуги */
+                                            className="opacity-95"
+                                            fill="none"
+                                        />
+                                    </svg>
+                                    Сохранение...
+                                </>
+                            ) : (
+                                <>
+                                    <TbCloudDownload size={24}/>
+                                    Сохранить изменения
+                                </>
+                            ))}
                     </BlueButton>
                 </div>
             </div>

@@ -4,12 +4,13 @@ import InputField from '/src/components/constructor/CreateVoting/InputField';
 import DateTimePicker from '/src/components/constructor/CreateVoting/DateTimePicker';
 import QuestionForm from '/src/components/constructor/CreateVoting/QuestionForm';
 import AddQuestionButton from '/src/components/constructor/CreateVoting/AddQuestionButton';
-import {getDepartments, saveTemplate} from '../../services/api'
+import {saveTemplate} from '../../services/api'
 import {CiViewList} from "react-icons/ci";
 import {MdOutlineRocketLaunch} from "react-icons/md";
 import {useDepartments} from "../../hooks/useDepartments.js";
 import {createVoting} from "../../services/api/voting.js";
-
+import {ToggleButton} from "../Button.jsx";
+import toast from "react-hot-toast";
 
 const CreateVoting = ({selectedTemplate}) => {
     const today = new Date().toISOString().split("T")[0]; // текущая дата
@@ -20,6 +21,7 @@ const CreateVoting = ({selectedTemplate}) => {
     const [votingStart, setVotingStart] = useState({date: today, time: '10:00'});
     const [votingEnd, setVotingEnd] = useState({date: today, time: '10:00'});
     const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Управление открытием/закрытием выпадающего списка для департаментов
+    const [typeVoting, setTypeVoting] = useState(true);
 
     // Департаменты
     const {
@@ -74,7 +76,7 @@ const CreateVoting = ({selectedTemplate}) => {
 
     // Универсальный обработчик для полей date/time
     const handleDateTimeChange = (setter, key) => (value) => {
-        setter(prev => ({ ...prev, [key]: value }));
+        setter(prev => ({...prev, [key]: value}));
     };
 
     const removeQuestion = (id) => {
@@ -109,19 +111,19 @@ const CreateVoting = ({selectedTemplate}) => {
     const data = {
         title: votingTitle || 'Без названия',
         theme: 'string',
-        public: true,
+        public: typeVoting,
         quorum: quorumCondition === '50_plus_1' ? 50 : quorumCondition === 'two_thirds' ? 66 : 0,
         registration_start: combineDateTime(registrationStart.date, registrationStart.time),
         registration_end: combineDateTime(registrationEnd.date, registrationEnd.time),
         voting_start: combineDateTime(votingStart.date, votingStart.time),
         voting_end: combineDateTime(votingEnd.date, votingEnd.time),
-        // questions: questions.map(q => ({
-        //     type: q.type || 'single_choice',
-        //     title: q.header || 'Без названия',
-        //     options: (q.options || [])
-        //         .filter(opt => opt.trim() !== '')
-        //         .map(opt => ({ option: opt.trim() }))
-        // })),
+        questions: questions.map(q => ({
+            type: q.type || 'single_choice',
+            title: q.header || 'Без названия',
+            options: (q.options || [])
+                .filter(opt => opt.trim() !== '')
+                .map(opt => ({ option: opt.trim() }))
+        })),
         // department_ids: selectedDepartmentIds // Используем выбранные ID департаментов
     };
 
@@ -131,7 +133,7 @@ const CreateVoting = ({selectedTemplate}) => {
             <div key={dept.id}>
                 <div
                     className="p-3 hover:bg-gray-100 flex items-center"
-                    style={{ paddingLeft: `${level * 16}px` }} // отступ для вложенности
+                    style={{paddingLeft: `${level * 16}px`}} // отступ для вложенности
                 >
                     <input
                         type="checkbox"
@@ -160,6 +162,7 @@ const CreateVoting = ({selectedTemplate}) => {
     const sendToServer = async () => {
         await createVoting(data);
         console.log("Голосование успешно создано");
+        toast.success("Голосование успешно создано")
     };
 
     // Отправка шаблона
@@ -197,58 +200,78 @@ const CreateVoting = ({selectedTemplate}) => {
                     <option value="unanimous">Единогласно</option>
                 </select>
 
-                {/*TODO: Добавить выбор открытое/закрытое голосование*/}
                 <label className="block text-sm font-medium text-gray-700 mb-1 mt-4">
-                    Группа пользователей
+                    Тип голосования
                 </label>
-                <div className="relative">
-                    {/* Кастомный селект/выпадающий список */}
-                    <div
-                        className="mt-1 mb-1 p-4 border border-gray-300 rounded-[12px] text-gray-500 w-full bg-white focus:outline-none focus:ring-2 focus:ring-grey-500 cursor-pointer flex justify-between items-center"
-                        onClick={() => setIsDropdownOpen(!isDropdownOpen)} // Переключение открытия
-                    >
+                <div className="flex flex-wrap gap-2 justify-start">
+                    <ToggleButton
+                        className={`border ${typeVoting ? 'bg-black text-white' : 'border-gray-300 hover:bg-gray-100'}`}
+                        onClick={() => setTypeVoting(true)}>
+                        Открытое
+                    </ToggleButton>
+
+                    <ToggleButton
+                        className={`border ${!typeVoting ? 'bg-black text-white' : 'border-gray-300 hover:bg-gray-100'}`}
+                        onClick={() => setTypeVoting(false)}>
+                        Закрытое
+                    </ToggleButton>
+                </div>
+
+                {!typeVoting && (
+                    <>
+                        <label className="block text-sm font-medium text-gray-700 mb-1 mt-4">
+                            Группа пользователей
+                        </label>
+                        <div className="relative">
+                            {/* Кастомный селект/выпадающий список */}
+                            <div
+                                className="mt-1 mb-1 p-4 border border-gray-300 rounded-[12px] text-gray-500 w-full bg-white focus:outline-none focus:ring-2 focus:ring-grey-500 cursor-pointer flex justify-between items-center"
+                                onClick={() => setIsDropdownOpen(!isDropdownOpen)} // Переключение открытия
+                            >
                         <span>
                             {Array.isArray(selectedDepartmentIds) && selectedDepartmentIds.length > 0
                                 ? `${selectedDepartmentIds.length} выбрано`
                                 : 'Выберите группы...'}
                         </span>
-                        <svg
-                            className={`w-5 h-5 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                  d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </div>
+                                <svg
+                                    className={`w-5 h-5 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                          d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
 
-                    {/* Выпадающий список */}
-                    {isDropdownOpen && (
-                        <div
-                            className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                            {/* Список департаментов */}
-                            {departments.length > 0 ? (
-                                renderDepartments(departments)
-                            ) : (
-                                <div className="p-3 text-gray-500">Нет доступных групп.</div>
-                            )}
+                            {/* Выпадающий список */}
+                            {isDropdownOpen && (
+                                <div
+                                    className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                    {/* Список департаментов */}
+                                    {departments.length > 0 ? (
+                                        renderDepartments(departments)
+                                    ) : (
+                                        <div className="p-3 text-gray-500">Нет доступных групп.</div>
+                                    )}
 
-                            {/* Индикатор загрузки */}
-                            {isLoadingDepartments && (
-                                <div className="p-3 text-center text-gray-500">Загрузка...</div>
-                            )}
+                                    {/* Индикатор загрузки */}
+                                    {isLoadingDepartments && (
+                                        <div className="p-3 text-center text-gray-500">Загрузка...</div>
+                                    )}
 
-                            {/* Кнопка "Загрузить еще" */}
-                            {hasMoreDepartments && !isLoadingDepartments && (
-                                <button
-                                    onClick={handleLoadMore}
-                                    className="w-full p-3 text-center text-blue-500 hover:bg-gray-50 border-t border-gray-200"
-                                    disabled={isLoadingDepartments}
-                                >
-                                    Загрузить еще
-                                </button>
+                                    {/* Кнопка "Загрузить еще" */}
+                                    {hasMoreDepartments && !isLoadingDepartments && (
+                                        <button
+                                            onClick={handleLoadMore}
+                                            className="w-full p-3 text-center text-blue-500 hover:bg-gray-50 border-t border-gray-200"
+                                            disabled={isLoadingDepartments}
+                                        >
+                                            Загрузить еще
+                                        </button>
+                                    )}
+                                </div>
                             )}
                         </div>
-                    )}
-                </div>
+                    </>)}
 
                 {/* Даты и время */}
                 <div className="flex flex-col md:flex-row justify-between gap-4 mt-4">
@@ -307,7 +330,7 @@ const CreateVoting = ({selectedTemplate}) => {
                 <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
                     <button
                         onClick={sendToServer}
-                        className="w-full sm:w-auto bg-blue-500 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg flex items-center justify-center sm:justify-start space-x-2 text-sm sm:text-base"
+                        className="w-full sm:w-auto bg-blue-500 cursor-pointer text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg flex items-center justify-center sm:justify-start space-x-2 text-sm sm:text-base"
                     >
                         <MdOutlineRocketLaunch size={24}/>
                         <span>Запустить голосование</span>
@@ -315,7 +338,7 @@ const CreateVoting = ({selectedTemplate}) => {
 
                     <button
                         onClick={sendTemplateToServer}
-                        className="w-full sm:w-auto border border-blue-500 text-blue-500 px-3 py-2 sm:px-4 sm:py-2 rounded-lg flex items-center justify-center sm:justify-start space-x-2 hover:bg-blue-50 transition text-sm sm:text-base"
+                        className="w-full sm:w-auto border border-blue-500 cursor-pointer text-blue-500 px-3 py-2 sm:px-4 sm:py-2 rounded-lg flex items-center justify-center sm:justify-start space-x-2 hover:bg-blue-50 transition text-sm sm:text-base"
                     >
                         <CiViewList size={24}/>
                         <span>Сохранить шаблон</span>

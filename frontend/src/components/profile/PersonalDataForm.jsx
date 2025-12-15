@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {TbCloudDownload} from "react-icons/tb";
 import {InputDefault} from "../Inputs.jsx";
-import {changeCredentials} from "../../services/api/user.js";
+import {changeCredentials} from "../../services/api/profile.js";
 import toast from 'react-hot-toast';
 import {BlueButton} from "../Button.jsx";
 

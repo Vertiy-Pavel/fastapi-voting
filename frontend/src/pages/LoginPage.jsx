@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react';
+    import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import {loginUser, registerConfirmEmail} from '../services/api/user.js'
+import {loginUser, registerConfirmEmail} from '../services/api/auth.js'
 import {InputDefault, InputPassword} from "../components/Inputs.jsx";
 import {BlackButton, GrayButton} from "../components/Button.jsx";
 import toast from "react-hot-toast";
@@ -76,6 +76,7 @@ const LoginPage = () => {
             localStorage.setItem('x-csrf-token', response.headers['x-csrf-token']);
             localStorage.setItem('access_token', response.data.access_token);
             localStorage.setItem('role', response.data.user.role);
+            localStorage.setItem('user_id', response.data.user.id);
             localStorage.setItem('first_name', response.data.user.first_name);
             localStorage.setItem('last_name', response.data.user.last_name);
             localStorage.setItem('surname', response.data.user.surname);
@@ -90,7 +91,7 @@ const LoginPage = () => {
             console.log('Полный error:', error);
             console.log('error.response:', error.response);
             console.log('error.response.data:', error.response?.data);
-            setMessage({text: error.response.data.detail, type: 'error'});
+            setMessage({text: 'Неверные данные или пользователя не существует', type: 'error'});
         } finally {
             setLoading(false);
         }

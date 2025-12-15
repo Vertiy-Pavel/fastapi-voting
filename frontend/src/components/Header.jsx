@@ -1,14 +1,15 @@
 import {useState, useEffect} from 'react';
 import {CgProfile} from "react-icons/cg";
-import {VscSettings} from "react-icons/vsc";
-import {LuScanSearch} from "react-icons/lu";
 import {NavLink, useNavigate} from 'react-router-dom'
-import {MdLogout} from "react-icons/md";
+import {MdClose, MdLogout, MdMenu} from "react-icons/md";
 import AltHeaderDropdown from './Header/AltHeaderDropdown';
-import {accessLogout, refreshLogout} from "../services/api/user.js";
+import {accessLogout, refreshLogout} from "../services/api/auth.js";
+import {IoIosCreate, IoIosList} from "react-icons/io";
+import {RiFileList3Line, RiHome5Line} from "react-icons/ri";
 
 const Header = () => {
     const [user, setUser] = useState({});
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     const navigate = useNavigate();
 
@@ -21,13 +22,19 @@ const Header = () => {
         })
     }, [])
 
+    // Блокируем скролл страницы, когда открыто меню
+    useEffect(() => {
+        if (isMobileMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+    }, [isMobileMenuOpen]);
+
     const Add = [
-        {id: 1, title: 'Голосование', to: '/constructor'},
-        {id: 2, title: 'Шаблон голосований', to: '/constructor'},
+        {id: 1, title: 'Голосование', to: '/vote/create'},
+        {id: 2, title: 'Шаблоны голосований', to: '/vote/templates'},
     ]
-
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-
 
     const logoutProfile = async () => {
         const csrf = localStorage.getItem("x-csrf-token");
@@ -37,6 +44,21 @@ const Header = () => {
         localStorage.clear();
         navigate('/login');
     }
+
+    const MobileLink = ({ to, icon, children, onClick }) => (
+        <NavLink
+            to={to}
+            onClick={onClick}
+            className={({ isActive }) =>
+                `flex items-center gap-4 text-xl font-medium p-4 rounded-xl transition-all duration-300 ${
+                    isActive ? 'bg-[#437DE9] text-white shadow-lg shadow-blue-500/30' : 'text-gray-300 hover:bg-[#333]'
+                }`
+            }
+        >
+            {icon}
+            {children}
+        </NavLink>
+    );
 
     return (
         <div className='h-25 bg-[#212121]'>
@@ -95,65 +117,84 @@ const Header = () => {
             <div className='md:hidden flex justify-between items-center py-7 px-6 text-white'>
                 <div className='flex items-center'>
                     <img
-                        className='rounded-full h-10 w-10'
+                        className='rounded-full h-12 w-12'
                         src='https://placehold.co/64x64.png'
                         alt='User avatar'
                     />
-                    <NavLink
-                        to={'/'}
-                        className='ml-3 text-lg font-semibold'
-                    >
-                        Главная
-                    </NavLink>
                 </div>
 
                 <div className='flex items-center gap-3'>
-
-
-                    <div className="w-8 h-8 cursor-pointer">
-                        <LuScanSearch size={32}/>
-                    </div>
-                    <div className="w-8 h-8 cursor-pointer">
-                        <VscSettings size={32}/>
-                    </div>
-
-
-                    <NavLink to={'/profile'}>
-                        <div className="w-8 h-8 cursor-pointer">
-                            <CgProfile size={32}/>
-                        </div>
-                    </NavLink>
                     <button
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className='ml-2'
+                        className='text-white z-50 p-2 rounded-full hover:bg-white/10 transition-colors focus:outline-none'
                     >
-                        <div className='w-6 h-0.5 bg-white mb-1.5'></div>
-                        <div className='w-6 h-0.5 bg-white mb-1.5'></div>
-                        <div className='w-6 h-0.5 bg-white'></div>
+                        {isMobileMenuOpen ? <MdClose size={32} /> : <MdMenu size={32} />}
                     </button>
                 </div>
             </div>
 
-            {/* Mobile Menu */}
-            {isMobileMenuOpen && (
-                <div className='md:hidden bg-[#212121] px-7 pb-4 absolute top-20 left-0 right-0 z-30'>
-                    <div className='flex flex-col gap-2'>
-                        <div className='text-white'>
-                            <NavLink
-                                to={'/votes'}
-                                className='px-5 h-13 flex items-start py-3 cursor-pointer hover:bg-[#505050] rounded-2xl'
-                            >
-                                Голосования
-                            </NavLink>
+            {/* --- Мобильный Overlay --- */}
+            <div
+                className={`fixed inset-0 z-40 bg-[#1a1a1a]/95 backdrop-blur-md transition-all duration-300 ease-in-out md:hidden flex flex-col pt-24 px-6
+                    ${isMobileMenuOpen ? 'opacity-100 translate-y-0 visible' : 'opacity-0 -translate-y-5 invisible pointer-events-none'}
+                `}
+            >
+                {/* Ссылки */}
+                <div className='flex flex-col gap-2'>
+                    <MobileLink
+                        to='/'
+                        icon={<RiHome5Line size={24}/>}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                        Главная
+                    </MobileLink>
+
+                    <MobileLink
+                        to='/votes'
+                        icon={<RiFileList3Line size={24}/>}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                        Голосования
+                    </MobileLink>
+
+                    {/* развернутый список */}
+                    {user.role === 'CHIEF' && (
+                        <div className="mt-4 border-t border-gray-700 pt-4">
+                            <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2 px-4">Создание</p>
+                            {Add.map((item) => (
+                                <MobileLink
+                                    key={item.id}
+                                    to={item.to}
+                                    icon={item.id === 1 ? <IoIosCreate size={24}/> : <IoIosList size={24}/>}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    {item.title}
+                                </MobileLink>
+                            ))}
                         </div>
-                        {user.role === 'CHIEF' &&
-                            <div className='rounded-2xl text-white w-57'>
-                                <AltHeaderDropdown title={'Добавить'} options={Add}/>
-                            </div>
-                        }
-                    </div>
+                    )}
                 </div>
-            )}
+
+                {/* Нижняя секция */}
+                <div className='mt-auto mb-8 border-t border-gray-700 pt-6 flex flex-col gap-3'>
+                    <NavLink
+                        to='/profile'
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center gap-4 text-xl font-medium text-gray-300 p-4 hover:bg-[#333] rounded-xl"
+                    >
+                        <CgProfile size={24} />
+                        Мой профиль
+                    </NavLink>
+
+                    <button
+                        onClick={logoutProfile}
+                        className="flex items-center gap-4 text-xl font-medium text-red-400 p-4 hover:bg-red-400/10 rounded-xl w-full text-left"
+                    >
+                        <MdLogout size={24} />
+                        Выйти
+                    </button>
+                </div>
+            </div>
         </div>
 
     );
