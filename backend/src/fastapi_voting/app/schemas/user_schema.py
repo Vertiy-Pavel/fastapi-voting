@@ -33,8 +33,19 @@ class InputLoginUserSchema(BaseModel):
     password: str
     remember_me: bool
 
+class LoginUserSchema(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    surname: str
+    email: str
+    role: RolesEnum
+
+    class Config:
+        from_attributes = True
+
 class ResponseLoginUserSchema(BaseModel):
-    user: UserSchema
+    user: LoginUserSchema
     access_token: str
 
     class Config:
@@ -51,7 +62,6 @@ class InputChangeCredentialsSchema(BaseModel):
     first_name: str
     last_name: str
     surname: str | None
-    email: str
 
 
 # --- Схемы для замены пароля пользователя ---
@@ -60,3 +70,13 @@ class InputChangePasswordSchema(BaseModel):
     new_password: str
 
 
+# --- Схемы для замены электронной почты пользователя ---
+class InputChangeEmailSchema(BaseModel):
+    email: str
+    password: str
+
+
+# --- Схемы для ответов АПИ с кд для почты ---
+class OutputSentEmailSchema(BaseModel):
+    message: str
+    rate_minutes: int

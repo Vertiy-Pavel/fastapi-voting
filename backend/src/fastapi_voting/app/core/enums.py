@@ -19,3 +19,10 @@ class TokenTypeEnum(Enum):
     REFRESH_TOKEN = "refresh_token"
     CSRF_TOKEN = "csrf_token"
     EMAIL_TOKEN = "email_token"
+
+
+# --- Шаблоны писем ---
+class TemplateTypeEnum(Enum):
+    CHANGE_PASSWORD = "change_password_template.html"
+    CONFIRM_REGISTER = "confirm_register_template.html"
+    CHANGE_EMAIL = "change_email_template.html"

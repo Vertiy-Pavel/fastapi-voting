@@ -5,9 +5,12 @@ from src.fastapi_voting.app.core.settings import get_settings
 
 from src.fastapi_voting.app.repositories.voting_repo import VotingRepo
 
-from src.fastapi_voting.app.models import Voting
+from src.fastapi_voting.app.models import Voting, Question, Option
 
-from src.fastapi_voting.app.schemas.voting_schema import ResponseAllVotingsSchema
+from src.fastapi_voting.app.schemas.voting_schema import (
+    ResponseAllVotingsSchema, OutputAllVotingsSchema,
+    InputCreateVotingSchema,
+)
 
 from src.fastapi_voting.app.core.exception.simple_exc import VotingNotFound
 
@@ -23,11 +26,23 @@ class VotingService:
         self.voting_repo = voting_repo
 
 
-    async def create_voting(self, voting_data: dict) -> Voting:
-        # --- Работа репозитория ----
-        voting = await self.voting_repo.add_instance(voting_data)
+    async def create_voting(self, voting_data: InputCreateVotingSchema, creator_id: int) -> Voting:
 
-        # --- Ответ сервиса ---
+        # Работа с первичными данными
+        voting_data = voting_data.model_dump()
+        voting_data["creator_id"] = creator_id
+
+        # Формирование записи о вопросах голосования
+        res_questions = list()
+
+        for question in voting_data["questions"]:
+            question["options"] = list(map(lambda option: Option(**option), question["options"]))
+            res_questions.append(Question(**question))
+        else:
+            voting_data["questions"] = res_questions
+
+        # Работа репозитория и ответ
+        voting = await self.voting_repo.add_instance(voting_data)
         return voting
 
 
@@ -47,15 +62,21 @@ class VotingService:
 
     async def get_all_votings(self, user_id: int, find: str | None, page: int, archived: bool) -> ResponseAllVotingsSchema:
 
-        # --- Работа репозитория ---
-        votings, total_count = await self.voting_repo.available_votings(user_id, find, page, archived)
+        # Работа репозитория
+        items, total_count = await self.voting_repo.available_votings(user_id, find, page, archived)
 
-        # --- Формирование ответа сервиса ---
+        # Вспомогательные данные
         has_prev: bool = True if page > 1 else False
-        has_next: bool = True if len(votings) > settings.PER_PAGE else False
+        has_next: bool = True if len(items) > settings.PER_PAGE else False
 
+        # Формирование данных ответа
+        fields = ["voting", "creator_id", "creator_first_name", "creator_last_name"]
+        action = lambda row: OutputAllVotingsSchema.model_validate(dict(zip(fields, row)))
+        result = list(map(action, items))
+
+        # Формирование ответа сервиса
         return ResponseAllVotingsSchema(
-            items=votings[:settings.PER_PAGE],
+            items=result,
             pagination={
                 "has_prev": has_prev,
                 "has_next": has_next,

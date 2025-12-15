@@ -1,6 +1,12 @@
+import json
+
+from uuid import UUID
+
 from datetime import timedelta
 
 from src.fastapi_voting.app.core.settings import get_settings
+
+from src.fastapi_voting.app.core.exception.simple_exc import TaskNotFound, TaskAlreadyExist # TODO: Реализовать проверку на наличие таска замены пароля
 
 from redis.asyncio import Redis
 
@@ -16,24 +22,68 @@ class TaskService:
     def __init__(self, redis: Redis):
         self.redis = redis
 
-    async def add_change_password_task(self, user_id: int, new_password: str):
+    # --- Регистрация задач ---
+    async def add_change_password_task(self, uuid_task: UUID, new_password: str):
         """Создаёт отложенный запроса на смену пароля"""
 
-        # --- Запись в Redis ---
         await self.redis.setex(
-            name=f"pending-password:{user_id}",
+            name=f"pending-password:{uuid_task}",
             time=timedelta(hours=settings.EMAIL_SUBMIT_EXPIRE_HOURS),
             value=new_password
         )
 
+    async def add_confirm_register_task(self, uuid_task: UUID, data: dict):
+        """Создаёт отложенный запрос на регистрацию пользователя."""
 
-    async def execute_change_password_task(self, user_id: int):
+        await self.redis.setex(
+            name=f"pending-register:{uuid_task}",
+            time=timedelta(hours=settings.EMAIL_SUBMIT_EXPIRE_HOURS),
+            value=json.dumps(data)
+        )
+
+    async def add_change_email_task(self, uuid_task: UUID, new_email: str):
+        """Создаёт отложенный запрос на смену электронной почты пользователя."""
+
+        await self.redis.setex(
+            name=f"pending-change-email:{uuid_task}",
+            time=timedelta(hours=settings.EMAIL_SUBMIT_EXPIRE_HOURS),
+            value=new_email
+        )
+
+
+    # --- Исполнение задач ---
+    async def execute_confirm_register_task(self, uuid_task: UUID):
+        """Извлекает данные отложенного запрос для регистрации пользователя и удаляет запись."""
+
+        # Чтение и удаление данных
+        user_data = await self.redis.getdel(name=f"pending-register:{uuid_task}")
+        if user_data is None:
+            raise TaskNotFound(log_message=f"Задачи на подтверждение электронной почты для регистрации с ID <{uuid_task}> не существует.")
+
+        # Сериализация и ответ
+        result = json.loads(user_data)
+        return result
+
+
+    async def execute_change_password_task(self, uuid_task: UUID):
         """Извлекает данные отложенного запроса на смену пароля и удаляет запись"""
 
-        # --- Чтение пароля и удаление записи ---
-        password = await self.redis.getex(
-            name=f"pending-password:{user_id}",
-            px=1
-        )
-        # --- Ответ ---
+        # Чтение пароля и удаление записи
+        password = await self.redis.getdel(name=f"pending-password:{uuid_task}")
+        if password is None:
+            raise TaskNotFound(log_message=f"Задачи на замену пароля с UUID: <{uuid_task}> не существует.")
+
+        # Ответ
         return password.decode("utf-8")
+
+
+    async def execute_change_email_task(self, uuid_task: UUID):
+        """Извлекает данные отложенного запроса на смену пароля и удаляет запись"""
+
+        # Чтение почты и удаление записи
+        email = await self.redis.getdel(name=f"pending-change-email:{uuid_task}")
+        if email is None:
+            raise TaskNotFound(log_message=f"Задачи на замену пароля с UUID: <{uuid_task}> не существует.")
+
+        # Ответ
+        return email.decode("utf-8")
