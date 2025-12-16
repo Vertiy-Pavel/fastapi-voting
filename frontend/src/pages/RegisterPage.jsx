@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
-import {Link, useNavigate} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import {register} from '../services/api/auth.js'
-import {InputDefault, InputPassword} from "../components/Inputs.jsx";
+import {InputDefault, InputPassword, InputPhone} from "../components/Inputs.jsx";
 import {BlackButton, GrayButton, Spinner} from "../components/Button.jsx";
 import Modal from '../components/Modal'
 
@@ -23,6 +23,8 @@ const RegisterPage = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate(); // Инициализируем хук для навигации
 
+    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
     // Универсальный обработчик изменений в полях ввода
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -40,6 +42,11 @@ const RegisterPage = () => {
         const logMessage = `Попытка регистрации с использованием данных: ${JSON.stringify(formData)}`;
         console.log(logMessage);
         //setMessage(logMessage);
+
+        if (!EMAIL_REGEX.test(formData.email)) {
+            setMessage({ text: 'Введите корректный адрес электронной почты', type: 'error' });
+            return;
+        }
 
         // Клиентская валидация паролей
         if (formData.password !== confirmPassword) {
@@ -128,17 +135,16 @@ const RegisterPage = () => {
                                 title="Электронная почта"
                                 placeholder="ivanovivan@mail.ru"
                                 required
-                                validate={(val) => /\S+@\S+\.\S+/.test(val)}
+                                validate={(val) => EMAIL_REGEX.test(val)}
                                 value={formData.email}
                                 onChange={handleChange}
                                 name='email'
                                 className={'h-[51px]'}
                             />
 
-                            <InputDefault
+                            <InputPhone
                                 type="tel"
                                 title="Телефон"
-                                placeholder="+7XXXXXXXXXX"
                                 required
                                 validate={(val) => /^\+?\d{11}$/.test(val)}
                                 value={formData.phone}
@@ -279,17 +285,16 @@ const RegisterPage = () => {
                                 title="Электронная почта"
                                 placeholder="ivanovivan@mail.ru"
                                 required
-                                validate={(val) => /\S+@\S+\.\S+/.test(val)}
+                                validate={(val) => EMAIL_REGEX.test(val)}
                                 value={formData.email}
                                 onChange={handleChange}
                                 name='email'
                                 className={'h-[51px]'}
                             />
 
-                            <InputDefault
+                            <InputPhone
                                 type="tel"
                                 title="Телефон"
-                                placeholder="+7XXXXXXXXXX"
                                 required
                                 validate={(val) => /^\+?\d{11}$/.test(val)}
                                 value={formData.phone}

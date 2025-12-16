@@ -1,6 +1,7 @@
 import { PiBooksLight } from "react-icons/pi";
 import { LiaFireAltSolid } from "react-icons/lia";
 import { BsPersonBoundingBox } from "react-icons/bs";
+import {LuClock10} from "react-icons/lu";
 
 
 export const formatDate = (isoString) => {
@@ -107,7 +108,7 @@ export const getVotingStatusConfig = (voting, isArchived = false) => {
     text: 'Ожидает начала',
     bg: 'bg-neutral-100',
     textColor: 'text-neutral-600',
-    icon: <PiBooksLight/>,
+    icon: <LuClock10 />,
   };
 };
 

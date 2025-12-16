@@ -6,7 +6,7 @@ import { LuCalendar1, LuAlarmClock, LuTrash2 } from "react-icons/lu";
 import { IoMdStats } from "react-icons/io";
 import {deleteVoting} from "../../services/api/voting.js";
 import toast from "react-hot-toast";
-import Button, {BlueButton} from '../Button.jsx'
+import {BlueButton} from '../Button.jsx'
 
 const VotingCard = ({ voting, isArchived }) => {
     const status = getVotingStatusConfig(voting, isArchived);

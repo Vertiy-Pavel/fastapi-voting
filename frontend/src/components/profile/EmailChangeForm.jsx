@@ -5,6 +5,7 @@ import {TbCloudDownload} from "react-icons/tb";
 import {changeEmail} from "../../services/api/profile.js";
 import Modal from "../Modal.jsx";
 import {Spinner} from "../Button.jsx";
+import toast from "react-hot-toast";
 
 const EmailChangeForm = () => {
     const [isSaving, setIsSaving] = useState(false);
@@ -14,6 +15,8 @@ const EmailChangeForm = () => {
         password: '',
     });
     const [secondsLeft, setSecondsLeft] = useState(0);
+
+    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
     // Восстанавливает оставшееся время блокировки из localStorage при монтировании
     useEffect(() => {
@@ -53,6 +56,12 @@ const EmailChangeForm = () => {
 
     const handleSubmit = async () => {
         setIsSaving(true);
+
+        if (!EMAIL_REGEX.test(formData.email)) {
+            toast.error('Введите корректный адрес электронной почты')
+            return;
+        }
+
         try {
             const response = await changeEmail(formData);
             console.log(response);
@@ -93,6 +102,9 @@ const EmailChangeForm = () => {
                     <InputDefault
                         type="email"
                         title="Новая электронная почта"
+                        placeholder="ivanovivan@gmail.com"
+                        required
+                        validate={(val) => EMAIL_REGEX.test(val)}
                         value={formData.email}
                         onChange={handleChange}
                         name='email'

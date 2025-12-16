@@ -11,7 +11,6 @@ import {useDepartments} from "../../hooks/useDepartments.js";
 import {createVoting} from "../../services/api/voting.js";
 import {BlueButton, Spinner, ToggleButton} from "../Button.jsx";
 import toast from "react-hot-toast";
-import {TbCloudDownload} from "react-icons/tb";
 
 const CreateVoting = ({selectedTemplate}) => {
     const today = new Date().toISOString().split("T")[0]; // текущая дата

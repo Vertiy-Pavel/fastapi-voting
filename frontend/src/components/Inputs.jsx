@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import {LuCircleCheck} from "react-icons/lu";
 import {AiOutlineEye, AiOutlineEyeInvisible} from "react-icons/ai";
+import { PatternFormat } from 'react-number-format';
 
 const InputDefault = ({
                           type,
@@ -17,11 +18,6 @@ const InputDefault = ({
 
     const handleInputChange = (e) => {
         let val = e.target.value;
-
-        if (type === "tel") {
-            val = val.replace(/[^0-9+]/g, ""); // убираем всё, кроме цифр и "+"
-        }
-
         setInputStatus(validate ? validate(val) : val.trim() !== "");
         if (onChange) onChange(e);
     };
@@ -48,9 +44,6 @@ const InputDefault = ({
                 className={`rounded-xl border border-[#212121] p-[12px] text-[#212121] placeholder:text-[#ccc] ${className}`}
                 placeholder={placeholder}
                 autoComplete="on"
-                inputMode={type === "tel" ? "numeric" : undefined}
-                pattern={type === "tel" ? "[0-9+]*" : undefined}
-                maxLength={type === "tel" ? 12 : undefined}
                 required={required}
             />
         </div>
@@ -134,5 +127,62 @@ const InputPassword = ({
     );
 };
 
+const InputPhone = ({
+                        value,
+                        onChange,
+                        name,
+                        title,
+                        required,
+                        validate,
+                        className,
+                        placeholder = "+7 (XXX) XXX-XX-XX"
+                    }) => {
+    const [inputStatus, setInputStatus] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
 
-export {InputDefault, InputPassword};
+    useEffect(() => {
+        const val = value ?? "";
+        setInputStatus(validate ? validate(val) : val.length >= 11);
+    }, [value, validate]);
+
+    return (
+        <div className="w-full inline-flex flex-col mb-4">
+            {title && (
+                <div className="inline-flex items-center gap-[10px] mb-1">
+                    <p className="text-[#212121]">{title}</p>
+                    {required && (
+                        <LuCircleCheck
+                            color={!inputStatus ? "#212121" : "#008200"}
+                            size={16}
+                        />
+                    )}
+                </div>
+            )}
+
+            <PatternFormat
+                format="+# (###) ###-##-##"
+                allowEmptyFormatting={isFocused}
+                mask="_"
+                value={value}
+                name={name}
+                onValueChange={(values) => {
+                    if (onChange) {
+                        onChange({
+                            target: {
+                                name: name,
+                                value: values.value
+                            }
+                        });
+                    }
+                }}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                className={`rounded-xl border border-[#212121] p-[12px] text-[#212121] placeholder:text-[#ccc] w-full ${className}`}
+                placeholder={placeholder}
+                required={required}
+            />
+        </div>
+    );
+};
+
+export {InputDefault, InputPassword, InputPhone};

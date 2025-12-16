@@ -18,6 +18,8 @@ const LoginPage = () => {
         remember_flag: false,
     });
 
+    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
     const savedUuidPassword = sessionStorage.getItem('uuidPassword');
     const savedUuidEmail = sessionStorage.getItem('uuidEmail');
 
@@ -68,6 +70,12 @@ const LoginPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+
+        if (!EMAIL_REGEX.test(formData.email)) {
+            setMessage({ text: 'Введите корректный адрес электронной почты', type: 'error' });
+            return;
+        }
+
         try {
             const response = await loginUser(formData.email, formData.password, formData.remember_flag);
             console.log(response);
@@ -114,7 +122,7 @@ const LoginPage = () => {
                                 title="Электронная почта"
                                 placeholder="ivanovivan@mail.ru"
                                 required
-                                validate={(val) => /\S+@\S+\.\S+/.test(val)}
+                                validate={(val) => EMAIL_REGEX.test(val)}
                                 value={formData.email}
                                 onChange={handleChange}
                                 name="email"
