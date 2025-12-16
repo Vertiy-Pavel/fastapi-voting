@@ -1,10 +1,9 @@
 import {useEffect, useState} from "react";
 import {TbCloudDownload} from "react-icons/tb";
 import {InputDefault} from "../Inputs.jsx";
-import {changeCredentials} from "../../services/api/user.js";
+import {changeCredentials} from "../../services/api/profile.js";
 import toast from 'react-hot-toast';
-import {BlueButton} from "../Button.jsx";
-
+import {BlueButton, Spinner} from "../Button.jsx";
 
 const PersonalData = () => {
     const [formData, setFormData] = useState({
@@ -35,7 +34,6 @@ const PersonalData = () => {
         }));
     };
 
-    // PUT-запрос
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSaving(true);
@@ -54,6 +52,7 @@ const PersonalData = () => {
             localStorage.setItem('surname', response.data.surname);
             localStorage.setItem('email', response.data.email);
             console.log('Данные успешно сохранены!');
+            toast.success('Данные успешно сохранены!')
         } catch (error) {
             console.error('Ошибка при сохранении данных:', error.message);
             toast.error("Не удалось сохранить данные.")
@@ -98,41 +97,10 @@ const PersonalData = () => {
                     name='surname'
                 />
 
-                {/* Электронная почта */}
-                <InputDefault
-                    type="email"
-                    title="Электронная почта"
-                    validate={(val) => /\S+@\S+\.\S+/.test(val)}
-                    value={formData.email}
-                    onChange={handleChange}
-                    name='email'
-                />
-
                 <BlueButton onClick={handleSubmit} disabled={isSaving}>
                     {isSaving ? (
                         <>
-                            <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
-                                <circle
-                                    fill="none"
-                                    strokeWidth="3"
-                                    className="stroke-current opacity-40"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                />
-                                <circle
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="3"
-                                    strokeLinecap="round"
-                                    strokeDasharray="50.265"
-                                    strokeDashoffset="36"      /* длина видимой дуги */
-                                    className="opacity-95"
-                                    fill="none"
-                                />
-                            </svg>
+                            <Spinner />
                             Сохранение...
                         </>
                     ) : (

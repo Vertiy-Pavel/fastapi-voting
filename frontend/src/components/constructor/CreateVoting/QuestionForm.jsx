@@ -88,7 +88,7 @@ const QuestionForm = ({question, onChange, onRemove}) => {
                             >
                                 <LuTrash2 size={24} />
                             </button>
-                            <button className="bg-[#f4f4f4] hover:bg-gray-300 transition-all rounded-lg p-2 cursor-pointer disabled:opacity-5"
+                            <button className="bg-[#f4f4f4] hover:bg-gray-100 transition-all rounded-lg p-2 cursor-pointer disabled:opacity-5"
                                     onClick={addOption}>
                                 <FiPlusSquare size={24} />
                             </button>

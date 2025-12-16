@@ -1,7 +1,7 @@
 import { PiBooksLight } from "react-icons/pi";
-import { ImFire } from "react-icons/im";
 import { LiaFireAltSolid } from "react-icons/lia";
 import { BsPersonBoundingBox } from "react-icons/bs";
+import {LuClock10} from "react-icons/lu";
 
 
 export const formatDate = (isoString) => {
@@ -108,7 +108,7 @@ export const getVotingStatusConfig = (voting, isArchived = false) => {
     text: 'Ожидает начала',
     bg: 'bg-neutral-100',
     textColor: 'text-neutral-600',
-    icon: <PiBooksLight/>,
+    icon: <LuClock10 />,
   };
 };
 
@@ -172,19 +172,4 @@ export const getVotingStatusConfigDetails = (voting) => {
     textColor: 'text-neutral-600',
     icon: <PiBooksLight size={24} />,
   };
-};
-
-// Дополнительные вспомогательные функции для мобильной адаптации
-export const getShortStatusText = (statusConfig) => {
-  // Сокращенные версии текстов для мобильных устройств
-  const shortTexts = {
-    'Голосование активно': 'Активно',
-    'Голосование на этапе регистрации': 'Регистрация',
-    'Голосование завершено': 'Завершено',
-    'Ожидает начала': 'Ожидание',
-    'Ошибка данных': 'Ошибка',
-    'Нет данных': 'Нет данных'
-  };
-  
-  return shortTexts[statusConfig.text] || statusConfig.text;
 };

@@ -3,9 +3,9 @@ import { FiPlusSquare } from "react-icons/fi";
 
 const AddQuestionButton = ({onClick}) => {
     return (
-        <div className="items-center mt-4">
+        <div className="items-center mt-4 ">
             <button
-                className="flex items-center"
+                className="flex items-center cursor-pointer"
                 onClick={onClick}
             >
                 <FiPlusSquare size={24}/>

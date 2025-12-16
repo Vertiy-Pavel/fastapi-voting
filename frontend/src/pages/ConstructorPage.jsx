@@ -1,21 +1,31 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import Breadcrumbs from "../components/Breadcrumbs";
 import PageTitle from "../components/PageTitle";
 import Sidebar from '../components/constructor/Sidebar';
 import Constructor from '../components/constructor/CreateVoting';
 import Templates from "../components/constructor/Templates";
 import {CiSquarePlus, CiViewList} from "react-icons/ci";
+import {useNavigate} from "react-router-dom";
 
 
-const ConstructorPage = () => {
-    const [activeContent, setActiveContent] = useState("create-poll");
+const ConstructorPage = ({ active }) => {
+    const navigate = useNavigate();
+    const [activeContent, setActiveContent] = useState(active);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState(null);
 
     const handleMenuItemClick = (itemKey) => {
-        setActiveContent(itemKey);
+        if (itemKey === 'create-poll') {
+            navigate('/vote/create')
+        } else {
+            navigate(`/vote/templates`);
+        }
         setMobileMenuOpen(false);
     };
+
+    useEffect(() => {
+        setActiveContent(active);
+    }, [active]);
 
     const menuItems = [
         {
@@ -48,7 +58,7 @@ const ConstructorPage = () => {
         <>
             <div className="min-h-screen">
                 {/* Контейнер с адаптивными отступами: гибкие на моб. и фиксированные на 2xl */}
-                <div className="2xl:mx-[240px] mt-[60px]">
+                <div className="mx-4 2xl:mx-[240px] mt-[60px]">
 
                     <Breadcrumbs title="Администратор / Конструктор голосований / Добавить голосование"/>
 

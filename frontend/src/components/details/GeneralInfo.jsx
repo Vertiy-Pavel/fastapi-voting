@@ -4,15 +4,7 @@ import {TbTimezone, TbLock, TbFileZip} from "react-icons/tb";
 import {LuCalendar1, LuAlarmClock} from "react-icons/lu";
 import {sendToArchive, unArchive, getLinkToVoting, getQRcode} from "../../services/api.js";
 import React, {useState} from "react";
-import {CopyToClipboard} from "react-copy-to-clipboard-ts";
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    Box,
-    Typography
-} from "@mui/material";
-import {useSearchParams} from "react-router-dom";
+import {useLocation, useSearchParams} from "react-router-dom";
 
 const GeneralInfo = ({
                          votingData,
@@ -20,14 +12,12 @@ const GeneralInfo = ({
                          onRegister,
                          onNavigateToMyBulliten,
                          onNavigateToResults,
-                         user_id,
-                         role_id,
+                         userId,
                      }) => {
     const [isArchived, setIsArchived] = useState(votingData.voting_full_info.archived);
     const [open, setOpen] = useState(false);
     const [linkToVoting, setLinkToVoting] = useState('');
     const [qrCode, setQRcode] = useState('');
-
     const [searchParams] = useSearchParams();
     const statusSearch = searchParams.get('status');
     if (statusSearch === 'success') {
@@ -35,9 +25,8 @@ const GeneralInfo = ({
     }
 
     const status = getVotingStatusConfigDetails(votingData);
-
     // qrcode
-    const imageUrl = `data:image/png;base64,${qrCode.message}`;
+    // const imageUrl = `data:image/png;base64,${qrCode.message}`;
 
     console.log(qrCode)
 
@@ -129,7 +118,7 @@ const GeneralInfo = ({
                         </div>
 
                         {/*Кнопка для архивации*/}
-                        {(role_id === 3 || user_id === votingData.voting_full_info.creator.id) &&
+                        {(userId === votingData.voting_full_info.creator.id) &&
                             <Button
                                 className='bg-[#437DE9] text-base px-5 lg:mt-auto py-4 w-full rounded-lg flex justify-center items-center gap-2.5'
                                 onClick={handleSendToArchive}
@@ -139,7 +128,7 @@ const GeneralInfo = ({
 
                         {/*Кнопка проголосовать/зарегестрироваться/результаты*/}
                         <Button
-                            className={`bg-[#437DE9] text-base px-5 py-4 w-full rounded-lg flex justify-center ${(role_id === 1 || role_id === 2) ? 'mt-32.5' : ''} items-center gap-2.5`}
+                            className={`bg-[#437DE9] text-base px-5 py-4 w-full rounded-lg flex justify-center mt-32.5 items-center gap-2.5`}
                             onClick={onButtonClick}
                             disabled={isButtonDisabled}
                         >
@@ -218,39 +207,12 @@ const GeneralInfo = ({
                                 </div>
                             </div>
                         </div>
-                        {/*<div className="items-center justify-center">*/}
-                        {/*    <CopyToClipboard text={linkToVoting} onCopy={() => alert("Скопировано!")}>*/}
+
                         <button className='px-5 py-4 bg-gray-200 rounded-[10px] flex justify-center items-center'
                                 onClick={handleOpenModal}>Поделиться
                         </button>
-                        {/*</CopyToClipboard>*/}
-                        {/*</div>*/}
-
-                        {/*Модальное окно для ссылки и qrcode*/}
-                        <Dialog open={open} onClose={() => setOpen(false)} keepMounted>
-                            <DialogTitle>Поделиться голосованием</DialogTitle>
-                            <DialogContent>
-                                <Box display="flex" flexDirection="column" alignItems="center" gap={1}>
-                                    <Typography variant="body2" sx={{wordBreak: "break-all"}}>
-                                        <img src={imageUrl} alt='QR code'/>
-                                    </Typography>
 
 
-                                    <CopyToClipboard text={linkToVoting} onCopy={() => alert("Скопировано!")}>
-                                        <button className="w-full px-5 py-3 bg-[#437DE9] text-white rounded-lg">
-                                            Скопировать ссылку на регистрацию
-                                        </button>
-                                    </CopyToClipboard>
-
-                                    <button onClick={() => setOpen(false)}
-                                            className="w-full px-5 py-3 bg-gray-200 text-black rounded-lg">Закрыть
-                                    </button>
-
-
-                                    {/*<QRCodeCanvas value={linkToVoting} size={180} />*/}
-                                </Box>
-                            </DialogContent>
-                        </Dialog>
                     </div>
                 </div>
             </main>

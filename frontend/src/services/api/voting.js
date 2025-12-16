@@ -11,3 +11,7 @@ export const createVoting = (votingData) =>
 
 export const deleteVoting = (votingId) =>
     api.post('/voting/delete', { 'id': votingId });
+
+export const getVotingData = (votingId) =>
+    api.get(`/voting/data/${votingId}`);
+

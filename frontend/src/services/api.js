@@ -6,21 +6,6 @@ export const getProfileData = async () => {
     return response.data;
 };
 
-export const updateProfileData = async (profileData) => {
-    const response = await api.put(`/users/profile`, profileData);
-    return response.data;
-};
-
-export const changePassword = async (passwords) => {
-    const response = await api.put(
-        `/users/change-password`,
-        passwords,
-
-    );
-    return response.data;
-};
-
-
 export const getVotingData = async (votingId) => {
     const response = await api.get(`/votings/${votingId}`);
     return response.data;
@@ -65,11 +50,6 @@ export const sendVote = async (votingId, answer) => {
     return response.data;
 }
 
-export const deleteVote = async (votingId) => {
-    const response = await api.delete(`/votings/${votingId}`);
-    return response.data;
-}
-
 export const getDepartments = async (pageNum = 1) => {
     const response = await api.get(`/departments/`, {
         params: {
@@ -86,26 +66,6 @@ export const sendToArchive = async (votingId) => {
 
 export const unArchive = async (votingId) => {
     const response = await api.put(`/votings/${votingId}/unarchive`, null);
-    return response.data;
-}
-
-export const requestVerificationCode = async (email) => {
-    const data = {
-        email: email
-    };
-
-    const response = await api.post('/auth/request-verification-code', data)
-    return response.data;
-}
-
-export const confirmEmail = async (email, code) => {
-    const data = {
-        code: code,
-        email: email
-
-    };
-
-    const response = await api.post('/auth/confirm-email', data)
     return response.data;
 }
 
