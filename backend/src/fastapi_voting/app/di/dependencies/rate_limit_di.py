@@ -37,6 +37,6 @@ class ApiLimiterDI: # TODO: Реализована модель фиксиров
                 f"Times: {self.times}",
                 f"Request Count: {request_count}",
             ]
-            raise TooManyRequests(log_message="Превышен лимит запросов.", minutes=self.minutes, extra_data=extra_data)
+            raise TooManyRequests(log_message="Превышен лимит запросов.", extra_data=extra_data)
 
         return self.minutes
