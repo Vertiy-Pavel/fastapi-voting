@@ -1,6 +1,7 @@
 from datetime import datetime
+from typing import Any
 
-from pydantic import BaseModel, conlist
+from pydantic import BaseModel, conlist, model_validator
 
 from src.fastapi_voting.app.core.enums import QuestionTypeEnum
 
@@ -12,6 +13,7 @@ class VotingSchema(BaseModel):
     theme: str
     public: bool
     quorum: int
+    deleted: bool
 
     registration_start: datetime
     registration_end: datetime
@@ -43,8 +45,19 @@ class InputCreateVotingSchema(BaseModel):
 
     voting_start: datetime
     voting_end: datetime
-    questions: conlist(CreateVotingQuestionSchema, min_length=1)
 
+    questions: conlist(CreateVotingQuestionSchema, min_length=1)
+    departments: list[int]
+
+    @model_validator(mode="before")
+    @classmethod
+    def is_public(cls, data: dict[str, Any]) -> dict[str, Any]:
+        data["public"] = False
+
+        if not data["departments"]:
+            data["public"] = True
+
+        return data
 
 # --- Схема для удаления голосования ---
 class InputDeleteVotingSchema(BaseModel):
