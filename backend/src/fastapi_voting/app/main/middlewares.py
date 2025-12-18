@@ -14,8 +14,8 @@ settings = get_settings()
 
 # --- Конфигурация обработчиков ---
 origins = [
-    "http://localhost:5173",
-    f"http://{settings.FRONTEND_IP}:{settings.FRONTEND_PORT}",
+    f"https://localhost:{settings.FRONTEND_PORT}",
+    f"https://{settings.FRONTEND_IP}:{settings.FRONTEND_PORT}",
 ]
 
 # --- Пользовательские обработчики ---
