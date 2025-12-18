@@ -8,13 +8,7 @@ from pydantic.types import datetime
 class ResponseAllDepartmentsSchema(BaseModel):
     id: int
     name: str
-    description: str
-    location: str
     parent_id: int | None
-
-    created_at: datetime
-    updated_at: datetime
-
     children: List['ResponseAllDepartmentsSchema']
 
 
