@@ -14,6 +14,6 @@ class DepartmentRepo(Base):
 
 
     async def get_all_departments(self):
-        query = select(Department).options(selectinload(self.model.children))
+        query = select(Department)
         result = await self.session.execute(query)
         return result.scalars().all()
