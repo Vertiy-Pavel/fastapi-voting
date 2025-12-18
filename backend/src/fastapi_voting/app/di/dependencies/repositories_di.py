@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.fastapi_voting.app.di.dependencies.databases_di import get_db
 
-from fastapi_voting.app.repositories.voting_repo import VotingRepo
+from src.fastapi_voting.app.repositories.voting_repo import VotingRepo
 from src.fastapi_voting.app.repositories.user_repo import UserRepo
 from src.fastapi_voting.app.repositories.department_repo import DepartmentRepo
 
