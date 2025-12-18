@@ -8,7 +8,6 @@ import ConstructorPage from './pages/ConstructorPage';
 import Details from './pages/DetailsPage';
 import VotesPage from './pages/VotesPage';
 import Header from './components/Header';
-import HeaderLogin from './components/HeaderLogin';
 import DepartmentsPage from "./pages/DepartmentsPage.jsx";
 
 function AppContent() {

@@ -6,6 +6,7 @@ import AltHeaderDropdown from './Header/AltHeaderDropdown';
 import {accessLogout, refreshLogout} from "../services/api/auth.js";
 import {IoIosCreate, IoIosList} from "react-icons/io";
 import {RiFileList3Line, RiHome5Line} from "react-icons/ri";
+import HeaderDropdown from "./Header/HeaderDropdown.jsx";
 
 const Header = () => {
     const [user, setUser] = useState({});
@@ -36,6 +37,11 @@ const Header = () => {
         {id: 2, title: 'Шаблоны голосований', to: '/vote/templates'},
     ]
 
+    const Voting = [
+        {title: 'Список голосований', to: '/votes'},
+        {title: 'Конструктор голосований', to: '/vote/create'}
+    ]
+
     const logoutProfile = async () => {
         const csrf = localStorage.getItem("x-csrf-token");
         await accessLogout()
@@ -64,7 +70,7 @@ const Header = () => {
         <div className='h-25 bg-[#212121]'>
             {/* Desktop Header */}
             <div
-                className='hidden md:flex justify-between py-[18px] md:mx-3 lg:mx-20 xl:mx-40 2xl:mx-[240px] text-white text-md font-semibold'>
+                className='hidden md:flex justify-between py-[18px] mx-4 2xl:mx-[240px] text-white text-md font-semibold'>
                 <div className='flex gap-5 items-start'>
                     <div className='flex items-start'>
                         <img
@@ -74,25 +80,37 @@ const Header = () => {
                         />
                     </div>
                     <div className='mt-1 flex gap-5'>
-                        <NavLink
-                            to={'/'}
-                            className='px-5 h-13 flex items-start py-3 cursor-pointer hover:bg-[#505050] rounded-2xl'
-                        >
-                            Главная
-                        </NavLink>
-
-                        <NavLink
-                            to={'/votes'}
-                            className='px-5 h-13 flex items-start py-3 cursor-pointer hover:bg-[#505050] rounded-2xl'
-                        >
-                            Голосования
-                        </NavLink>
-
-                        {user.role === 'CHIEF' &&
+                        {/*<NavLink*/}
+                        {/*    to={'/'}*/}
+                        {/*    className='px-5 h-13 flex items-start py-3 cursor-pointer hover:bg-[#505050] rounded-2xl'*/}
+                        {/*>*/}
+                        {/*    Главная*/}
+                        {/*</NavLink>*/}
+                        {user.role === 'CHIEF' ?
                             <div className='h-full flex items-start z-20'>
-                                <AltHeaderDropdown title={'Добавить'} options={Add}/>
-                            </div>
+                                <HeaderDropdown
+                                    title={'Голосования'}
+                                    options={Voting}
+                                    links={Voting.map(v => v.to)}
+                                />
+                            </div> :
+                            <NavLink
+                                to={'/votes'}
+                                className='px-5 h-13 flex items-start py-3 cursor-pointer hover:bg-[#505050] rounded-2xl'
+                            >
+                                Голосования
+                            </NavLink>
+
                         }
+
+
+
+
+                        {/*{user.role === 'CHIEF' &&*/}
+                        {/*    <div className='h-full flex items-start z-20'>*/}
+                        {/*        <AltHeaderDropdown title={'Добавить'} options={Add}/>*/}
+                        {/*    </div>*/}
+                        {/*}*/}
 
 
                     </div>
@@ -114,10 +132,10 @@ const Header = () => {
             </div>
 
             {/* Mobile Header */}
-            <div className='md:hidden flex justify-between items-center py-7 px-6 text-white'>
+            <div className='md:hidden flex justify-between items-center py-5.5 px-4 text-white'>
                 <div className='flex items-center'>
                     <img
-                        className='rounded-full h-12 w-12'
+                        className='rounded-full h-14 w-14'
                         src='https://placehold.co/64x64.png'
                         alt='User avatar'
                     />
@@ -141,13 +159,13 @@ const Header = () => {
             >
                 {/* Ссылки */}
                 <div className='flex flex-col gap-2'>
-                    <MobileLink
-                        to='/'
-                        icon={<RiHome5Line size={24}/>}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                        Главная
-                    </MobileLink>
+                    {/*<MobileLink*/}
+                    {/*    to='/'*/}
+                    {/*    icon={<RiHome5Line size={24}/>}*/}
+                    {/*    onClick={() => setIsMobileMenuOpen(false)}*/}
+                    {/*>*/}
+                    {/*    Главная*/}
+                    {/*</MobileLink>*/}
 
                     <MobileLink
                         to='/votes'
@@ -161,16 +179,14 @@ const Header = () => {
                     {user.role === 'CHIEF' && (
                         <div className="mt-4 border-t border-gray-700 pt-4">
                             <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2 px-4">Создание</p>
-                            {Add.map((item) => (
                                 <MobileLink
-                                    key={item.id}
-                                    to={item.to}
-                                    icon={item.id === 1 ? <IoIosCreate size={24}/> : <IoIosList size={24}/>}
+                                    key={Voting[1].id}
+                                    to={Voting[1].to}
+                                    icon={Voting[1].id === 1 ? <IoIosCreate size={24}/> : <IoIosList size={24}/>}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
-                                    {item.title}
+                                    {Voting[1].title}
                                 </MobileLink>
-                            ))}
                         </div>
                     )}
                 </div>

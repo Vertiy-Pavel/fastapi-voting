@@ -19,7 +19,7 @@ const SelectField = ({ label, value, onChange, options = QUORUM_OPTIONS, disable
         value={value}
         onChange={onChange}
         disabled={disabled}
-        className="mt-1 p-2 border border-gray-300 rounded-lg w-full bg-white focus:outline-none focus:ring-2 focus:ring-gray-700 disabled:bg-gray-100 disabled:text-gray-500"
+        className="mt-1 p-2 border border-gray-300 rounded-xl w-full bg-white focus:outline-none focus:ring-2 focus:ring-gray-700 disabled:bg-gray-100 disabled:text-gray-500"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>

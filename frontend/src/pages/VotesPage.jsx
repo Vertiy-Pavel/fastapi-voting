@@ -117,7 +117,7 @@ const VotesPage = () => {
     return (
         <>
             <div className="min-h-screen w-full overflow-x-hidden relative">
-                <div className="px-4 md:px-0 2xl:mx-[240px] mt-[60px] lg:mx-[40px]">
+                <div className="2xl:mx-[240px] mt-[60px] px-4 md:px-0">
                     <Breadcrumbs title="Главная / Голосования"/>
                     <PageTitle title="Голосования"/>
 
