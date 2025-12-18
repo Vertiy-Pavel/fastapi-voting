@@ -50,17 +50,18 @@ fastapi-voting                          # Корневой каталог Poetry
 ```powershell
 # Конфигурация приложения
 APP_PORT=5000
-FRONTEND_IP=192.168.1.104
+FRONTEND_IP=<IP Frontend-приложения>
 FRONTEND_PORT=5173
 
-# --- EMAIL ---
+# EMAIL
 EMAIL_SUBMIT_EXPIRE_HOURS=2
+EMAIL_REQUEST_LIMIT_MINUTES=1
 
 # SMTP
 SMTP_HOSTNAME=smtp.gmail.com
 SMTP_PORT=465
-SMTP_USER=<Адрес электронной почты адресанта>
-SMTP_PASSWORD=<Пароль приложения Google для работы с Gmail>
+SMTP_USER=<Почта адресата электронных писем>
+SMTP_PASSWORD=<Пароль для приложений Google>
 
 # Конфигурация пагинации
 PER_PAGE=5
