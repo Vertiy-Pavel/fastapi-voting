@@ -8,7 +8,8 @@ from src.fastapi_voting.app.core.settings import get_settings
 
 from src.fastapi_voting.app.models.voting import Voting
 from src.fastapi_voting.app.models.user import User
-from src.fastapi_voting.app.models import Question
+from src.fastapi_voting.app.models.question import Question
+from src.fastapi_voting.app.models.department import Department
 
 from src.fastapi_voting.app.repositories.base_repo import Base
 
@@ -44,24 +45,47 @@ class VotingRepo(Base):
         await self.session.commit()
 
 
+    async def create_voting(self, data: dict) -> bool:
+        """Создаёт запись о голосовании"""
+
+        # Выборка перечня указанных отделов
+        query_deps = select(Department).where(Department.id.in_(data["departments"]))
+        deps = await self.session.execute(query_deps)
+
+        # Формирование записи о голосовании
+        data["departments"] = deps.scalars().all()
+        voting_instance = Voting(**data)
+
+        self.session.add(voting_instance)
+        await self.session.commit()
+        return True
+
     async def available_votings(self, user_id: int, find: str | None, page: int, archived: bool) -> tuple:
         """Возвращает перечень доступных конкретному пользователю голосований"""
 
         # Формирование фильтрующего запроса
         creator = aliased(User)
         registered = aliased(User)
+        users_of_deps = aliased(User)
 
-        query = select(Voting, creator.id, creator.first_name, creator.last_name).join(creator, Voting.creator).outerjoin(registered, Voting.registered_users).where(
+        query = ((select(Voting, creator.id, creator.first_name, creator.last_name).
+                 join(creator, Voting.creator).
+                 outerjoin(registered, Voting.registered_users).
+                 outerjoin(Department, Voting.departments).
+                 outerjoin(users_of_deps, Department.users)
+                 )
+        .where(
             and_(
-                Voting.deleted == False,
                 Voting.archived == archived,
+                Voting.deleted == False,
                 or_(
                     creator.id == user_id,
                     registered.id == user_id,
+                    users_of_deps.id == user_id,
                     Voting.public == True
-                 )
+                )
             )
-        ).distinct()
+        )).distinct()
 
         # --- Выборка по условию поиска ---
         if find:
