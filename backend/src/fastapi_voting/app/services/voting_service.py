@@ -27,7 +27,7 @@ class VotingService:
         self.voting_repo = voting_repo
 
 
-    async def create_voting(self, voting_data: InputCreateVotingSchema, creator_id: int) -> Voting:
+    async def create_voting(self, voting_data: InputCreateVotingSchema, creator_id: int) -> bool:
 
         # Работа с первичными данными
         voting_data = voting_data.model_dump()
@@ -43,8 +43,8 @@ class VotingService:
             voting_data["questions"] = res_questions
 
         # Работа репозитория и ответ
-        voting = await self.voting_repo.add_instance(voting_data)
-        return voting
+        await self.voting_repo.create_voting(voting_data)
+        return True
 
 
     async def delete_voting(self, voting_id: int) -> bool:

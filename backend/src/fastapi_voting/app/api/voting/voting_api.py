@@ -5,7 +5,6 @@ from src.fastapi_voting.app.di.annotations import (
     AccessRequiredAnnotation,
 )
 from src.fastapi_voting.app.schemas.voting_schema import (
-    VotingSchema,
     InputCreateVotingSchema,
     InputDeleteVotingSchema,
     ResponseAllVotingsSchema,
@@ -38,7 +37,7 @@ async def get_all_votings(
 
 
 # --- Создать голосование ---
-@voting_router.post(path="/create", response_model=VotingSchema, status_code=status.HTTP_201_CREATED)
+@voting_router.post(path="/create", status_code=status.HTTP_201_CREATED)
 async def create_voting(
         access_payload: AccessRequiredAnnotation,
 
@@ -48,7 +47,7 @@ async def create_voting(
         access_token: str = Header(default=None, description="JWT-токен"),
 ):
     result = await voting_service.create_voting(voting_data=voting_data, creator_id=access_payload["sub"])
-    return result
+    return {"message": "success"}
 
 
 # --- Удалить голосование ---
