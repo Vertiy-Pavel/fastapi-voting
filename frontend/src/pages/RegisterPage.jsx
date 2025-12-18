@@ -43,6 +43,7 @@ const RegisterPage = () => {
         console.log(logMessage);
         //setMessage(logMessage);
 
+        // Валидация почты
         if (!EMAIL_REGEX.test(formData.email)) {
             setMessage({ text: 'Введите корректный адрес электронной почты', type: 'error' });
             return;
@@ -50,9 +51,7 @@ const RegisterPage = () => {
 
         // Клиентская валидация паролей
         if (formData.password !== confirmPassword) {
-            const errorMsg = 'Пароли не совпадают!';
-            console.warn('Не удалось подтвердить пароль', errorMsg);
-            setMessage({text: `${errorMsg}`, type: 'error'});
+            setMessage({text: 'Пароли не совпадают!', type: 'error'});
             return;
         }
 
@@ -62,7 +61,6 @@ const RegisterPage = () => {
             const response = await register(formData);
             console.log('Ответ API регистрации:', response);
             setIsConfirmModalOpen(true)
-            setFormData(initialFormState);
             console.log('Регистрация прошла успешно, переходим к входу в систему');
         } catch (error) {
             console.error('Ошибка при регистрации:', error);

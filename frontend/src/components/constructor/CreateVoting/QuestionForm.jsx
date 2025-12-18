@@ -50,7 +50,7 @@ const QuestionForm = ({question, onChange, onRemove}) => {
                     type="text"
                     value={question.type}
                     onChange={handleTypeChange}
-                    className="mt-1 p-2 px-[20px] py-[16px] border border-gray-300 rounded-[12px] w-full"
+                    className="mt-1 p-2 px-[20px] py-[16px] border border-gray-300 rounded-xl w-full"
                     placeholder="Введите тип вопроса"
                 >
                     <option value="single_choice">Одиночный вопрос</option>
@@ -64,7 +64,7 @@ const QuestionForm = ({question, onChange, onRemove}) => {
                     type="text"
                     value={question.header}
                     onChange={handleHeaderChange}
-                    className="mt-1 p-2 px-[20px] py-[16px] border border-gray-300 rounded-[12px] w-full"
+                    className="mt-1 p-2 px-[20px] py-[16px] border border-gray-300 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-gray-700"
                     placeholder="Введите заголовок вопроса"
                 />
             </div>
@@ -78,7 +78,7 @@ const QuestionForm = ({question, onChange, onRemove}) => {
                                 type="text"
                                 value={option}
                                 onChange={(e) => handleOptionChange(index, e)}
-                                className="p-2 border px-[20px] py-[16px] border-gray-300 rounded-[12px] w-full"
+                                className="p-2 border px-[20px] py-[16px] border-gray-300 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-gray-700"
                                 placeholder={`Вариант ${index + 1}`}
                             />
                             <button
