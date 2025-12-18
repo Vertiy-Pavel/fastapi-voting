@@ -42,7 +42,10 @@ async def user_register_init(
         user_service: UserServiceAnnotation,
 ):
     await user_service.init_register(data)
-    return OutputSentEmailSchema(message="email message sent", rate_minutes=rate_minutes)
+    return {
+        "message": "email message sent",
+        "rate_minutes": rate_minutes,
+    }
 
 
 @user_auth_router.post("/register-confirm/{uuid}", response_model=UserSchema, status_code=status.HTTP_201_CREATED)

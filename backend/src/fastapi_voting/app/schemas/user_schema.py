@@ -25,6 +25,7 @@ class InputCreateUserSchema(BaseModel):
     email: str
     password: str
     role: RolesEnum
+    departments: list[int]
 
 
 # --- Схемы для авторизации пользователя ---

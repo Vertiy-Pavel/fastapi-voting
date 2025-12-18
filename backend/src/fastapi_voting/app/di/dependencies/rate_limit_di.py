@@ -13,7 +13,7 @@ settings = get_settings()
 # --- Зависимость для ограничения запросов ---
 class ApiLimiterDI: # TODO: Реализована модель фиксированного окна. В будущем рассмотреть реализацию более сложных моделей.
 
-    def __init__(self, times: int, minutes: int):
+    def __init__(self, times: int, minutes: int): # TODO: Переменчивая работоспособность
         self.times = times
         self.minutes = minutes
 
