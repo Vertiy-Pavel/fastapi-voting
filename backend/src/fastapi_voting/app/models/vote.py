@@ -1,6 +1,6 @@
-from datetime import datetime, timezone
+from datetime import timezone
 
-from sqlalchemy import ForeignKey, TIMESTAMP
+from sqlalchemy import ForeignKey, TIMESTAMP, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.fastapi_voting.app.models.base import Base
@@ -13,7 +13,7 @@ class Vote(Base):
     __tablename__ = 'votes'
 
     # --- Колонки таблицы ---
-    voted_at: Mapped[timezone] = mapped_column(TIMESTAMP(timezone=True), default=datetime.now(timezone.utc))
+    voted_at: Mapped[timezone] = mapped_column(TIMESTAMP(timezone=True), default=func.now())
 
     # --- Внешние ключи ---
     author_id: Mapped[int | None] = mapped_column(ForeignKey('users.id', ondelete='SET NULL'))
