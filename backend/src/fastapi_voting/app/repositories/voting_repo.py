@@ -9,7 +9,10 @@ from src.fastapi_voting.app.core.settings import get_settings
 from src.fastapi_voting.app.models.voting import Voting
 from src.fastapi_voting.app.models.user import User
 from src.fastapi_voting.app.models.question import Question
+from src.fastapi_voting.app.models.vote import Vote
+from src.fastapi_voting.app.models.option import Option
 from src.fastapi_voting.app.models.department import Department
+
 
 from src.fastapi_voting.app.repositories.base_repo import Base
 
@@ -107,11 +110,10 @@ class VotingRepo(Base):
         """Возвращает подробности конкретного голосования."""
 
         query = (
-            select(Voting)
-            .options(selectinload(Voting.questions).selectinload(Question.options))
-            .options(selectinload(Voting.registered_users))
-            .where(Voting.id == voting_id)
-            )
+            select(Voting).
+            options(selectinload(Voting.registered_users)).
+            options(selectinload(Voting.questions).selectinload(Question.options).selectinload(Option.votes).selectinload(Vote.author))
+        ).where(Voting.id == voting_id)
 
         result = await self.session.execute(query)
-        return result.scalars().one()
+        return result.scalars().one_or_none()
