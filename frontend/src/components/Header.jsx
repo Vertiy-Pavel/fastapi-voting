@@ -42,7 +42,7 @@ const Header = () => {
     ]
 
     const Voting = [
-        {title: 'Список голосований', to: '/votes'},
+        {title: 'Список голосований', to: '/'},
         {title: 'Конструктор голосований', to: '/vote/create'}
     ]
 
@@ -107,7 +107,7 @@ const Header = () => {
                                     />
                                 </div> :
                                 <NavLink
-                                    to={'/votes'}
+                                    to={'/'}
                                     className='px-5 h-13 flex items-start py-3 cursor-pointer hover:bg-[#505050] rounded-2xl'
                                 >
                                     Голосования
@@ -126,7 +126,7 @@ const Header = () => {
                         </div>
                     </div>
                     <div className='flex h-15 gap-6 items-center cursor-pointer'>
-                        <p className='whitespace-nowrap max-2xl:hidden'>
+                        <p className='whitespace-nowrap max-lg:hidden'>
                             {user.last_name} {user.first_name?.slice(0, 1) + "."} {user.surname?.slice(0, 1) + "."}
                         </p>
 
