@@ -89,9 +89,15 @@ class RegisteredUsersVotingDataSchema(BaseModel):
     class Config:
         from_attributes = True
 
+class VotesVotingDataSchema(BaseModel):
+    id: int
+    voted_at: datetime
+    author: RegisteredUsersVotingDataSchema
+
 class OptionsVotingDataSchema(BaseModel):
     id: int
     option: str
+    votes: list[VotesVotingDataSchema]
 
     class Config:
         from_attributes = True
@@ -112,5 +118,3 @@ class InputVotingDataSchema(BaseModel):
 class ResponseVotingDataSchema(BaseModel):
     registered_users: list[RegisteredUsersVotingDataSchema]
     questions: list[RegisteredQuestionsVotingDataSchema]
-    # TODO: voting_results: OptionsVotingDataSchema
-    # TODO: Статистика регистрации/голосов
