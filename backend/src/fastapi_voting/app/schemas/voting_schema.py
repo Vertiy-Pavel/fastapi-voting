@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Union
 
 from pydantic import BaseModel, conlist, model_validator
 
@@ -11,9 +11,6 @@ class VotingSchema(BaseModel):
     id: int
     title: str
     theme: str
-    public: bool
-    quorum: int
-    deleted: bool
 
     registration_start: datetime
     registration_end: datetime
@@ -38,7 +35,6 @@ class InputCreateVotingSchema(BaseModel):
     title: str
     theme: str
     public: bool
-    quorum: int
 
     registration_start: datetime
     registration_end: datetime
@@ -80,7 +76,25 @@ class ResponseAllVotingsSchema(BaseModel):
     pagination: dict[str, bool | int]
 
 
-# --- Схема для деталей голосования ---
+# --- Схема для деталей голосования(Сотрудник) ---
+class EmployeeVoteSchema(BaseModel):
+    id: int
+
+
+class EmployeeOptionVotingDataSchema(BaseModel):
+    option: str
+    votes: EmployeeVoteSchema
+
+class EmployeeQuestionVotingDataSchema(BaseModel):
+    id: int
+    type: QuestionTypeEnum
+    title: str
+    options: list[EmployeeOptionVotingDataSchema]
+
+class EmployeeResponseVotingDataSchema(BaseModel):
+    questions: list[EmployeeQuestionVotingDataSchema]
+
+
 class RegisteredUsersVotingDataSchema(BaseModel):
     id: int
     first_name: str
