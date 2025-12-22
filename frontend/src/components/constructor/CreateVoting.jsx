@@ -34,7 +34,6 @@ const CreateVoting = ({selectedTemplate}) => {
         date: now,
         time: now,
     });
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Управление открытием/закрытием выпадающего списка для департаментов
     const [typeVoting, setTypeVoting] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [isSavingTemplate, setIsSavingTemplate] = useState(false);
@@ -134,12 +133,6 @@ const CreateVoting = ({selectedTemplate}) => {
     const data = {
         title: votingTitle || "Без названия",
         theme: "string",
-        quorum:
-            quorumCondition === "50_plus_1"
-                ? 50
-                : quorumCondition === "two_thirds"
-                    ? 66
-                    : 0,
         registration_start: combineDateTime(registrationStart.date, registrationStart.time),
         registration_end: combineDateTime(registrationEnd.date, registrationEnd.time),
         voting_start: combineDateTime(votingStart.date, votingStart.time),
@@ -195,23 +188,6 @@ const CreateVoting = ({selectedTemplate}) => {
                     onChange={handleChange(setVotingTitle)}
                     placeholder="Введите название"
                 />
-
-                {/* Условие кворума */}
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Условие кворума
-                </label>
-                <select
-                    value={quorumCondition}
-                    onChange={handleChange(setQuorumCondition)}
-                    className="my-1 p-2 py-[20px] border border-gray-300 rounded-[12px] w-full bg-white focus:outline-none focus:border-gray-700 hover:border-gray-700 transition-colors"
-                >
-                    <option value="" disabled>
-                        Выберите условие...
-                    </option>
-                    <option value="50_plus_1">50% + 1</option>
-                    <option value="two_thirds">2/3 голосов</option>
-                    <option value="unanimous">Единогласно</option>
-                </select>
 
                 <label className="block text-sm font-medium text-gray-700 mb-1 mt-4">
                     Тип голосования
