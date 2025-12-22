@@ -24,7 +24,6 @@ class Voting(Base):
     title: Mapped[str] = mapped_column(String(255))
     theme: Mapped[str] = mapped_column(String(255))
     public: Mapped[bool]
-    quorum: Mapped[int]
 
     registration_start: Mapped[timezone] = mapped_column(TIMESTAMP(timezone=True))
     registration_end: Mapped[timezone] = mapped_column(TIMESTAMP(timezone=True))
