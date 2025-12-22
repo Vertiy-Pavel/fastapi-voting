@@ -55,7 +55,7 @@ class VotingService:
             raise VotingNotFound(log_message=f"Голосования с ID {voting_id} не существует.")
 
         # --- Работа репозитория ----
-        await self.voting_repo.delete(voting)
+        await self.voting_repo.delete(voting_id)
 
         # --- Ответ сервиса ---
         return True

@@ -1,6 +1,6 @@
 import logging
 
-from sqlalchemy import select, and_, or_, func
+from sqlalchemy import select, update, and_, or_, func
 from sqlalchemy.orm import aliased, selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -41,10 +41,10 @@ class VotingRepo(Base):
         return result.scalars().all()
 
 
-    async def delete(self, voting: Voting) -> None:
+    async def delete(self, voting_id: int) -> None:
         """Выполняет мягкое удаление указанного голосования"""
-        voting.deleted = True
-        self.session.add(voting)
+        query = update(Voting).where(Voting.id == voting_id).values(deleted=True)
+        await self.session.execute(query)
         await self.session.commit()
 
 
