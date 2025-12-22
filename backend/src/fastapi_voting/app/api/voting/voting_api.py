@@ -46,7 +46,7 @@ async def create_voting(
 
         access_token: str = Header(default=None, description="JWT-токен"),
 ):
-    result = await voting_service.create_voting(voting_data=voting_data, creator_id=access_payload["sub"])
+    await voting_service.create_voting(voting_data=voting_data, creator_id=access_payload["sub"])
     return {"message": "success"}
 
 
@@ -60,7 +60,7 @@ async def delete_voting(
 
         access_token: str = Header(default=None, description="JWT-токен"),
 ):
-    await voting_service.delete_voting(voting_data=voting_data)
+    await voting_service.delete_voting(voting_id=voting_data.id)
     return {"message": "success"}
 
 
