@@ -14,7 +14,7 @@ const InputField = ({label, value, onChange, placeholder = ""}) => {
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
-                className="mt-1 p-2 px-[20px] py-[16px] border border-gray-300 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-gray-700"
+                className="mt-1 p-2 px-[20px] py-[16px] border border-gray-300 rounded-xl w-full focus:outline-none focus:border-gray-700 hover:border-gray-700 transition-colors"
             />
         </div>
     );

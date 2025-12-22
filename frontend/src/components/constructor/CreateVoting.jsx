@@ -11,411 +11,330 @@ import { useDepartments } from "../../hooks/useDepartments.js";
 import { createVoting } from "../../services/api/voting.js";
 import { BlueButton, Spinner, ToggleButton } from "../Button.jsx";
 import toast from "react-hot-toast";
+import { DepartmentSelectConstructor } from "../DepartmentSelect.jsx";
 
-const CreateVoting = ({ selectedTemplate }) => {
-  const today = new Date().toISOString().split("T")[0]; // текущая дата
+const CreateVoting = ({selectedTemplate}) => {
+    const now = new Date();
 
-  const [votingTitle, setVotingTitle] = useState("");
-  const [registrationStart, setRegistrationStart] = useState({
-    date: today,
-    time: "10:00",
-  });
-  const [registrationEnd, setRegistrationEnd] = useState({
-    date: today,
-    time: "10:00",
-  });
-  const [votingStart, setVotingStart] = useState({
-    date: today,
-    time: "10:00",
-  });
-  const [votingEnd, setVotingEnd] = useState({ date: today, time: "10:00" });
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Управление открытием/закрытием выпадающего списка для департаментов
-  const [typeVoting, setTypeVoting] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
+    const [votingTitle, setVotingTitle] = useState("");
 
-  // Департаменты
-  const {
-    departments,
-    selectedDepartmentIds,
-    handleDepartmentChange,
-    isLoadingDepartments,
-    searchTerm,
-    setSearchTerm,
-  } = useDepartments();
+    const [registrationStart, setRegistrationStart] = useState({
+        date: now,
+        time: now,
+    });
+    const [registrationEnd, setRegistrationEnd] = useState({
+        date: now,
+        time: now,
+    });
+    const [votingStart, setVotingStart] = useState({
+        date: now,
+        time: now,
+    });
+    const [votingEnd, setVotingEnd] = useState({
+        date: now,
+        time: now,
+    });
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Управление открытием/закрытием выпадающего списка для департаментов
+    const [typeVoting, setTypeVoting] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isSavingTemplate, setIsSavingTemplate] = useState(false);
 
-  // Загружаем данные из выбранного шаблона
-  useEffect(() => {
-    if (selectedTemplate) {
-      // Устанавливаем заголовок и условие кворума из шаблона
-      setVotingTitle(selectedTemplate.title || "");
-      setQuorumCondition(selectedTemplate.quorum || "");
+    // Департаменты
+    const {
+        departments,
+        selectedDepartmentIds,
+        handleDepartmentChange,
+        isLoadingDepartments,
+        searchTerm,
+        setSearchTerm,
+    } = useDepartments();
 
-      // Нормализуем вопросы из шаблона:
-      // добавляем уникальный id
-      // приводим title => header (для совместимости с QuestionForm)
-      // options: вытаскиваем строку из объекта { option: "..." }
-      const normalized = (selectedTemplate.questions || []).map((q, idx) => ({
-        id: idx + 1,
-        type: q.type || "single_choice",
-        header: q.title || "",
-        options: (q.options || []).map((opt) =>
-          typeof opt === "object" && opt !== null ? opt.option : opt
-        ),
-      }));
+    // Загружаем данные из выбранного шаблона
+    useEffect(() => {
+        if (selectedTemplate) {
+            // Устанавливаем заголовок и условие кворума из шаблона
+            setVotingTitle(selectedTemplate.title || "");
+            setQuorumCondition(selectedTemplate.quorum || "");
 
-      setQuestions(normalized);
-      console.log(selectedTemplate);
-    }
-  }, [selectedTemplate]);
+            // Нормализуем вопросы из шаблона:
+            // добавляем уникальный id
+            // приводим title => header (для совместимости с QuestionForm)
+            // options: вытаскиваем строку из объекта { option: "..." }
+            const normalized = (selectedTemplate.questions || []).map((q, idx) => ({
+                id: idx + 1,
+                type: q.type || "single_choice",
+                header: q.title || "",
+                options: (q.options || []).map((opt) =>
+                    typeof opt === "object" && opt !== null ? opt.option : opt
+                ),
+            }));
 
-  const [questions, setQuestions] = useState([
-    {
-      id: 1,
-      type: "",
-      header: "",
-      options: ["", ""],
-    },
-  ]);
+            setQuestions(normalized);
+            console.log(selectedTemplate);
+        }
+    }, [selectedTemplate]);
 
-  const [quorumCondition, setQuorumCondition] = useState("");
-
-  // --- Обработчики изменений ---
-  const handleChange = (setter) => (e) => {
-    setter(e.target.value);
-  };
-
-  // Универсальный обработчик для полей date/time
-  const handleDateTimeChange = (setter, key) => (value) => {
-    setter((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const removeQuestion = (id) => {
-    setQuestions((prev) => prev.filter((q) => q.id !== id));
-  };
-
-  const addNewQuestion = () => {
-    const newId = Math.max(0, ...questions.map((q) => q.id)) + 1;
-    setQuestions((prev) => [
-      ...prev,
-      { id: newId, type: "", header: "", options: [""] },
+    const [questions, setQuestions] = useState([
+        {
+            id: 1,
+            type: "",
+            header: "",
+            options: ["", ""],
+        },
     ]);
-  };
 
-  // Функция для объединения даты и времени в ISO-формат
-  const combineDateTime = (date, time) => {
-    const dateTimeString = `${date}T${time}:00.000Z`;
+    const [quorumCondition, setQuorumCondition] = useState("");
 
-    const utcDate = new Date(dateTimeString);
+    // --- Обработчики изменений ---
+    const handleChange = (setter) => (e) => {
+        setter(e.target.value);
+    };
 
-    const year = utcDate.getUTCFullYear();
-    const month = (utcDate.getUTCMonth() + 1).toString().padStart(2, "0");
-    const day = utcDate.getUTCDate().toString().padStart(2, "0");
-    const hours = utcDate.getUTCHours().toString().padStart(2, "0");
-    const minutes = utcDate.getUTCMinutes().toString().padStart(2, "0");
-    const seconds = utcDate.getUTCSeconds().toString().padStart(2, "0");
+    // Универсальный обработчик для полей date/time
+    const handleDateTimeChange = (setter, field) => (value) => {
+        setter(prev => ({
+            ...prev,
+            [field]: value // value здесь — это уже объект Date
+        }));
+    };
 
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  };
+    const removeQuestion = (id) => {
+        setQuestions((prev) => prev.filter((q) => q.id !== id));
+    };
 
-  const data = {
-    title: votingTitle || "Без названия",
-    theme: "string",
-    quorum:
-      quorumCondition === "50_plus_1"
-        ? 50
-        : quorumCondition === "two_thirds"
-        ? 66
-        : 0,
-    registration_start: combineDateTime(
-      registrationStart.date,
-      registrationStart.time
-    ),
-    registration_end: combineDateTime(
-      registrationEnd.date,
-      registrationEnd.time
-    ),
-    voting_start: combineDateTime(votingStart.date, votingStart.time),
-    voting_end: combineDateTime(votingEnd.date, votingEnd.time),
-    questions: questions.map((q) => ({
-      type: q.type || "single_choice",
-      title: q.header || "Без названия",
-      options: (q.options || [])
-        .filter((opt) => opt.trim() !== "")
-        .map((opt) => ({ option: opt.trim() })),
-    })),
-    departments: !typeVoting ? selectedDepartmentIds : [] , // Используем выбранные ID департаментов
-  };
+    const addNewQuestion = () => {
+        const newId = Math.max(0, ...questions.map((q) => q.id)) + 1;
+        setQuestions((prev) => [
+            ...prev,
+            {id: newId, type: "", header: "", options: [""]},
+        ]);
+    };
 
-  const renderDepartments = (depts, level = 0) => {
-    return depts.map((dept) => (
-      <div key={dept.id}>
-        <div
-          className="p-3 hover:bg-gray-100 flex items-center"
-          style={{ paddingLeft: `${level * 16}px` }} // отступ для вложенности
-        >
-          <input
-            type="checkbox"
-            id={`dept-${dept.id}`}
-            checked={selectedDepartmentIds.includes(dept.id)}
-            onChange={() => handleDepartmentChange(dept.id)}
-            className="mr-3 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-          />
-          <label htmlFor={`dept-${dept.id}`} className="cursor-pointer flex-1">
-            {dept.name}
-          </label>
-        </div>
+    // Функция для объединения даты и времени в ISO-формат
+    const combineDateTime = (dateObj, timeObj) => {
+        // Проверка на валидность объектов
+        if (!dateObj || !timeObj || isNaN(new Date(dateObj)) || isNaN(new Date(timeObj))) {
+            return null;
+        }
 
-        {/* Рекурсивный вызов для поддепартаментов */}
-        {dept.children && dept.children.length > 0 && (
-          <div>{renderDepartments(dept.children, level + 1)}</div>
-        )}
-      </div>
-    ));
-  };
+        const date = new Date(dateObj);
+        const time = new Date(timeObj);
 
-  // Создание голосования
-  const sendToServer = async () => {
-    setIsSaving(true);
-    try {
-      await createVoting(data);
-      console.log("Голосование успешно создано");
-      toast.success("Голосование успешно создано");
-    } catch (error) {
-      console.log(error);
-      toast.error("Не удалось создать голосование");
-    } finally {
-      setIsSaving(false);
-    }
-  };
+        // Собираем компоненты в локальном времени
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(time.getHours()).padStart(2, "0");
+        const minutes = String(time.getMinutes()).padStart(2, "0");
+        const seconds = "00";
 
-  // Отправка шаблона
-  const sendTemplateToServer = async () => {
-    setIsSavingTemplate(true);
-    try {
-      await saveTemplate(data);
-      console.log("Шаблон сохранен");
-      toast.success("Шаблон сохранен");
-    } catch (error) {
-      console.log(error);
-      toast.error("Не удалось сохранить шаблон");
-    } finally {
-      setIsSavingTemplate(false);
-    }
-  };
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    };
 
-  return (
-    <>
-      <div className="bg-white p-6 rounded-[20px] shadow-lg ">
-        <StepHeader stepNumber={1} title="Настройки" />
+    const data = {
+        title: votingTitle || "Без названия",
+        theme: "string",
+        quorum:
+            quorumCondition === "50_plus_1"
+                ? 50
+                : quorumCondition === "two_thirds"
+                    ? 66
+                    : 0,
+        registration_start: combineDateTime(registrationStart.date, registrationStart.time),
+        registration_end: combineDateTime(registrationEnd.date, registrationEnd.time),
+        voting_start: combineDateTime(votingStart.date, votingStart.time),
+        voting_end: combineDateTime(votingEnd.date, votingEnd.time),
+        questions: questions.map((q) => ({
+            type: q.type || "single_choice",
+            title: q.header || "Без названия",
+            options: (q.options || [])
+                .filter((opt) => opt.trim() !== "")
+                .map((opt) => ({option: opt.trim()})),
+        })),
+        departments: !typeVoting ? selectedDepartmentIds : [], // Используем выбранные ID департаментов
+    };
 
-        <InputField
-          label="Название голосования"
-          value={votingTitle}
-          onChange={handleChange(setVotingTitle)}
-          placeholder="Введите название"
-        />
+    // Создание голосования
+    const sendToServer = async () => {
+        setIsSaving(true);
+        try {
+            await createVoting(data);
+            console.log("Голосование успешно создано");
+            toast.success("Голосование успешно создано");
+        } catch (error) {
+            console.log(error);
+            toast.error("Не удалось создать голосование");
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
-        {/* Условие кворума */}
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Условие кворума
-        </label>
-        <select
-          value={quorumCondition}
-          onChange={handleChange(setQuorumCondition)}
-          className="my-1 p-2 py-[20px] border border-gray-300 rounded-[12px] w-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="" disabled>
-            Выберите условие...
-          </option>
-          <option value="50_plus_1">50% + 1</option>
-          <option value="two_thirds">2/3 голосов</option>
-          <option value="unanimous">Единогласно</option>
-        </select>
+    // Отправка шаблона
+    const sendTemplateToServer = async () => {
+        setIsSavingTemplate(true);
+        try {
+            await saveTemplate(data);
+            console.log("Шаблон сохранен");
+            toast.success("Шаблон сохранен");
+        } catch (error) {
+            console.log(error);
+            toast.error("Не удалось сохранить шаблон");
+        } finally {
+            setIsSavingTemplate(false);
+        }
+    };
 
-        <label className="block text-sm font-medium text-gray-700 mb-1 mt-4">
-          Тип голосования
-        </label>
-        <div className="flex flex-wrap gap-2 justify-start">
-          <ToggleButton
-            className={`border ${
-              typeVoting
-                ? "bg-black text-white"
-                : "border-gray-300 hover:bg-gray-100"
-            }`}
-            onClick={() => setTypeVoting(true)}
-          >
-            Открытое
-          </ToggleButton>
+    return (
+        <>
+            <div className="bg-white p-6 rounded-[20px] shadow-lg ">
+                <StepHeader stepNumber={1} title="Настройки"/>
 
-          <ToggleButton
-            className={`border ${
-              !typeVoting
-                ? "bg-black text-white"
-                : "border-gray-300 hover:bg-gray-100"
-            }`}
-            onClick={() => setTypeVoting(false)}
-          >
-            Закрытое
-          </ToggleButton>
-        </div>
+                <InputField
+                    label="Название голосования"
+                    value={votingTitle}
+                    onChange={handleChange(setVotingTitle)}
+                    placeholder="Введите название"
+                />
 
-        {!typeVoting && (
-          <>
-            <label className="block text-sm font-medium text-gray-700 mb-1 mt-4">
-              Группа пользователей
-            </label>
-            <div className="relative">
-              {/* Кастомный селект/выпадающий список */}
-              <div
-                className="mt-1 mb-1 p-4 border border-gray-300 rounded-[12px] text-gray-500 w-full bg-white focus:outline-none focus:ring-2 focus:ring-grey-500 cursor-pointer flex justify-between items-center"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)} // Переключение открытия
-              >
-                <span>
-                  {Array.isArray(selectedDepartmentIds) &&
-                  selectedDepartmentIds.length > 0
-                    ? `${selectedDepartmentIds.length} выбрано`
-                    : "Выберите группы..."}
-                </span>
-                <svg
-                  className={`w-5 h-5 text-gray-500 transition-transform ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
+                {/* Условие кворума */}
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Условие кворума
+                </label>
+                <select
+                    value={quorumCondition}
+                    onChange={handleChange(setQuorumCondition)}
+                    className="my-1 p-2 py-[20px] border border-gray-300 rounded-[12px] w-full bg-white focus:outline-none focus:border-gray-700 hover:border-gray-700 transition-colors"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
-                </svg>
-              </div>
+                    <option value="" disabled>
+                        Выберите условие...
+                    </option>
+                    <option value="50_plus_1">50% + 1</option>
+                    <option value="two_thirds">2/3 голосов</option>
+                    <option value="unanimous">Единогласно</option>
+                </select>
 
-              {/* Выпадающий список */}
-              {isDropdownOpen && (
-                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-80 overflow-y-auto">
-                  {/* ПОЛЕ ПОИСКА */}
-                  <div className="p-2 sticky top-0 bg-white border-b z-20">
-                    <input
-                      type="text"
-                      className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Поиск департамента..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      onClick={(e) => e.stopPropagation()} // Чтобы список не закрылся при клике
-                    />
-                  </div>
+                <label className="block text-sm font-medium text-gray-700 mb-1 mt-4">
+                    Тип голосования
+                </label>
+                <div className="flex flex-wrap gap-2 justify-start">
+                    <ToggleButton
+                        className={`border rounded-xl ${typeVoting ? 'bg-black text-white border-black' : 'border-gray-300 hover:bg-gray-100'}`}
+                        onClick={() => setTypeVoting(true)}>
+                        Открытое
+                    </ToggleButton>
 
-                  {/* Список департаментов (ваш рекурсивный renderDepartments) */}
-                  {departments.length > 0 ? (
-                    renderDepartments(departments)
-                  ) : (
-                    <div className="p-3 text-gray-500 text-center">
-                      {isLoadingDepartments
-                        ? "Загрузка..."
-                        : "Ничего не найдено"}
-                    </div>
-                  )}
+                    <ToggleButton
+                        className={`border rounded-xl ${!typeVoting ? 'bg-black text-white border-black' : 'border-gray-300 hover:bg-gray-100'}`}
+                        onClick={() => setTypeVoting(false)}>
+                        Закрытое
+                    </ToggleButton>
                 </div>
-              )}
+
+                {!typeVoting && (
+                    <>
+                        <div className='mt-2'>
+                            <DepartmentSelectConstructor
+                                departments={departments}
+                                selectedIds={selectedDepartmentIds}
+                                onToggleId={handleDepartmentChange}
+                                searchTerm={searchTerm}
+                                onSearchChange={setSearchTerm}
+                                isLoading={isLoadingDepartments}
+                            />
+                        </div>
+                    </>
+                )}
+
+                {/* Даты и время */}
+                <div className="flex flex-col md:flex-row justify-between gap-4 mt-4">
+                    <DateTimePicker
+                        label="Начало регистрации"
+                        selectedDate={registrationStart.date}
+                        selectedTime={registrationStart.time}
+                        onDateChange={handleDateTimeChange(setRegistrationStart, "date")}
+                        onTimeChange={handleDateTimeChange(setRegistrationStart, "time")}
+                    />
+                    <DateTimePicker
+                        label="Окончание регистрации"
+                        selectedDate={registrationEnd.date}
+                        selectedTime={registrationEnd.time}
+                        onDateChange={handleDateTimeChange(setRegistrationEnd, "date")}
+                        onTimeChange={handleDateTimeChange(setRegistrationEnd, "time")}
+                    />
+                </div>
+
+                <div className="flex flex-col md:flex-row justify-between gap-4 mt-2">
+                    <DateTimePicker
+                        label="Начало голосования"
+                        selectedDate={votingStart.date}
+                        selectedTime={votingStart.time}
+                        onDateChange={handleDateTimeChange(setVotingStart, "date")}
+                        onTimeChange={handleDateTimeChange(setVotingStart, "time")}
+                    />
+                    <DateTimePicker
+                        label="Окончание голосования"
+                        selectedDate={votingEnd.date}
+                        selectedTime={votingEnd.time}
+                        onDateChange={handleDateTimeChange(setVotingEnd, "date")}
+                        onTimeChange={handleDateTimeChange(setVotingEnd, "time")}
+                    />
+                </div>
+
+                <div className="mt-6"></div>
+                <StepHeader stepNumber={2} title="Вопросы"/>
+
+                {questions.map((question) => (
+                    <QuestionForm
+                        key={question.id}
+                        question={question}
+                        onChange={(updated) => {
+                            setQuestions((prev) =>
+                                prev.map((q) => (q.id === question.id ? updated : q))
+                            );
+                        }}
+                        onRemove={() => removeQuestion(question.id)}
+                    />
+                ))}
+
+                <AddQuestionButton onClick={addNewQuestion}/>
+
+                {/* Кнопки управления */}
+                <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
+                    <BlueButton
+                        onClick={sendToServer}
+                        className="w-full md:w-xs px-4 py-4 md:px-[20px] md:py-[16px]"
+                    >
+                        {isSaving ? (
+                            <>
+                                <Spinner/>
+                            </>
+                        ) : (
+                            <>
+                                <MdOutlineRocketLaunch size={24}/>
+                                Создать голосование
+                            </>
+                        )}
+                    </BlueButton>
+
+                    <BlueButton
+                        onClick={sendTemplateToServer}
+                        className="w-full md:w-xs border border-blue-500 bg-white !text-blue-500 px-4 py-4 md:px-[20px] md:py-[16px] hover:bg-blue-50"
+                    >
+                        {isSavingTemplate ? (
+                            <>
+                                <Spinner/>
+                            </>
+                        ) : (
+                            <>
+                                <CiViewList size={24}/>
+                                Сохранить шаблон
+                            </>
+                        )}
+                    </BlueButton>
+                </div>
             </div>
-          </>
-        )}
-
-        {/* Даты и время */}
-        <div className="flex flex-col md:flex-row justify-between gap-4 mt-4">
-          <DateTimePicker
-            label="Начало регистрации"
-            initialDate={registrationStart.date}
-            initialTime={registrationStart.time}
-            onDateChange={handleDateTimeChange(setRegistrationStart, "date")}
-            onTimeChange={handleDateTimeChange(setRegistrationStart, "time")}
-          />
-          <DateTimePicker
-            label="Окончание регистрации"
-            initialDate={registrationEnd.date}
-            initialTime={registrationEnd.time}
-            onDateChange={handleDateTimeChange(setRegistrationEnd, "date")}
-            onTimeChange={handleDateTimeChange(setRegistrationEnd, "time")}
-          />
-        </div>
-
-        <div className="flex flex-col md:flex-row justify-between gap-4 mt-2">
-          <DateTimePicker
-            label="Начало голосования"
-            initialDate={votingStart.date}
-            initialTime={votingStart.time}
-            onDateChange={handleDateTimeChange(setVotingStart, "date")}
-            onTimeChange={handleDateTimeChange(setVotingStart, "time")}
-          />
-          <DateTimePicker
-            label="Окончание голосования"
-            initialDate={votingEnd.date}
-            initialTime={votingEnd.time}
-            onDateChange={handleDateTimeChange(setVotingEnd, "date")}
-            onTimeChange={handleDateTimeChange(setVotingEnd, "time")}
-          />
-        </div>
-
-        <div className="mt-6"></div>
-        <StepHeader stepNumber={2} title="Вопросы" />
-
-        {questions.map((question) => (
-          <QuestionForm
-            key={question.id}
-            question={question}
-            onChange={(updated) => {
-              setQuestions((prev) =>
-                prev.map((q) => (q.id === question.id ? updated : q))
-              );
-            }}
-            onRemove={() => removeQuestion(question.id)}
-          />
-        ))}
-
-        <AddQuestionButton onClick={addNewQuestion} />
-
-        {/* Кнопки управления */}
-        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
-          <BlueButton
-            onClick={sendToServer}
-            className="w-full md:w-xs px-4 py-4 md:px-[20px] md:py-[16px]"
-          >
-            {isSaving ? (
-              <>
-                <Spinner />
-              </>
-            ) : (
-              <>
-                <MdOutlineRocketLaunch size={24} />
-                Создать голосование
-              </>
-            )}
-          </BlueButton>
-
-          <BlueButton
-            onClick={sendTemplateToServer}
-            className="w-full md:w-xs border border-blue-500 bg-white !text-blue-500 px-4 py-4 md:px-[20px] md:py-[16px] hover:bg-blue-50"
-          >
-            {isSavingTemplate ? (
-              <>
-                <Spinner />
-              </>
-            ) : (
-              <>
-                <CiViewList size={24} />
-                Сохранить шаблон
-              </>
-            )}
-          </BlueButton>
-        </div>
-      </div>
-    </>
-  );
+        </>
+    );
 };
 
 export default CreateVoting;
