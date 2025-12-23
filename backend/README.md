@@ -60,7 +60,7 @@ EMAIL_REQUEST_LIMIT_MINUTES=1
 # SMTP
 SMTP_HOSTNAME=smtp.gmail.com
 SMTP_PORT=465
-SMTP_USER=<Почта адресата электронных писем>
+SMTP_USER=<Почта адресанта электронных писем>
 SMTP_PASSWORD=<Пароль для приложений Google>
 
 # Конфигурация пагинации
@@ -82,14 +82,14 @@ DB_HOST=127.0.0.1
 DB_PORT=3306
 
 DB_USER=root
-DB_PASSWORD=0000
+DB_PASSWORD=<Пароль для пользователя БД>
 DB_NAME=voting
 
 # Redis
 RDS_HOST=127.0.0.1
 RDS_PORT=6379
 RDS_DB=0
-RDS_PASSWORD=0000
+RDS_PASSWORD=<Пароль от Redis>
 ```
 
 Для создания файла виртуального окружения непосредственно в корневом каталоге проекта(опционально):

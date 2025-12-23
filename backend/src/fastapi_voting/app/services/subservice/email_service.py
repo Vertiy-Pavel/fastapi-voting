@@ -55,8 +55,7 @@ class EmailService:
             hostname=settings.SMTP_HOSTNAME,
             port=settings.SMTP_PORT,
             username=settings.SMTP_USER,
-            password=settings.SMTP_PASSWORD,
-            use_tls=True
+            password=settings.SMTP_PASSWORD
         )
         return smtp
 
