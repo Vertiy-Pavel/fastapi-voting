@@ -1,9 +1,11 @@
-import React, {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
-import {register} from '../services/api/auth.js'
-import {InputDefault, InputPassword, InputPhone} from "../components/Inputs.jsx";
-import {BlackButton, GrayButton, Spinner} from "../components/Button.jsx";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { register } from '../services/api/auth.js'
+import { InputDefault, InputPassword, InputPhone } from "../components/Inputs.jsx";
+import { BlackButton, BlueButton, GrayButton, Spinner } from "../components/Button.jsx";
 import Modal from '../components/Modal'
+import { useDepartments } from "../hooks/useDepartments.js";
+import { DepartmentSelect } from "../components/DepartmentSelect.jsx";
 
 const initialFormState = {
     first_name: '',
@@ -22,8 +24,47 @@ const RegisterPage = () => {
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate(); // Инициализируем хук для навигации
+    const [secondsLeft, setSecondsLeft] = useState(0);
+
+
+    // Департаменты
+    const {
+        departments,
+        selectedDepartmentIds,
+        handleDepartmentChange,
+        isLoadingDepartments,
+        searchTerm,
+        setSearchTerm,
+    } = useDepartments();
 
     const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    // Восстанавливает оставшееся время блокировки из localStorage при монтировании
+    useEffect(() => {
+        const stored = localStorage.getItem('retry_register');
+        if (stored) {
+            const until = Number(stored);
+            const seconds = Math.max(0, Math.ceil((until - Date.now()) / 1000));
+            setSecondsLeft(seconds);
+            if (seconds <= 0) localStorage.removeItem('retry_register');
+        }
+    }, []);
+
+    // интервал обратного отсчёта
+    useEffect(() => {
+        if (secondsLeft <= 0) return;
+        const id = setInterval(() => {
+            setSecondsLeft(prev => {
+                if (prev <= 1) {
+                    clearInterval(id);
+                    localStorage.removeItem('retry_register');
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(id);
+    }, [secondsLeft]);
 
     // Универсальный обработчик изменений в полях ввода
     const handleChange = (e) => {
@@ -39,13 +80,14 @@ const RegisterPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const logMessage = `Попытка регистрации с использованием данных: ${JSON.stringify(formData)}`;
-        console.log(logMessage);
-        //setMessage(logMessage);
+        if (selectedDepartmentIds.length === 0) {
+            setMessage({text: 'Выберите отдел', type: 'error'});
+            return;
+        }
 
         // Валидация почты
         if (!EMAIL_REGEX.test(formData.email)) {
-            setMessage({ text: 'Введите корректный адрес электронной почты', type: 'error' });
+            setMessage({text: 'Введите корректный адрес электронной почты', type: 'error'});
             return;
         }
 
@@ -55,19 +97,38 @@ const RegisterPage = () => {
             return;
         }
 
-        // Подготовка данных для отправки
+        const dataToSend = {
+            ...formData,
+            departments: selectedDepartmentIds,
+        };
+
         try {
             setLoading(true);
-            const response = await register(formData);
-            console.log('Ответ API регистрации:', response);
+            const response = await register(dataToSend);
+            const retry_until = response.data?.rate_minutes || 0
+
+            if (retry_until > 0) {
+                const until = Date.now() + retry_until * 60 * 1000; // ms
+                localStorage.setItem('retry_register', String(until));
+                setSecondsLeft(Math.ceil((until - Date.now()) / 1000));
+            } else {
+                localStorage.removeItem('retry_register');
+                setSecondsLeft(0);
+            }
+
+            localStorage.setItem('retry_register', retry_until)
             setIsConfirmModalOpen(true)
-            console.log('Регистрация прошла успешно, переходим к входу в систему');
         } catch (error) {
-            console.error('Ошибка при регистрации:', error);
-            setMessage({text: error.response.data.detail, type: 'error'});
+            setMessage({text: 'Не удалось зарегистрироваться', type: 'error'});
         } finally {
             setLoading(false);
         }
+    };
+
+    const format = (s) => {
+        const m = Math.floor(s / 60).toString().padStart(2,'0');
+        const sec = (s % 60).toString().padStart(2,'0');
+        return `${m}:${sec}`;
     };
 
     return (
@@ -91,6 +152,17 @@ const RegisterPage = () => {
                                 <option value={'EMPLOYEE'}>Сотрудник</option>
                                 <option value={'CHIEF'}>Начальник</option>
                             </select>
+
+                            <DepartmentSelect
+                                departments={departments}
+                                selectedIds={selectedDepartmentIds}
+                                onToggleId={handleDepartmentChange}
+                                searchTerm={searchTerm}
+                                onSearchChange={setSearchTerm}
+                                isLoading={isLoadingDepartments}
+                                label='Отдел'
+                                placeholder='Выберите отдел'
+                            />
 
                             <div className="flex flex-col md:flex-row">
                                 <InputDefault
@@ -242,6 +314,17 @@ const RegisterPage = () => {
                                 <option value={'CHIEF'}>Начальник</option>
                             </select>
 
+                            <DepartmentSelect
+                                departments={departments}
+                                selectedIds={selectedDepartmentIds}
+                                onToggleId={handleDepartmentChange}
+                                searchTerm={searchTerm}
+                                onSearchChange={setSearchTerm}
+                                isLoading={isLoadingDepartments}
+                                label='Отдел'
+                                placeholder='Выберите отдел'
+                            />
+
                             <div className="flex gap-[12px]">
                                 <InputDefault
                                     type="text"
@@ -364,6 +447,19 @@ const RegisterPage = () => {
                     Для завершения регистрации перейдите по ссылке, отправленной на адрес <strong
                     className="break-words">{formData.email}</strong>.
                 </div>
+                <BlueButton onClick={handleSubmit} disabled={loading || secondsLeft > 0}
+                            className={`mt-2 ${secondsLeft > 0 ? 'disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 disabled:hover:scale-100 disabled:transition-none disabled:translate-y-0' : ''}`}>
+                    {secondsLeft > 0 ? `Отправить повторно через: ${format(secondsLeft)}` :
+                        (loading ? (
+                            <>
+                                <Spinner/>
+                            </>
+                        ) : (
+                            <>
+                                Отправить ещё раз
+                            </>
+                        ))}
+                </BlueButton>
             </Modal>
         </>
     );

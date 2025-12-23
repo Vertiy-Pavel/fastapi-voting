@@ -2,7 +2,6 @@ import React from 'react';
 import {Routes, Route, useLocation, matchPath} from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import MainPage from './pages/MainPage';
 import ProfilePage from './pages/ProfilePage';
 import ConstructorPage from './pages/ConstructorPage';
 import Details from './pages/DetailsPage';
@@ -21,9 +20,8 @@ function AppContent() {
             {!hideHeader && <Header/>}
             <Routes>
                 <Route path='/login' element={<LoginPage/>}/>
-                <Route path='/votes' element={<VotesPage/>}/>
+                <Route path='/' element={<VotesPage/>}/>
                 <Route path='/register' element={<RegisterPage/>}/>
-                <Route path='/' element={<MainPage/>}/>
                 <Route path='/profile' element={<ProfilePage/>}/>
 
                 {/* подтверждения смены пароля */}

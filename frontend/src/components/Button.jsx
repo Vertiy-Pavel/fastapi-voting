@@ -76,7 +76,7 @@ export const ToggleButton = ({onClick, children, className, ...props}) => {
     return (
         <button
             onClick={onClick}
-            className={`cursor-pointer px-3 py-2 text-sm md:text-base flex items-center justify-center gap-2 whitespace-nowrap rounded-lg transition-colors duration-200 ${className}`}
+            className={`cursor-pointer px-3 py-2 text-sm md:text-base flex items-center justify-center gap-2 whitespace-nowrap rounded-xl transition-colors duration-200 ${className}`}
             {...props}
         >
             {children}
